@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getCurrentUser } from '@/lib/auth/session';
 import { homeFor } from '@/lib/auth/roles';
 import { ChangePasswordForm } from './change-password-form';
+import { Brand, PageTransition } from '@/components/motion';
 
 export const metadata: Metadata = { title: 'تغيير كلمة المرور' };
 
@@ -15,8 +16,11 @@ export default async function ChangePasswordPage() {
 
   return (
     <main className="flex min-h-dvh items-start justify-center px-5 py-12 sm:items-center">
-      <div className="w-full max-w-sm">
-        <p className="font-display text-2xl font-bold text-board">مِرقاة</p>
+      <PageTransition>
+      <div className="w-full max-w-sm animate-fade-up">
+        <Brand>
+          <p className="w-fit font-display text-2xl font-bold text-board">مِرقاة</p>
+        </Brand>
         <h1 className="mt-6 text-[1.75rem] font-bold leading-tight">
           {forced ? 'اختر كلمة مرور جديدة' : 'تغيير كلمة المرور'}
         </h1>
@@ -41,6 +45,7 @@ export default async function ChangePasswordPage() {
           </form>
         </div>
       </div>
+      </PageTransition>
     </main>
   );
 }

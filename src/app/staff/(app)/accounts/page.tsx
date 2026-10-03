@@ -117,7 +117,7 @@ export default async function AccountsPage({
               {rows.map((r) => {
                 const owner = r.employee ?? r.student;
                 return (
-                  <tr key={r.id} className="align-top">
+                  <tr key={r.id} className="align-top transition-colors duration-200 hover:bg-paper/60">
                     <td className="px-4 py-3">
                       <div className="font-medium">{owner?.name_ar ?? '—'}</div>
                       <div className="text-xs text-muted"><bdi>{owner?.code}</bdi></div>

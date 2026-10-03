@@ -1,5 +1,6 @@
 import { AppHeader, type NavItem } from '@/components/app-header';
 import { requireUser } from '@/lib/auth/session';
+import { PageTransition } from '@/components/motion';
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser(['admin', 'teacher']);
@@ -9,7 +10,11 @@ export default async function StaffLayout({ children }: { children: React.ReactN
   return (
     <>
       <AppHeader home="/staff" nav={nav} displayName={user.displayName} role={user.role} />
-      <main className="mx-auto max-w-6xl px-5 py-8">{children}</main>
+      <main className="mx-auto max-w-6xl px-5 py-8">
+        <PageTransition>
+          <div className="animate-fade-up">{children}</div>
+        </PageTransition>
+      </main>
     </>
   );
 }

@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { LOGIN_PATH, type Portal } from '@/lib/auth/portal';
 import { BoardPanel } from '@/components/board-panel';
 import { LoginForm } from '@/components/login-form';
+import { PageTransition } from '@/components/motion';
 
 const NOTICES: Record<string, { tone: 'ok' | 'danger'; text: string }> = {
   disabled: { tone: 'danger', text: 'هذا الحساب موقوف. راجع إدارة المدرسة.' },
@@ -35,7 +36,8 @@ export async function LoginScreen({ portal, reason }: { portal: Portal; reason?:
       <BoardPanel schoolName={schoolName} portal={copy.portal} />
 
       <section className="flex items-start justify-center px-5 py-10 sm:items-center sm:px-10">
-        <div className="w-full max-w-sm">
+        <PageTransition>
+        <div className="w-full max-w-sm animate-fade-up [animation-delay:250ms]">
           <h1 className="text-[1.75rem] font-bold leading-tight text-ink">تسجيل الدخول</h1>
           <p className="mt-2 text-muted">{copy.lead}</p>
 
@@ -43,7 +45,7 @@ export async function LoginScreen({ portal, reason }: { portal: Portal; reason?:
             <p
               role="status"
               className={
-                'mt-6 rounded-md px-3 py-2.5 text-sm ' +
+                'mt-6 animate-pop rounded-md px-3 py-2.5 text-sm ' +
                 (notice.tone === 'ok' ? 'bg-ok-soft text-ok' : 'bg-danger-soft text-danger')
               }
             >
@@ -62,6 +64,7 @@ export async function LoginScreen({ portal, reason }: { portal: Portal; reason?:
             </a>
           </p>
         </div>
+        </PageTransition>
       </section>
     </main>
   );

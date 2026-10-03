@@ -9,7 +9,7 @@ export function IssuedPasswordCard({ issued }: { issued: IssuedPassword }) {
   const text = `اسم المستخدم: ${issued.username}\nكلمة المرور: ${issued.password}`;
 
   return (
-    <div role="status" className="rounded-lg border border-brass/50 bg-brass-soft p-4">
+    <div role="status" className="animate-pop rounded-lg border border-brass/50 bg-brass-soft p-4">
       <p className="font-semibold">{issued.displayName}</p>
       <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
         <dt className="text-muted">اسم المستخدم</dt>

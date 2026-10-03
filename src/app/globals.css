@@ -30,11 +30,48 @@
   --color-danger-soft: #fbe9e7;
   --color-ok: #11734b;
   --color-ok-soft: #dcefe4;
+
+  /* الحركة: منحنى واحد لكل الموقع — انطلاق سريع وهبوط ناعم */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-rise: rise 0.9s var(--ease-out-soft) both;
+  --animate-fade-up: fade-up 0.6s var(--ease-out-soft) both;
+  --animate-pop: pop 0.35s var(--ease-out-soft) both;
+  --animate-nudge: nudge 0.4s var(--ease-out-soft) both;
+  --animate-menu: menu 0.18s var(--ease-out-soft) both;
+
+  /* الدرج يصعد من الأرض درجةً بعد درجة */
+  @keyframes rise {
+    from { transform: scaleY(0); }
+    to { transform: scaleY(1); }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  /* رسالة الخطأ: هزّة أفقية خفيفة تلفت النظر دون إزعاج */
+  @keyframes nudge {
+    0% { opacity: 0; transform: translateX(0); }
+    30% { opacity: 1; transform: translateX(-6px); }
+    60% { transform: translateX(4px); }
+    100% { transform: none; }
+  }
+  @keyframes menu {
+    from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
 }
 
 html {
   background: var(--color-paper);
   color: var(--color-ink);
+  scroll-behavior: smooth;
 }
 
 body {
@@ -58,7 +95,8 @@ body {
 /* حقول الإدخال والأزرار — نمط واحد لكل الموقع */
 @utility field {
   @apply block w-full rounded-md border border-line bg-surface px-3 py-2.5 text-base text-ink
-    placeholder:text-muted/70 transition-colors
+    placeholder:text-muted/70 transition-[border-color,box-shadow,background-color] duration-200 ease-out-soft
+    hover:border-muted/50
     focus:border-board focus:outline-none focus:ring-2 focus:ring-gold/40
     disabled:opacity-60;
 }
@@ -67,14 +105,50 @@ body {
 }
 @utility btn {
   @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold
-    transition-colors disabled:cursor-not-allowed disabled:opacity-60;
+    transition-[background-color,border-color,color,transform,box-shadow] duration-200 ease-out-soft
+    active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
 }
 @utility btn-primary {
-  @apply btn bg-board text-chalk hover:bg-board-deep;
+  @apply btn bg-board text-chalk shadow-[0_1px_0_rgb(0_0_0/0.08)] hover:bg-board-deep hover:shadow-[0_6px_18px_-8px_rgb(53_104_84/0.7)];
 }
 @utility btn-quiet {
   @apply btn border border-line bg-surface text-ink hover:border-muted;
 }
 @utility btn-danger {
   @apply btn border border-danger/40 bg-surface text-danger hover:bg-danger-soft;
+}
+
+/* مؤشر انتظار داخل الأزرار */
+@utility spinner {
+  @apply inline-block size-4 rounded-full border-2 border-current border-e-transparent;
+  animation: spin 0.7s linear infinite;
+}
+
+/* ---------------------------------------------------------------------
+   انتقالات الصفحات (View Transitions — يتجاهلها المتصفح غير الداعم بلا ضرر)
+   اسم المنصة يتنقّل بين مواضعه، والمحتوى يتلاشى خارجًا ويصعد داخلًا.
+--------------------------------------------------------------------- */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: var(--ease-out-soft);
+}
+::view-transition-old(.page-out) {
+  animation: 140ms ease-in both page-fade reverse;
+}
+::view-transition-new(.page-in) {
+  animation: 260ms var(--ease-out-soft) 100ms both page-fade, 420ms var(--ease-out-soft) both page-slide;
+}
+@keyframes page-fade {
+  from { opacity: 0; filter: blur(2px); }
+  to { opacity: 1; filter: none; }
+}
+@keyframes page-slide {
+  from { transform: translateY(12px); }
+  to { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
+    animation: none !important;
+  }
 }
