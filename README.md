@@ -1,4 +1,35 @@
-# مِرقاة — قاعدة البيانات (Supabase / PostgreSQL)
+# مِرقاة
+
+موقع واحد (Next.js على Vercel) للموظفين والطلاب، وقاعدة واحدة (Supabase / PostgreSQL) بديلة Google Sheets.
+
+## الموقع
+
+| المسار | الصفحة |
+|---|---|
+| `/` | اختيار البوابة |
+| `/login` | بوابة الموظفين (لا تقبل حساب طالب) |
+| `/student/login` | بوابة الطالب (لا تقبل حساب موظف) |
+| `/change-password` | تغيير كلمة المرور — إلزامي عند أول دخول |
+| `/staff` | رئيسية المعلم (نطاقه) والإداري (ملخص) |
+| `/staff/accounts` | الحسابات — للإداري فقط |
+| `/student` | رئيسية الطالب |
+
+**التشغيل المحلي:** `npm install` ← انسخ `.env.example` إلى `.env.local` واملأه ← `npm run dev`.
+
+**إنشاء الحسابات الـ46 القديمة (مرة واحدة من جهازك):**
+
+```bash
+npm run provision:legacy              # معاينة: من سيُنشأ، وأي مشكلة
+npm run provision:legacy -- --apply   # الإنشاء، وكلمات المرور في secrets/ (لا تُرفع)
+```
+
+**قبل أول نشر:** Supabase ← Authentication ← Sign In / Providers ← أطفئ **Allow new users to sign up**
+(الحسابات يُنشئها الخادم وحده).
+
+**الأمان:** المفتاح السري يُقرأ في `src/lib/supabase/admin.ts` وحده (`server-only` يمنع وصوله للمتصفح).
+الصلاحيات تُفرض في RLS، و`proxy.ts` للتوجيه فقط، وكل صفحة تتحقق من الحساب في القاعدة (`requireUser`).
+
+# قاعدة البيانات
 
 مخطط قاعدة البيانات الموحّدة لموقعي مِرقاة (الموظفين + بوابة الطالب)، بديل Google Sheets.
 
@@ -17,8 +48,11 @@ supabase/
     ..._security.sql                RLS على كل جدول
     ..._core_functions.sql          تسليم النموذج، المراجعة، تسوية الغياب، إعادة الفتح
     ..._migration_support.sql       الحجر وسجل النقل
+    ..._grants.sql                  الصلاحيات الصريحة
+    ..._migration_adjustments.sql   تعديلات النقل
+    ..._auth_accounts.sql           الدخول بالبوابتين وإنشاء الحسابات (للخادم وحده)
   optional/pg_cron_schedule.sql    جدولة تسوية الغياب كل 5 دقائق (بعد تفعيل pg_cron)
-tests/                             اختبارات محلية (64 اختبارًا)
+tests/                             اختبارات محلية
 run_tests.sh
 ```
 
