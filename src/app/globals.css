@@ -40,6 +40,17 @@
   --animate-menu: menu 0.18s var(--ease-out-soft) both;
   --animate-float: float 6s ease-in-out infinite;
   --animate-grow: grow 0.9s var(--ease-out-soft) 0.15s both;
+  --animate-toast-in: toast-in 0.35s var(--ease-out-soft) both;
+  --animate-toast-out: toast-out 0.3s ease-in both;
+  --animate-fade-in: fade-in 0.2s ease-out both;
+  --animate-fade-out: fade-out 0.16s ease-in both;
+  --animate-sheet-in: sheet-in 0.32s var(--ease-out-soft) both;
+  --animate-sheet-out: sheet-out 0.16s ease-in both;
+  --animate-shimmer: shimmer 1.4s ease-in-out infinite;
+  --animate-progress: progress 2.5s cubic-bezier(0.1, 0.7, 0.3, 1) both;
+  --animate-row: row-in 0.35s var(--ease-out-soft) both;
+  --animate-panel-in: panel-in 0.38s var(--ease-out-soft) both;
+  --animate-panel-out: panel-out 0.2s ease-in both;
   --animate-shake: shake 0.45s var(--ease-out-soft) both;
   --animate-sheen: sheen 1.1s ease-in-out infinite;
   --animate-draw: draw 0.45s var(--ease-out-soft) 0.1s forwards;
@@ -100,6 +111,45 @@
   @keyframes grow {
     from { transform: scaleX(0); }
     to { transform: scaleX(1); }
+  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes toast-out {
+    to { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  }
+  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+  /* بطاقة التأكيد: تصعد من الأسفل على الجوال، وتبرز في الوسط على الحاسوب */
+  @keyframes sheet-in {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes sheet-out {
+    to { opacity: 0; transform: translateY(12px) scale(0.98); }
+  }
+  /* الهيكل العظمي أثناء التحميل: موجة ضوء تعبر الكتل */
+  @keyframes shimmer {
+    from { background-position: 150% 0; }
+    to { background-position: -50% 0; }
+  }
+  /* شريط التنقل يتقدم بسرعة ثم يتباطأ قرب النهاية حتى تصل الصفحة */
+  @keyframes progress {
+    from { width: 0; }
+    to { width: 92%; }
+  }
+  @keyframes row-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  /* اللوحة الجانبية للنماذج: تنزلق من الطرف الأيسر (نهاية السطر) */
+  @keyframes panel-in {
+    from { opacity: 0.4; transform: translateX(-100%); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes panel-out {
+    to { opacity: 0.4; transform: translateX(-100%); }
   }
   @keyframes spin {
     to { transform: rotate(360deg); }
@@ -222,4 +272,11 @@ body {
 @keyframes portal-enter {
   from { opacity: 0; transform: translateX(22px); filter: blur(2px); }
   to { opacity: 1; transform: none; filter: none; }
+}
+
+/* كتلة هيكل عظمي (skeleton) */
+@utility skeleton {
+  border-radius: 0.6rem;
+  background: linear-gradient(90deg, #e9eeeb 25%, #f4f7f5 45%, #e9eeeb 65%) 0 0 / 300% 100%;
+  animation: var(--animate-shimmer);
 }

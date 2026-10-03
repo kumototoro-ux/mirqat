@@ -13,7 +13,7 @@ export function PageHeader({
   eyebrow?: string;
 }) {
   return (
-    <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
+    <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {eyebrow && <p className="mb-1 text-sm font-medium text-board">{eyebrow}</p>}
         <h1 className="text-[1.65rem] font-bold leading-tight">{title}</h1>
@@ -141,7 +141,7 @@ export function FilterBar({ children }: { children: React.ReactNode }) {
   return (
     <form className="mb-5 flex flex-wrap items-end gap-2 rounded-2xl border border-line bg-surface p-3" role="search">
       {children}
-      <button type="submit" className="btn-primary py-2">عرض</button>
+      <button type="submit" className="btn-primary py-2 max-sm:w-full">عرض</button>
     </form>
   );
 }
@@ -162,7 +162,7 @@ export function Select({
   className?: string;
 }) {
   return (
-    <label className={`flex flex-col gap-1 ${className}`}>
+    <label className={`flex flex-col gap-1 max-sm:w-full ${className}`}>
       <span className="text-xs font-medium text-muted">{label}</span>
       <select name={name} defaultValue={value ?? ''} className="field py-2">
         {placeholder !== undefined && <option value="">{placeholder}</option>}
@@ -178,7 +178,7 @@ export function Select({
 
 export function SearchInput({ name = 'q', value, placeholder, className = 'w-60' }: { name?: string; value?: string; placeholder: string; className?: string }) {
   return (
-    <label className={`flex flex-col gap-1 ${className}`}>
+    <label className={`flex flex-col gap-1 max-sm:w-full ${className}`}>
       <span className="text-xs font-medium text-muted">بحث</span>
       <input name={name} defaultValue={value} placeholder={placeholder} className="field py-2" />
     </label>

@@ -33,9 +33,10 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: 'المستخدمون',
     items: [
-      { href: '/staff/students', label: 'الطلاب', icon: 'students', roles: ['admin'] },
-      { href: '/staff/employees', label: 'الموظفون', icon: 'employees', roles: ['admin'] },
-      { href: '/staff/accounts', label: 'الحسابات', icon: 'accounts', roles: ['admin'] },
+      { href: '/staff/students', label: 'تسجيل الطلاب', icon: 'students', roles: ['admin'] },
+      { href: '/staff/employees', label: 'تسجيل الموظفين', icon: 'employees', roles: ['admin'] },
+      { href: '/staff/student-accounts', label: 'حسابات الطلاب', icon: 'accounts', roles: ['admin'] },
+      { href: '/staff/employee-accounts', label: 'حسابات الموظفين', icon: 'key', roles: ['admin'] },
     ],
   },
   {
@@ -64,4 +65,28 @@ export function navFor(groups: NavGroup[], role: AppRole): NavGroup[] {
   return groups
     .map((g) => ({ ...g, items: g.items.filter((i) => !i.roles || i.roles.includes(role)) }))
     .filter((g) => g.items.length > 0);
+}
+
+/** شريط الجوال السفلي: أهم أربعة أقسام لكل دور، والباقي في "المزيد" */
+export function tabsFor(role: AppRole): NavLink[] {
+  if (role === 'student')
+    return [
+      { href: '/student', label: 'الرئيسية', icon: 'home' },
+      { href: '/student/timetable', label: 'جدولي', icon: 'timetable' },
+      { href: '/student/tasks', label: 'مهامي', icon: 'tasks' },
+      { href: '/student/results', label: 'نتائجي', icon: 'results' },
+    ];
+  if (role === 'admin')
+    return [
+      { href: '/staff', label: 'الرئيسية', icon: 'home' },
+      { href: '/staff/students', label: 'الطلاب', icon: 'students' },
+      { href: '/staff/tasks', label: 'المهام', icon: 'tasks' },
+      { href: '/staff/timetable', label: 'الجدول', icon: 'timetable' },
+    ];
+  return [
+    { href: '/staff', label: 'الرئيسية', icon: 'home' },
+    { href: '/staff/timetable', label: 'جدولي', icon: 'timetable' },
+    { href: '/staff/tasks', label: 'المهام', icon: 'tasks' },
+    { href: '/staff/forms', label: 'النماذج', icon: 'forms' },
+  ];
 }
