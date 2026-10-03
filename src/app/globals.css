@@ -39,6 +39,10 @@
   --animate-nudge: nudge 0.4s var(--ease-out-soft) both;
   --animate-menu: menu 0.18s var(--ease-out-soft) both;
   --animate-float: float 6s ease-in-out infinite;
+  --animate-shake: shake 0.45s var(--ease-out-soft) both;
+  --animate-sheen: sheen 1.1s ease-in-out infinite;
+  --animate-draw: draw 0.45s var(--ease-out-soft) 0.1s forwards;
+  --animate-wipe: wipe 0.6s cubic-bezier(0.65, 0, 0.35, 1) both;
 
   /* الدرج يصعد من الأرض درجةً بعد درجة */
   @keyframes rise {
@@ -68,6 +72,28 @@
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-9px); }
+  }
+  /* البطاقة كلها تهتز عند الخطأ */
+  @keyframes shake {
+    0%, 100% { transform: none; }
+    20% { transform: translateX(-9px); }
+    40% { transform: translateX(7px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(2px); }
+  }
+  /* لمعة تعبر زر الدخول أثناء التحقق */
+  @keyframes sheen {
+    from { inset-inline-start: -35%; }
+    to { inset-inline-start: 105%; }
+  }
+  /* علامة الصح ترتسم */
+  @keyframes draw {
+    to { stroke-dashoffset: 0; }
+  }
+  /* دائرة تتسع من زر الدخول حتى تغطي الشاشة */
+  @keyframes wipe {
+    from { clip-path: circle(0 at var(--wx, 50%) var(--wy, 50%)); }
+    to { clip-path: circle(150vmax at var(--wx, 50%) var(--wy, 50%)); }
   }
   @keyframes spin {
     to { transform: rotate(360deg); }

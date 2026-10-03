@@ -45,5 +45,7 @@ export async function changePassword(_prev: ChangePasswordState, formData: FormD
     return { error: 'حُفظت كلمة المرور، لكن تعذّر إكمال الإعداد. أعد المحاولة بنفس الكلمة' };
   }
 
+  // كل الجلسات الأخرى (أجهزة أخرى قد تكون عرفت الكلمة المؤقتة) تُنهى فورًا
+  await supabase.auth.signOut({ scope: 'others' });
   redirect(homeFor(user.role));
 }
