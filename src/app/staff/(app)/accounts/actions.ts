@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { requireUser } from '@/lib/auth/session';
-import { createAccount, resetPassword, setStatus } from '@/lib/accounts/core';
+import { createAccount, provisionLegacy, resetPassword, setStatus } from '@/lib/accounts/core';
 import { isRole } from '@/lib/auth/roles';
 
 export type IssuedPassword = { username: string; displayName: string; password: string };
@@ -84,5 +84,37 @@ export async function setStatusAction(_prev: StatusActionState, formData: FormDa
     return { error: null };
   } catch (e) {
     return { error: friendly(e) };
+  }
+}
+
+export type LegacyIssued = { code: string; name: string | null; username: string; password: string; role: string; status: string };
+export type LegacyActionState = {
+  error: string | null;
+  created: LegacyIssued[];
+  failed: { code: string; username: string; problem: string }[];
+};
+
+/**
+ * إنشاء كل الحسابات القديمة المتبقية (Users + Students_Users) دفعة واحدة.
+ * آمن للتكرار: ما أُنشئ له حساب لا يُنشأ مرة ثانية.
+ * كلمات المرور تُعاد هنا لتُعرض للإداري مرة واحدة — لا تُحفظ في أي مكان.
+ */
+export async function provisionLegacyAction(): Promise<LegacyActionState> {
+  await requireUser(['admin']);
+  try {
+    const results = await provisionLegacy(createAdminClient());
+    revalidatePath('/staff/accounts');
+    const ROLE = { admin: 'إداري', teacher: 'معلم', student: 'طالب' } as const;
+    return {
+      error: null,
+      created: results.flatMap((r) =>
+        r.ok
+          ? [{ code: r.code, name: r.name, username: r.username, password: r.password, role: ROLE[r.role], status: r.status === 'active' ? 'نشط' : 'موقوف' }]
+          : [],
+      ),
+      failed: results.flatMap((r) => (r.ok ? [] : [{ code: r.code, username: r.username, problem: friendly(r.problem) }])),
+    };
+  } catch (e) {
+    return { error: friendly(e), created: [], failed: [] };
   }
 }

@@ -4,8 +4,27 @@ import { createClient } from '@/lib/supabase/server';
 import { ROLE_LABEL, STATUS_LABEL, isRole, type AccountStatus, type AppRole } from '@/lib/auth/roles';
 import { CreateAccountForm } from './create-account-form';
 import { RowActions } from './row-actions';
+import { LegacyAccounts, type LegacyPreview } from './legacy-accounts';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { loadLegacy, planLegacy } from '@/lib/accounts/core';
 
 export const metadata: Metadata = { title: 'الحسابات' };
+// إنشاء الحسابات القديمة دفعة واحدة قد يأخذ عشرات الثواني
+export const maxDuration = 120;
+
+async function legacyPreview(): Promise<LegacyPreview> {
+  try {
+    const plans = (await loadLegacy(createAdminClient())).map(planLegacy);
+    return {
+      pending: plans.filter((p) => p.ok).length,
+      problems: plans.flatMap((p) =>
+        !p.ok && p.problem !== 'أُنشئ له حساب من قبل' ? [{ code: p.row.code, username: p.row.username, problem: p.problem }] : [],
+      ),
+    };
+  } catch {
+    return { pending: 0, problems: [] };
+  }
+}
 
 const PAGE_SIZE = 100;
 
@@ -65,7 +84,7 @@ export default async function AccountsPage({
     query = query.or(filters.join(','));
   }
 
-  const { data, count, error } = await query.returns<AccountRow[]>();
+  const [{ data, count, error }, legacy] = await Promise.all([query.returns<AccountRow[]>(), legacyPreview()]);
   const rows = data ?? [];
 
   return (
@@ -74,6 +93,8 @@ export default async function AccountsPage({
       <p className="mt-1 text-muted">
         حسابات الدخول للموظفين والطلاب. كلمة المرور المؤقتة تظهر مرة واحدة عند الإنشاء أو الإصدار الجديد.
       </p>
+
+      <LegacyAccounts preview={legacy} />
 
       <section aria-labelledby="new-account" className="mt-8 rounded-lg border border-line bg-surface p-5">
         <h2 id="new-account" className="mb-4 text-lg font-semibold">حساب جديد لسجل موجود</h2>
