@@ -38,6 +38,7 @@
   --animate-pop: pop 0.35s var(--ease-out-soft) both;
   --animate-nudge: nudge 0.4s var(--ease-out-soft) both;
   --animate-menu: menu 0.18s var(--ease-out-soft) both;
+  --animate-float: float 6s ease-in-out infinite;
 
   /* الدرج يصعد من الأرض درجةً بعد درجة */
   @keyframes rise {
@@ -62,6 +63,11 @@
   @keyframes menu {
     from { opacity: 0; transform: translateY(-4px) scale(0.98); }
     to { opacity: 1; transform: none; }
+  }
+  /* البطاقات فوق الدرج تطفو بهدوء */
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-9px); }
   }
   @keyframes spin {
     to { transform: rotate(360deg); }
@@ -151,4 +157,37 @@ body {
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* الظهور عند التمرير (components/reveal.tsx) */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease-out-soft), transform 0.8s var(--ease-out-soft);
+}
+.reveal-in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* التنقل بين البوابتين: النموذج ينزلق جانبيًا، والمؤشر ينتقل بين التبويبين */
+::view-transition-old(.portal-out) {
+  animation: 160ms ease-in both portal-leave;
+}
+::view-transition-new(.portal-in) {
+  animation: 380ms var(--ease-out-soft) 80ms both portal-enter;
+}
+::view-transition-group(.pill) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-out-soft);
+}
+@keyframes portal-leave {
+  to { opacity: 0; transform: translateX(-18px); filter: blur(2px); }
+}
+@keyframes portal-enter {
+  from { opacity: 0; transform: translateX(22px); filter: blur(2px); }
+  to { opacity: 1; transform: none; filter: none; }
 }
