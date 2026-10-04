@@ -17,3 +17,12 @@ select test.ok((select report_employees() -> 'totals' ->> 'all')::int = (select 
 select test.ok((select jsonb_array_length(report_accounts() -> 'by_role') = 3), 'تقرير الحسابات بالأدوار الثلاثة');
 select test.ok((select jsonb_array_length(report_accounts() -> 'daily_logins') = 14), 'دخول آخر 14 يومًا');
 select test.logout();
+
+-- تقرير النشاط
+select test.login('00000000-0000-0000-0000-000000000051');
+select test.fails($$select report_activity()$$, 'للإدارة فقط', 'الطالب لا يرى تقرير النشاط');
+select test.logout();
+select test.login('00000000-0000-0000-0000-0000000000a0');
+select test.ok((select (report_activity() -> 'totals' ->> 'week')::int >= 1), 'النشاط الأسبوعي محسوب');
+select test.ok((select jsonb_array_length(report_activity() -> 'daily') = 14), 'النشاط اليومي لأسبوعين');
+select test.logout();
