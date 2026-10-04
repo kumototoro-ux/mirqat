@@ -119,6 +119,7 @@ export function StudentsRegistry({
 
       <Registry<StudentRow>
         ref={registry}
+        key={initialParams.q}
         queryKey="students"
         title="قائمة الطلاب"
         fetchPage={listStudents}

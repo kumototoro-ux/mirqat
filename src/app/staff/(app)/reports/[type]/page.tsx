@@ -6,17 +6,19 @@ import { getSchoolName } from '@/lib/data';
 import { fmtDateTime, fmtHijri } from '@/lib/format';
 import {
   getAccountsReport,
+  getActivityReport,
   getEmployeesReport,
   getStudentsReport,
   monthName,
   type AccountsReport,
+  type ActivityReport,
   type EmployeesReport,
   type StudentsReport,
 } from '@/lib/reports';
 import { LogoMark } from '@/components/home/logo-mark';
 import { GroupedBars, MiniDonut, PrintButton } from '@/components/reports/report-charts';
 
-const TITLES = { students: 'تقرير الطلاب', employees: 'تقرير الموظفين', accounts: 'تقرير الحسابات' } as const;
+const TITLES = { students: 'تقرير الطلاب', employees: 'تقرير الموظفين', accounts: 'تقرير الحسابات', activity: 'تقرير النشاط' } as const;
 type Kind = keyof typeof TITLES;
 
 export async function generateMetadata({ params }: { params: Promise<{ type: string }> }): Promise<Metadata> {
@@ -105,9 +107,9 @@ export default async function ReportPage({ params }: { params: Promise<{ type: s
   const kind = type as Kind;
   const [school, data] = await Promise.all([
     getSchoolName(),
-    kind === 'students' ? getStudentsReport() : kind === 'employees' ? getEmployeesReport() : getAccountsReport(),
+    kind === 'students' ? getStudentsReport() : kind === 'employees' ? getEmployeesReport() : kind === 'activity' ? getActivityReport() : getAccountsReport(),
   ]);
-  const back = kind === 'students' ? '/staff/students' : kind === 'employees' ? '/staff/employees' : '/staff/student-accounts';
+  const back = { students: '/staff/students', employees: '/staff/employees', accounts: '/staff/student-accounts', activity: '/staff/audit' }[kind];
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -143,6 +145,7 @@ export default async function ReportPage({ params }: { params: Promise<{ type: s
         {kind === 'students' && <Students r={data as StudentsReport} />}
         {kind === 'employees' && <Employees r={data as EmployeesReport} />}
         {kind === 'accounts' && <Accounts r={data as AccountsReport} />}
+        {kind === 'activity' && <Activity r={data as ActivityReport} />}
 
         <footer className="border-t border-line bg-paper/60 px-6 py-4 text-center text-xs text-muted sm:px-10">
           تقرير آلي من منصة مِرقاة — الأرقام محسوبة لحظة إنشائه من قاعدة البيانات مباشرة.
@@ -389,6 +392,82 @@ function Accounts({ r }: { r: AccountsReport }) {
           data={r.daily_logins.map((d) => ({ label: d.day.slice(5).replace('-', '/'), count: d.count }))}
           series={[{ key: 'count', label: 'مستخدمون', color: '#356854' }]}
         />
+      </Section>
+    </>
+  );
+}
+
+/* ---------------------------------------------------------------------
+   تقرير النشاط
+--------------------------------------------------------------------- */
+const SECTION_NAMES: Record<string, string> = {
+  students: 'الطلاب', employees: 'الموظفون', profiles: 'الحسابات', assessments: 'المهام والنماذج', grade_entries: 'الرصد',
+  attendance_records: 'التحضير', behavior_records: 'السلوك', staff_scope: 'نطاقات المعلمين', timetable_slots: 'جدول الحصص',
+  exam_schedule: 'الاختبارات', calendar_entries: 'التقويم', app_settings: 'الإعدادات', content_items: 'المحتوى',
+};
+
+function Activity({ r }: { r: ActivityReport }) {
+  const t = r.totals;
+  const top = r.top_actors[0];
+  const busiest = [...r.daily].sort((a, b) => b.changes - a.changes)[0];
+  const findings = [
+    `سُجّلت ${t.week} حركة خلال آخر 7 أيام مقابل ${t.prev_week} في الأسبوع الذي قبله.`,
+    `${t.actors_week} مستخدمًا قاموا بعمليات هذا الأسبوع، و${t.logins_week} عملية دخول للموظفين.`,
+    top ? `الأكثر نشاطًا: ${top.name} بـ ${top.count} حركة.` : 'لا نشاط مسجّل هذا الأسبوع.',
+    t.deletes_week ? `${t.deletes_week} عملية حذف هذا الأسبوع — راجعها من سجل النشاط.` : 'لا عمليات حذف هذا الأسبوع.',
+  ];
+  if (busiest?.changes) findings.push(`أكثر الأيام نشاطًا ${busiest.day} بـ ${busiest.changes} تعديلًا.`);
+  return (
+    <>
+      <div className="px-6 py-7 sm:px-10">
+        <Kpis
+          items={[
+            { label: 'حركات اليوم', value: t.today },
+            { label: 'آخر 7 أيام', value: t.week, sub: <Change now={t.week} before={t.prev_week} /> },
+            { label: 'مستخدمون نشطون', value: t.actors_week },
+            { label: 'عمليات حذف', value: t.deletes_week },
+          ]}
+        />
+        <Findings items={findings} />
+      </div>
+      <Section n={1} title="النشاط اليومي خلال أسبوعين" lead="التعديلات (إضافة وتعديل وحذف) ودخول الموظفين لكل يوم.">
+        <GroupedBars
+          data={r.daily.map((d) => ({ label: d.day.slice(5).replace('-', '/'), changes: d.changes, logins: d.logins }))}
+          series={[
+            { key: 'changes', label: 'تعديلات', color: '#356854' },
+            { key: 'logins', label: 'دخول', color: '#d9a441' },
+          ]}
+        />
+      </Section>
+      <Section n={2} title="الأكثر نشاطًا" lead="آخر 7 أيام.">
+        <div className="overflow-x-auto rounded-xl border border-line">
+          <table className="w-full min-w-[460px] text-sm">
+            <thead className="bg-paper/70"><tr>{['المستخدم', 'الدور', 'الحركات', 'الحصة'].map((h) => <th key={h} className={th}>{h}</th>)}</tr></thead>
+            <tbody className="divide-y divide-line">
+              {r.top_actors.map((a) => (
+                <tr key={a.name}>
+                  <td className="px-3 py-2.5 font-semibold">{a.name}</td>
+                  <td className="px-3 py-2.5 text-muted">{a.role ?? '—'}</td>
+                  <td className={td}>{a.count}</td>
+                  <td className="w-44 px-3 py-2.5"><ShareBar value={a.count} total={t.week} /></td>
+                </tr>
+              ))}
+              {!r.top_actors.length && <tr><td colSpan={4} className="px-3 py-4 text-muted">لا نشاط.</td></tr>}
+            </tbody>
+          </table>
+        </div>
+      </Section>
+      <Section n={3} title="التوزيعات" lead="آخر 7 أيام.">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div>
+            <h3 className="mb-3 text-sm font-semibold">نوع الحركة</h3>
+            <MiniDonut items={r.by_action.map((x) => ({ name: x.name, value: x.count }))} />
+          </div>
+          <div>
+            <h3 className="mb-3 text-sm font-semibold">القسم</h3>
+            <MiniDonut items={r.by_table.slice(0, 7).map((x) => ({ name: SECTION_NAMES[x.name] ?? x.name, value: x.count }))} />
+          </div>
+        </div>
       </Section>
     </>
   );

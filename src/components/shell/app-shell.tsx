@@ -11,6 +11,7 @@ import { LogoMark } from '@/components/home/logo-mark';
 import { SaduPattern } from '@/components/home/sadu-pattern';
 import { FeedbackProvider } from '@/components/feedback';
 import { Providers } from '@/components/providers';
+import { QuickSearch, TodayButton, useHideOnScroll } from './mobile-tools';
 
 type User = { displayName: string; role: AppRole; code: string | null };
 type Props = {
@@ -34,6 +35,7 @@ const EXTRA: { prefix: string; label: string; group?: string }[] = [
   { prefix: '/staff/reports/students', label: 'تقرير الطلاب', group: 'التقارير' },
   { prefix: '/staff/reports/employees', label: 'تقرير الموظفين', group: 'التقارير' },
   { prefix: '/staff/reports/accounts', label: 'تقرير الحسابات', group: 'التقارير' },
+  { prefix: '/staff/reports/activity', label: 'تقرير النشاط', group: 'التقارير' },
   { prefix: '/staff/password', label: 'تغيير كلمة المرور', group: 'حسابي' },
   { prefix: '/student/password', label: 'تغيير كلمة المرور', group: 'حسابي' },
 ];
@@ -271,6 +273,7 @@ function ShellInner(props: Props) {
   const current = findCurrent(props.nav, path, props.home);
   const tabs = tabsFor(props.user.role);
   const onTab = tabs.some((t) => isActive(path, t.href, props.home));
+  const { hidden, scrolled } = useHideOnScroll();
 
   const toggle = () => {
     setCollapsed((c) => {
@@ -310,12 +313,17 @@ function ShellInner(props: Props) {
 
           <div className="flex min-w-0 flex-col">
             {/* الشريط العلوي */}
-            <header className="sticky top-0 z-30 border-b border-line/70 print:hidden bg-paper/75 backdrop-blur-xl backdrop-saturate-150">
-              <div className="mx-auto flex h-[4.25rem] max-w-[90rem] items-center gap-3 px-4 sm:px-8">
+            <header
+              className={`sticky top-0 z-30 border-b bg-paper/80 backdrop-blur-xl backdrop-saturate-150 transition-[transform,box-shadow,border-color] duration-300 ease-out-soft print:hidden ${
+                hidden ? '-translate-y-full' : 'translate-y-0'
+              } ${scrolled ? 'border-line/70 shadow-[0_10px_30px_-22px_rgb(31_42_36/0.5)]' : 'border-transparent lg:border-line/70'}`}
+            >
+              <div className="mx-auto flex h-16 max-w-[90rem] items-center gap-2.5 px-4 pt-[env(safe-area-inset-top)] sm:px-8 lg:h-[4.25rem] lg:gap-3">
                 <NavLink href={props.home} className="grid size-10 shrink-0 place-items-center rounded-xl bg-board lg:hidden" aria-label="الرئيسية">
                   <LogoMark className="h-5 w-6" tone="light" />
                 </NavLink>
                 <div className="min-w-0 flex-1">
+                  {current?.group && <p className="truncate text-[0.7rem] font-medium text-muted sm:hidden">{current.group}</p>}
                   <nav aria-label="مسار الصفحة" className="hidden items-center gap-1.5 text-xs text-muted sm:flex">
                     <NavLink href={props.home} className="transition-colors hover:text-board">الرئيسية</NavLink>
                     {current?.group && (<><Icon name="chevron" className="size-3" /><span>{current.group}</span></>)}
@@ -342,8 +350,13 @@ function ShellInner(props: Props) {
                   <span className="text-xs text-muted/80">· {props.today.hijri}</span>
                 </span>
 
+                <div className="flex items-center gap-2 lg:hidden">
+                  {props.user.role === 'admin' && <QuickSearch />}
+                  <TodayButton today={props.today} week={props.week} />
+                </div>
+
                 {props.user.role === 'admin' && (
-                  <form action="/staff/students" className="relative hidden md:block" role="search">
+                  <form action="/staff/students" className="relative hidden lg:block" role="search">
                     <Icon name="search" className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted" />
                     <input
                       name="q"

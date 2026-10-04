@@ -1,128 +1,103 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
-import { Badge, Card, PageHeader, PreviewNote } from '@/components/ui';
-import { fmtNum } from '@/lib/format';
+import { getTerms } from '@/lib/data';
+import { SECTIONS, SettingsNav } from '@/components/settings/settings-nav';
+import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, WeightsEditor } from '@/components/settings/editors';
+import type { RefTable } from '@/lib/settings/actions';
 
 export const metadata: Metadata = { title: 'الإعدادات العامة' };
 
-const SETTING_LABELS: Record<string, string> = {
-  school_name: 'اسم المدرسة',
-  school_logo_url: 'رابط شعار المدرسة',
-  results_visible_grades: 'الصفوف التي تظهر لها النتائج',
-  weekly_grades_visibility: 'إظهار الدرجات الأسبوعية',
-  show_exam_schedule: 'إظهار جدول الاختبارات',
-  calendar_visibility: 'إظهار التقويم',
-  exam_visibility: 'إظهار الاختبارات',
-  announcements: 'إعلانات الصفحة الرئيسية',
+const REF: Record<string, { table: RefTable; title: string; description: string; hasActive?: boolean }> = {
+  branches: { table: 'branches', title: 'الفروع', description: 'الفرع المعطّل يختفي من نماذج التسجيل الجديدة، ويبقى طلابه ومعلموه كما هم.', hasActive: true },
+  stages: { table: 'stages', title: 'المراحل الدراسية', description: 'مثل: المتوسطة، الثانوية. ترتيبها هنا هو ترتيبها في كل القوائم.' },
+  grades: { table: 'grades', title: 'الصفوف', description: 'كل صف ينتمي إلى مرحلة. لا يتكرر اسم الصف داخل المرحلة الواحدة.' },
+  sections: { table: 'sections', title: 'الشعب', description: 'أسماء الشعب المستخدمة في كل الفروع.' },
+  subjects: { table: 'subjects', title: 'المواد', description: 'المادة المعطّلة تختفي من نماذج التسجيل والتوزيع الجديدة، وتبقى درجاتها السابقة.', hasActive: true },
+  attendance: { table: 'attendance_statuses', title: 'حالات الحضور', description: 'تظهر للمعلم عند تحضير كل حصة.' },
+  behavior: { table: 'behavior_statuses', title: 'حالات السلوك', description: 'تظهر عند تسجيل ملاحظة سلوكية.' },
 };
 
-function show(v: unknown): string {
-  if (v == null || v === '') return '—';
-  if (Array.isArray(v)) return v.length ? v.map((x) => (typeof x === 'object' ? JSON.stringify(x) : String(x))).join('، ') : '—';
-  if (typeof v === 'object') return JSON.stringify(v);
-  return String(v);
-}
+const asArray = (v: unknown) => (Array.isArray(v) ? v.map(String) : typeof v === 'string' && v ? [v] : []);
 
-export default async function SettingsPage() {
+export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ s?: string }> }) {
   await requireUser(['admin']);
-  const supabase = await createClient();
-  const [settings, branches, stages, grades, sections, subjects, evalTypes, weights, attStatuses, behStatuses, matrix] = await Promise.all([
-    supabase.from('app_settings').select('key, value, is_public').order('key'),
-    supabase.from('branches').select('id, name, is_active').order('sort_order'),
-    supabase.from('stages').select('id, name').order('sort_order'),
-    supabase.from('grades').select('id, name, stage:stages(name)').order('sort_order').returns<{ id: number; name: string; stage: { name: string } | null }[]>(),
-    supabase.from('sections').select('id, name').order('sort_order'),
-    supabase.from('subjects').select('id, name, is_active').order('sort_order'),
-    supabase.from('eval_types').select('id, name, category').order('sort_order'),
-    supabase.from('grade_weights').select('weight, subject:subjects(name), eval_type:eval_types(name)').returns<{ weight: number; subject: { name: string } | null; eval_type: { name: string } | null }[]>(),
-    supabase.from('attendance_statuses').select('id, name').order('sort_order'),
-    supabase.from('behavior_statuses').select('id, name').order('sort_order'),
-    supabase.from('subject_matrix').select('id', { count: 'exact', head: true }),
-  ]);
-
-  const lists: { title: string; items: { key: string | number; label: string; muted?: boolean }[] }[] = [
-    { title: 'الفروع', items: (branches.data ?? []).map((b) => ({ key: b.id, label: b.name, muted: !b.is_active })) },
-    { title: 'المراحل', items: (stages.data ?? []).map((s) => ({ key: s.id, label: s.name })) },
-    { title: 'الصفوف', items: (grades.data ?? []).map((g) => ({ key: g.id, label: `${g.name}${g.stage ? ' ' + g.stage.name : ''}` })) },
-    { title: 'الشعب', items: (sections.data ?? []).map((s) => ({ key: s.id, label: s.name })) },
-    { title: 'المواد', items: (subjects.data ?? []).map((s) => ({ key: s.id, label: s.name, muted: !s.is_active })) },
-    { title: 'أنواع التقييم', items: (evalTypes.data ?? []).map((e) => ({ key: e.id, label: `${e.name}${e.category === 'exam' ? ' (اختبار)' : ''}` })) },
-    { title: 'حالات الحضور', items: (attStatuses.data ?? []).map((s) => ({ key: s.id, label: s.name })) },
-    { title: 'حالات السلوك', items: (behStatuses.data ?? []).map((s) => ({ key: s.id, label: s.name })) },
-  ];
-
-  const bySubject = new Map<string, { type: string; w: number }[]>();
-  (weights.data ?? []).forEach((w) => {
-    const k = w.subject?.name ?? '—';
-    bySubject.set(k, [...(bySubject.get(k) ?? []), { type: w.eval_type?.name ?? '—', w: Number(w.weight) }]);
-  });
+  const { s = 'general' } = await searchParams;
+  const section = SECTIONS.flatMap((g) => g.items).find((i) => i.key === s) ?? SECTIONS[0].items[0];
+  const group = SECTIONS.find((g) => g.items.some((i) => i.key === section.key))?.group;
 
   return (
-    <>
-      <PageHeader title="الإعدادات العامة" lead="القوائم المرجعية وإعدادات النظام كما نُقلت من الشيت." />
-      <PreviewNote>للعرض الآن. التعديل من هنا يأتي مع شاشات الإعدادات.</PreviewNote>
-      <div className="space-y-6">
-        <Card title="إعدادات النظام" pad={false}>
-          <dl className="divide-y divide-line">
-            {(settings.data ?? []).map((s) => (
-              <div key={s.key} className="grid gap-1 px-5 py-3 sm:grid-cols-[16rem_1fr] sm:gap-4">
-                <dt className="text-sm">
-                  <span className="font-medium">{SETTING_LABELS[s.key] ?? s.key}</span>
-                  {s.is_public && <span className="ms-2"><Badge tone="board">عام</Badge></span>}
-                </dt>
-                <dd className="break-words text-sm text-muted">{show(s.value)}</dd>
-              </div>
-            ))}
-          </dl>
-        </Card>
-
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {lists.map((l) => (
-            <Card key={l.title} title={<>{l.title} <span className="text-sm font-normal text-muted">({fmtNum(l.items.length)})</span></>}>
-              {l.items.length ? (
-                <ul className="flex flex-wrap gap-1.5">
-                  {l.items.map((i) => (
-                    <li key={i.key}><Badge tone={i.muted ? 'neutral' : 'board'}>{i.label}{i.muted ? ' (معطّل)' : ''}</Badge></li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="text-sm text-muted">فارغة</p>
-              )}
-            </Card>
-          ))}
+    <div className="grid gap-6 lg:grid-cols-[14.5rem_minmax(0,1fr)] lg:gap-10">
+      <aside>
+        <Suspense>
+          <SettingsNav />
+        </Suspense>
+      </aside>
+      <div className="min-w-0 max-w-3xl">
+        <p className="text-sm text-muted">{group}</p>
+        <h2 className="mb-5 text-2xl font-bold">{section.label}</h2>
+        <div className="space-y-5">
+          {/* كل قسم يستعلم عما يحتاجه فقط */}
+          <Section k={section.key} />
         </div>
-
-        <Card title={<>توزيع الدرجات <span className="text-sm font-normal text-muted">· توزيع المواد على الفصول: {fmtNum(matrix.count ?? 0)} صف</span></>}>
-          {bySubject.size === 0 ? (
-            <p className="text-sm text-muted">لا أوزان بعد.</p>
-          ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[...bySubject.entries()].map(([subject, ws]) => {
-                const total = ws.reduce((a, w) => a + w.w, 0);
-                return (
-                  <div key={subject} className="rounded-xl border border-line p-3">
-                    <p className="mb-2 flex justify-between text-sm font-semibold">
-                      {subject}
-                      <span className={total === 100 ? 'text-ok' : 'text-danger'}>{fmtNum(total)}%</span>
-                    </p>
-                    <div className="flex h-2.5 overflow-hidden rounded-full bg-paper">
-                      {ws.map((w, i) => (
-                        <span key={i} className="h-full border-s border-surface first:border-0" style={{ width: `${w.w}%`, background: `hsl(${150 + i * 38} 32% ${38 + i * 6}%)` }} title={`${w.type}: ${w.w}%`} />
-                      ))}
-                    </div>
-                    <ul className="mt-2 space-y-0.5 text-xs text-muted">
-                      {ws.map((w, i) => (
-                        <li key={i} className="flex justify-between"><span>{w.type}</span><span className="tabular-nums">{fmtNum(w.w)}%</span></li>
-                      ))}
-                    </ul>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </Card>
       </div>
-    </>
+    </div>
+  );
+}
+
+async function Section({ k }: { k: string }) {
+  const supabase = await createClient();
+
+  if (k === 'general' || k === 'announcements' || k === 'visibility') {
+    const { data } = await supabase.from('app_settings').select('key, value');
+    const v = Object.fromEntries((data ?? []).map((r) => [r.key, r.value])) as Record<string, unknown>;
+    if (k === 'general') return <BrandingEditor name={String(v.school_name ?? '')} logo={String(v.school_logo_url ?? '')} />;
+    if (k === 'announcements') return <AnnouncementsEditor items={Array.isArray(v.announcements) ? (v.announcements as { title: string }[]) : []} />;
+    const [branches, grades, terms] = await Promise.all([
+      supabase.from('branches').select('name').eq('is_active', true).order('sort_order'),
+      supabase.from('grades').select('name').order('sort_order'),
+      getTerms(),
+    ]);
+    return (
+      <VisibilityEditor
+        results={asArray(v.results_visible_grades)}
+        weekly={asArray(v.weekly_grades_visibility)}
+        calendar={typeof v.calendar_visibility === 'string' ? v.calendar_visibility : 'all'}
+        exam={v.exam_visibility === 'hidden' ? 'hidden' : 'all'}
+        branches={(branches.data ?? []).map((b) => b.name)}
+        grades={(grades.data ?? []).map((g) => g.name)}
+        terms={[...new Set(terms.map((t) => t.name))]}
+      />
+    );
+  }
+
+  if (k === 'eval' || k === 'weights') {
+    const [ev, su, w] = await Promise.all([
+      supabase.from('eval_types').select('id, name, category').order('sort_order'),
+      supabase.from('subjects').select('id, name').eq('is_active', true).order('sort_order'),
+      k === 'weights' ? supabase.from('grade_weights').select('subject_id, eval_type_id, weight') : Promise.resolve({ data: [] }),
+    ]);
+    if (k === 'eval')
+      return <RefListEditor table="eval_types" title="أنواع التقييم" description="مثل: واجبات، مشاركة، اختبار قصير. النوع (اختبار) يُعامل كاختبار في التقارير." items={ev.data ?? []} categories />;
+    return <WeightsEditor subjects={su.data ?? []} evalTypes={ev.data ?? []} weights={(w.data ?? []) as { subject_id: number; eval_type_id: number; weight: number }[]} />;
+  }
+
+  const ref = REF[k];
+  if (!ref) return null;
+  const cols = ref.table === 'grades' ? 'id, name, stage_id' : ref.hasActive ? 'id, name, is_active' : 'id, name';
+  const [{ data }, stages] = await Promise.all([
+    supabase.from(ref.table).select(cols).order('sort_order').order('id'),
+    ref.table === 'grades' ? supabase.from('stages').select('id, name').order('sort_order') : Promise.resolve({ data: undefined }),
+  ]);
+  return (
+    <RefListEditor
+      table={ref.table}
+      title={ref.title}
+      description={ref.description}
+      items={(data ?? []) as unknown as { id: number; name: string }[]}
+      hasActive={ref.hasActive}
+      stages={stages.data ?? undefined}
+    />
   );
 }

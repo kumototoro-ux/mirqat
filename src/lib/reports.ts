@@ -34,6 +34,15 @@ export type AccountsReport = {
   daily_logins: { day: string; count: number }[];
 };
 
+export type ActivityReport = {
+  generated_at: string;
+  totals: { all: number; today: number; week: number; prev_week: number; logins_week: number; deletes_week: number; actors_week: number };
+  by_action: { name: string; count: number }[];
+  by_table: { name: string; count: number }[];
+  top_actors: { name: string; role: string | null; count: number }[];
+  daily: { day: string; changes: number; logins: number }[];
+};
+
 async function rpc<T>(fn: string): Promise<T> {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc(fn);
@@ -44,6 +53,7 @@ async function rpc<T>(fn: string): Promise<T> {
 export const getStudentsReport = cache(() => rpc<StudentsReport>('report_students'));
 export const getEmployeesReport = cache(() => rpc<EmployeesReport>('report_employees'));
 export const getAccountsReport = cache(() => rpc<AccountsReport>('report_accounts'));
+export const getActivityReport = cache(() => rpc<ActivityReport>('report_activity'));
 
 /** "2026-10" ← "أكتوبر" */
 export function monthName(ym: string) {
