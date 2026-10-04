@@ -3,6 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { REF_TAG } from '@/lib/data';
 import type { ActionResult } from '@/components/registry/types';
 
@@ -132,4 +133,48 @@ export async function saveWeights(subjectId: number, weights: { eval_type_id: nu
   const { error: delError } = await del;
   if (delError) return fail(delError);
   return done('حُفظ توزيع الدرجات');
+}
+
+/* ---------------------------------------------------------------------
+   رفع شعار المدرسة إلى Supabase Storage (مجلد عام للقراءة، والكتابة للخادم فقط)
+--------------------------------------------------------------------- */
+const BUCKET = 'school-assets';
+const MAX_BYTES = 2 * 1024 * 1024;
+
+/** نوع الصورة من أول بايتات الملف نفسه، لا من اسمه أو ما يدّعيه المتصفح */
+function sniffImage(b: Uint8Array): { ext: string; type: string } | null {
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return { ext: 'png', type: 'image/png' };
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return { ext: 'jpg', type: 'image/jpeg' };
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 && b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50)
+    return { ext: 'webp', type: 'image/webp' };
+  return null;
+}
+
+export async function uploadLogo(formData: FormData): Promise<ActionResult & { url?: string }> {
+  await requireUser(['admin']);
+  const file = formData.get('file');
+  if (!(file instanceof File)) return fail('اختر صورة');
+  if (file.size > MAX_BYTES) return fail('حجم الصورة أكبر من 2 ميجابايت');
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const kind = sniffImage(bytes);
+  if (!kind) return fail('الصيغة غير مدعومة: PNG أو JPG أو WEBP فقط');
+
+  const admin = createAdminClient();
+  // المجلد يُنشأ تلقائيًا أول مرة (عام للقراءة، 2 ميجابايت، صور فقط)
+  const { error: bucketError } = await admin.storage.getBucket(BUCKET);
+  if (bucketError) {
+    const { error } = await admin.storage.createBucket(BUCKET, {
+      public: true,
+      fileSizeLimit: MAX_BYTES,
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/webp'],
+    });
+    if (error && !/already exists/i.test(error.message)) return fail(`تعذّر تجهيز مجلد الصور: ${error.message}`);
+  }
+  const path = `logo/school-${Date.now()}.${kind.ext}`;
+  const { error: upError } = await admin.storage.from(BUCKET).upload(path, bytes, { contentType: kind.type, cacheControl: '31536000', upsert: false });
+  if (upError) return fail(`تعذّر رفع الصورة: ${upError.message}`);
+  const url = admin.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+  const saved = await saveSetting('school_logo_url', url);
+  if (!saved.ok) return saved;
+  return { ok: true, message: 'رُفع الشعار وحُفظ', url };
 }
