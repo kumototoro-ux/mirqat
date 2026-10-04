@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, Reorder, motion } from 'motion/react';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
-import { deleteRefItem, reorderRef, saveRefItem, saveSetting, saveWeights, type RefTable } from '@/lib/settings/actions';
+import { deleteRefItem, reorderRef, saveRefItem, saveSetting, saveWeights, uploadLogo, type RefTable } from '@/lib/settings/actions';
 import type { ActionResult } from '@/components/registry/types';
 
 /* =====================================================================
@@ -80,11 +80,15 @@ export function VisibilityLock({ isPublic }: { isPublic: boolean }) {
   );
 }
 
+type Ask = { title: string; body?: React.ReactNode; confirmLabel?: string; danger?: boolean };
+
+/** كل حفظ: بطاقة تأكيد ← تنفيذ ← تنبيه نجاح أو خطأ ← تحديث البيانات */
 function useSave() {
-  const { toast } = useFeedback();
+  const { toast, confirm } = useFeedback();
   const router = useRouter();
   const [pending, start] = useTransition();
-  const run = (fn: () => Promise<ActionResult>, after?: () => void) =>
+  const run = async (fn: () => Promise<ActionResult>, after?: () => void, ask?: Ask) => {
+    if (ask && !(await confirm({ confirmLabel: 'حفظ', ...ask }))) return;
     start(async () => {
       const r = await fn();
       if (!r.ok) return toast(r.error, 'error');
@@ -92,7 +96,22 @@ function useSave() {
       after?.();
       router.refresh();
     });
+  };
   return { pending, run };
+}
+
+/** يعيد الحالة المحلية لقيم الخادم كلما وصلت قيم جديدة (بعد الحفظ أو التنقل) */
+function useSynced<T>(value: T): [T, React.Dispatch<React.SetStateAction<T>>] {
+  const [v, setV] = useState(value);
+  const sig = JSON.stringify(value);
+  const last = useRef(sig);
+  useEffect(() => {
+    if (last.current !== sig) {
+      last.current = sig;
+      setV(value);
+    }
+  }, [sig, value]);
+  return [v, setV];
 }
 
 function SaveButton({ pending, dirty, onClick, label = 'حفظ التغييرات' }: { pending: boolean; dirty: boolean; onClick: () => void; label?: string }) {
@@ -107,20 +126,54 @@ function SaveButton({ pending, dirty, onClick, label = 'حفظ التغييرا�
    هوية المدرسة
    ===================================================================== */
 export function BrandingEditor({ name, logo }: { name: string; logo: string }) {
-  const [n, setN] = useState(name);
-  const [l, setL] = useState(logo);
+  const [n, setN] = useSynced(name);
+  const [l, setL] = useSynced(logo);
   const [logoOk, setLogoOk] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const { toast, confirm } = useFeedback();
+  const router = useRouter();
   const { pending, run } = useSave();
   const dirty = n !== name || l !== logo;
   const save = () =>
-    run(async () => {
-      if (n !== name) {
-        const r = await saveSetting('school_name', n.trim());
-        if (!r.ok) return r;
-      }
-      if (l !== logo) return saveSetting('school_logo_url', l.trim());
-      return { ok: true, message: 'حُفظت هوية المدرسة' };
+    run(
+      async () => {
+        if (n !== name) {
+          const r = await saveSetting('school_name', n.trim());
+          if (!r.ok) return r;
+        }
+        if (l !== logo) return saveSetting('school_logo_url', l.trim());
+        return { ok: true, message: 'حُفظت هوية المدرسة' };
+      },
+      undefined,
+      { title: 'حفظ هوية المدرسة؟', body: 'يظهر التغيير فورًا في الصفحة الرئيسية وصفحات الدخول والتقارير.' },
+    );
+  const upload = async (file: File) => {
+    if (file.size > 2 * 1024 * 1024) return toast('حجم الصورة أكبر من 2 ميجابايت', 'error');
+    const preview = URL.createObjectURL(file);
+    const ok = await confirm({
+      title: 'رفع هذا الشعار؟',
+      body: (
+        <span className="mt-2 flex items-center gap-3 rounded-xl bg-paper p-3">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={preview} alt="" className="h-14 w-auto max-w-32 rounded-lg bg-surface object-contain p-1" />
+          <span className="text-xs">{file.name}</span>
+        </span>
+      ),
+      confirmLabel: 'رفع وحفظ',
     });
+    URL.revokeObjectURL(preview);
+    if (!ok) return;
+    setUploading(true);
+    const fd = new FormData();
+    fd.append('file', file);
+    const r = await uploadLogo(fd);
+    setUploading(false);
+    if (!r.ok) return toast(r.error, 'error');
+    toast(r.message);
+    setLogoOk(true);
+    router.refresh();
+  };
   return (
     <SettingsCard
       title="هوية المدرسة"
@@ -133,7 +186,22 @@ export function BrandingEditor({ name, logo }: { name: string; logo: string }) {
           <VisibilityLock isPublic />
         </div>
       </SettingRow>
-      <SettingRow title="رابط شعار المدرسة" description="رابط صورة يبدأ بـ https، ويظهر في رأس الصفحة الرئيسية.">
+      <SettingRow title="شعار المدرسة" description="ارفع صورة (PNG أو JPG أو WEBP حتى 2 ميجابايت)، أو الصق رابط صورة يبدأ بـ https.">
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) upload(f); }} />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="mb-3 flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-line px-4 py-6 text-sm transition-colors hover:border-board/50 hover:bg-board/[0.03] disabled:opacity-60"
+        >
+          {uploading ? <span className="spinner size-6 text-board" /> : (
+            <span className="grid size-11 place-items-center rounded-xl bg-board/10 text-board">
+              <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3.5h16V16" /></svg>
+            </span>
+          )}
+          <span className="font-semibold">{uploading ? 'جارٍ الرفع…' : 'رفع صورة الشعار'}</span>
+          <span className="text-xs text-muted">تُحفظ في تخزين المنصة الآمن</span>
+        </button>
         <div className="flex gap-2">
           <input value={l} onChange={(e) => { setL(e.target.value); setLogoOk(true); }} dir="ltr" placeholder="https://…" className="field flex-1 text-start" />
           <VisibilityLock isPublic />
@@ -159,7 +227,7 @@ export function BrandingEditor({ name, logo }: { name: string; logo: string }) {
    ===================================================================== */
 type Ann = { title: string; body?: string; date?: string };
 export function AnnouncementsEditor({ items }: { items: Ann[] }) {
-  const [list, setList] = useState<Ann[]>(items);
+  const [list, setList] = useSynced<Ann[]>(items);
   const { pending, run } = useSave();
   const dirty = JSON.stringify(list) !== JSON.stringify(items);
   const set = (i: number, patch: Partial<Ann>) => setList((l) => l.map((a, j) => (j === i ? { ...a, ...patch } : a)));
@@ -167,7 +235,7 @@ export function AnnouncementsEditor({ items }: { items: Ann[] }) {
     <SettingsCard
       title="إعلانات الصفحة الرئيسية"
       description="تظهر للزوار في قسم الإعلانات، ويختفي القسم إن لم يوجد إعلان. حتى 12 إعلانًا."
-      footer={<SaveButton pending={pending} dirty={dirty} onClick={() => run(() => saveSetting('announcements', list.filter((a) => a.title.trim())))} />}
+      footer={<SaveButton pending={pending} dirty={dirty} onClick={() => run(() => saveSetting('announcements', list.filter((a) => a.title.trim())), undefined, { title: 'حفظ الإعلانات؟', body: `ستظهر ${list.filter((a) => a.title.trim()).length} إعلانات للزوار في الصفحة الرئيسية.` })} />}
     >
       <AnimatePresence initial={false}>
         {list.map((a, i) => (
@@ -245,10 +313,10 @@ export function VisibilityEditor({
   grades: string[];
   terms: string[];
 }) {
-  const [r, setR] = useState(results);
-  const [w, setW] = useState(weekly);
-  const [c, setC] = useState(calendar);
-  const [e, setE] = useState(exam);
+  const [r, setR] = useSynced(results);
+  const [w, setW] = useSynced(weekly);
+  const [c, setC] = useSynced(calendar);
+  const [e, setE] = useSynced(exam);
   const { pending, run } = useSave();
   const dirty = JSON.stringify([r, w, c, e]) !== JSON.stringify([results, weekly, calendar, exam]);
   const opts = [
@@ -269,7 +337,7 @@ export function VisibilityEditor({
         if (!res.ok) return res;
       }
       return { ok: true, message: 'حُفظت إعدادات الظهور' };
-    });
+    }, undefined, { title: 'حفظ إعدادات الظهور؟', body: 'يتغير ما يراه الطلاب في بوابتهم فورًا.' });
   return (
     <SettingsCard
       title="ما يراه الطلاب"
@@ -322,7 +390,7 @@ export function RefListEditor({
   stages?: { id: number; name: string }[];
   categories?: boolean;
 }) {
-  const [order, setOrder] = useState(items);
+  const [order, setOrder] = useSynced(items);
   const [editing, setEditing] = useState<number | 'new' | null>(null);
   const [draft, setDraft] = useState<{ name: string; stage_id?: number; category?: 'continuous' | 'exam' }>({ name: '' });
   const { confirm } = useFeedback();
@@ -333,8 +401,15 @@ export function RefListEditor({
     setEditing(it ? it.id : 'new');
     setDraft(it ? { name: it.name, stage_id: it.stage_id, category: (it.category as 'continuous' | 'exam') ?? 'continuous' } : { name: '', stage_id: stages?.[0]?.id, category: 'continuous' });
   };
-  const commit = () =>
-    run(() => saveRefItem(table, editing === 'new' ? null : (editing as number), draft), () => setEditing(null));
+  const commit = () => {
+    const isNew = editing === 'new';
+    const old = order.find((x) => x.id === editing)?.name;
+    run(() => saveRefItem(table, isNew ? null : (editing as number), draft), () => setEditing(null), {
+      title: isNew ? `إضافة "${draft.name.trim()}"؟` : `تعديل "${old}"؟`,
+      body: isNew ? `يُضاف في آخر قائمة ${title}.` : `يصبح الاسم "${draft.name.trim()}" في كل الصفحات والسجلات المرتبطة.`,
+      confirmLabel: isNew ? 'إضافة' : 'حفظ',
+    });
+  };
   const remove = async (it: RefItem) => {
     const ok = await confirm({
       title: `حذف "${it.name}"؟`,
@@ -381,7 +456,7 @@ export function RefListEditor({
       footer={
         <>
           {orderDirty && (
-            <button type="button" onClick={() => run(() => reorderRef(table, order.map((x) => x.id)))} disabled={pending} className="btn-primary me-auto rounded-xl">
+            <button type="button" onClick={() => run(() => reorderRef(table, order.map((x) => x.id)), undefined, { title: 'حفظ الترتيب الجديد؟', body: `يظهر ${title} بهذا الترتيب في كل القوائم.` })} disabled={pending} className="btn-primary me-auto rounded-xl">
               {pending ? <span className="spinner" /> : null} حفظ الترتيب
             </button>
           )}
@@ -412,7 +487,19 @@ export function RefListEditor({
                   </span>
                   {typeof it.usage === 'number' && <span className="hidden text-xs tabular-nums text-muted sm:inline">{it.usage} استخدام</span>}
                   {hasActive && (
-                    <Switch checked={it.is_active !== false} onChange={(v) => run(() => saveRefItem(table, it.id, { name: it.name, is_active: v }))} label={`تفعيل ${it.name}`} disabled={pending} />
+                    <Switch
+                      checked={it.is_active !== false}
+                      onChange={(v) =>
+                        run(() => saveRefItem(table, it.id, { name: it.name, is_active: v }), undefined, {
+                          title: v ? `تفعيل "${it.name}"؟` : `تعطيل "${it.name}"؟`,
+                          body: v ? 'يعود للظهور في نماذج التسجيل.' : 'يختفي من نماذج التسجيل الجديدة، وتبقى سجلاته كما هي.',
+                          confirmLabel: v ? 'تفعيل' : 'تعطيل',
+                          danger: !v,
+                        })
+                      }
+                      label={`تفعيل ${it.name}`}
+                      disabled={pending}
+                    />
                   )}
                   <button type="button" onClick={() => startEdit(it)} aria-label="إعادة تسمية" className="grid size-9 place-items-center rounded-lg text-muted hover:bg-board/10 hover:text-board">
                     <Icon name="edit" className="size-4" />
@@ -462,7 +549,12 @@ export function WeightsEditor({
           <SaveButton
             pending={pending}
             dirty={dirty}
-            onClick={() => run(() => saveWeights(subjectId, Object.entries(vals).map(([k, v]) => ({ eval_type_id: Number(k), weight: v || 0 }))))}
+            onClick={() =>
+              run(() => saveWeights(subjectId, Object.entries(vals).map(([k, v]) => ({ eval_type_id: Number(k), weight: v || 0 }))), undefined, {
+                title: `حفظ توزيع درجات ${subjects.find((x) => x.id === subjectId)?.name}؟`,
+                body: 'تُعاد حسبة نتائج هذه المادة لكل الطلاب فورًا بالنسب الجديدة.',
+              })
+            }
           />
         </>
       }
