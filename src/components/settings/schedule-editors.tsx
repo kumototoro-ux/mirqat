@@ -8,6 +8,7 @@ import { Field, Sheet } from '@/components/sheet';
 import { useFeedback } from '@/components/feedback';
 import { subjectColor } from '@/components/timetable-grid';
 import { DAYS, fmtDate, fmtHijri, fmtShortDate, fmtTime, fmtWeekday } from '@/lib/format';
+import { eventKind } from '@/lib/schedule/time';
 import {
   deleteCalendarEntry,
   deleteExam,
@@ -137,7 +138,7 @@ export function CalendarEditor() {
           {entries.data.map((e, i) => (
             <motion.li key={e.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 12) * 0.02 }}>
               <button type="button" onClick={() => setForm({ ...e })} className="flex w-full items-center gap-3 rounded-2xl border border-line px-4 py-3 text-start transition-colors hover:border-board/30 hover:bg-board/[0.03]">
-                <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: e.color || (e.event ? '#a3462f' : '#356854') }} />
+                <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: e.color || (eventKind(e.event) === 'holiday' ? '#a3462f' : '#356854') }} />
                 <span className="min-w-0 flex-1">
                   <span className="block font-semibold">
                     {e.week_label ?? e.event}
@@ -147,7 +148,9 @@ export function CalendarEditor() {
                     {fmtShortDate(e.starts_on)} ← {fmtShortDate(e.ends_on)} <span className="text-xs">({fmtHijri(e.starts_on)})</span>
                   </span>
                 </span>
-                {e.event && e.week_label && <span className="rounded-full bg-danger-soft px-2.5 py-0.5 text-xs text-danger">{e.event}</span>}
+                {e.event && e.week_label && (
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs ${eventKind(e.event) === 'holiday' ? 'bg-danger-soft text-danger' : eventKind(e.event) === 'study' ? 'bg-ok-soft text-ok' : 'bg-brass-soft text-brass'}`}>{e.event}</span>
+                )}
                 <Icon name="edit" className="size-4 text-muted" />
               </button>
             </motion.li>

@@ -86,12 +86,13 @@ export async function getEmployee(id: number): Promise<EmployeeForm | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('employees')
-    .select('id, code, national_id, name_ar, name_en, user_type, job_role, gender, is_active, staff_scope(branch_id, stage_id, grade_id, section_id, subject_id)')
+    .select('id, code, national_id, name_ar, name_en, user_type, job_role, gender, is_active, staff_scope(branch_id, stage_id, grade_id, section_id, subject_id), profiles(role)')
     .eq('id', id)
     .maybeSingle<{
       id: number; code: string; national_id: string | null; name_ar: string; name_en: string | null; user_type: string | null;
       job_role: string | null; gender: string | null; is_active: boolean;
       staff_scope: { branch_id: number | null; stage_id: number | null; grade_id: number | null; section_id: number | null; subject_id: number | null }[];
+      profiles: { role: string }[];
     }>();
   if (!data) return null;
   const pick = (k: 'branch_id' | 'stage_id' | 'grade_id' | 'section_id' | 'subject_id') =>
@@ -102,7 +103,8 @@ export async function getEmployee(id: number): Promise<EmployeeForm | null> {
     national_id: data.national_id ?? '',
     name_ar: data.name_ar,
     name_en: data.name_en ?? '',
-    user_type: data.user_type === 'admin' ? 'admin' : 'teacher',
+    // النوع من دور الحساب إن وُجد (هو الصلاحية الفعلية)، وإلا من السجل — فلا يُنزَل إداري بالخطأ عند الحفظ
+    user_type: (data.profiles?.[0]?.role ?? data.user_type) === 'admin' ? 'admin' : 'teacher',
     job_role: data.job_role ?? '',
     gender: data.gender ?? '',
     is_active: data.is_active,
@@ -163,7 +165,8 @@ export async function deleteEmployee(id: number): Promise<ActionResult> {
 
 /** تفعيل أو إيقاف عدة موظفين دفعة واحدة */
 export async function setEmployeesActive(ids: number[], active: boolean): Promise<ActionResult> {
-  await requireUser(['admin']);
+  const me = await requireUser(['admin']);
+  ids = ids.filter((id) => id !== me.employeeId); // لا يوقف الإداري سجله بنفسه
   if (!ids.length || ids.length > 100) return { ok: false, error: 'حدد بين 1 و100 موظف' };
   const supabase = await createClient();
   const { error, count } = await supabase.from('employees').update({ is_active: active, is_edited: true }, { count: 'exact' }).in('id', ids);

@@ -6,7 +6,7 @@ import { LayoutGroup, motion } from 'motion/react';
 import { Insights } from '@/components/registry/insights';
 import { Icon } from '@/components/shell/icons';
 import { fmtHijri, fmtShortDate, fmtWeekday } from '@/lib/format';
-import { daysUntil, inDays, riyadhNow } from '@/lib/schedule/time';
+import { daysUntil, eventKind, inDays, riyadhNow, weekName } from '@/lib/schedule/time';
 import type { ViewWeek } from '@/lib/schedule/view';
 
 type Term = { id: number; name: string; year: string };
@@ -39,15 +39,18 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
 
   if (!terms.length) return <p className="rounded-2xl border border-dashed border-line bg-surface py-16 text-center text-muted">لا تقويم منشور بعد.</p>;
 
-  const studyWeeks = list.filter((x) => x.w.week && !x.w.event);
+  // أسبوع دراسي = له اسم أسبوع وليس إجازة ("دراسة" في عمود المناسبة أسبوع عادي)
+  const isHoliday = (e: ViewWeek) => eventKind(e.event) === 'holiday';
+  const notable = (e: ViewWeek) => { const k = eventKind(e.event); return k === 'holiday' || k === 'event'; };
+  const studyWeeks = list.filter((x) => x.w.week && !isHoliday(x.w));
   const idx = list.findIndex((x) => x.w.from <= today && x.w.to >= today);
   const current = idx >= 0 ? list[idx] : null;
-  const passed = studyWeeks.filter((x) => x.w.to < today).length + (current?.w.week ? 1 : 0);
+  const passed = studyWeeks.filter((x) => x.w.to < today).length + (current && studyWeeks.includes(current) ? 1 : 0);
   const pct = studyWeeks.length ? Math.min(100, Math.round((passed / studyWeeks.length) * 100)) : 0;
-  const events = list.flatMap((x) => [x.w, ...x.inner]).filter((e) => e.event && e.to >= today).sort((a, b) => a.from.localeCompare(b.from));
+  const events = list.flatMap((x) => [x.w, ...x.inner]).filter((e) => notable(e) && e.to >= today).sort((a, b) => a.from.localeCompare(b.from));
   const nextEvent = events[0];
   const termEnd = list.length ? list[list.length - 1].w.to : null;
-  const holidays = list.flatMap((x) => [x.w, ...x.inner]).filter((e) => e.event).length;
+  const holidays = list.flatMap((x) => [x.w, ...x.inner]).filter(notable).length;
 
   // تجميع بالأشهر
   const months: { month: string; items: typeof list }[] = [];
@@ -63,7 +66,7 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
         <Insights
           stats={[
             { label: 'أسابيع الدراسة', value: studyWeeks.length, icon: 'calendar', hint: terms.find((t) => t.id === termId)?.name },
-            { label: 'الأسبوع الحالي', value: current?.w.week ? `${passed}/${studyWeeks.length}` : '—', icon: 'timetable', hint: current?.w.week ?? 'خارج أسابيع الدراسة' },
+            { label: 'الأسبوع الحالي', value: current?.w.week ? `${passed} من ${studyWeeks.length}` : '—', icon: 'timetable', hint: current?.w.week ? weekName(current.w.week) : 'خارج أسابيع الدراسة' },
             { label: 'الإجازات والمناسبات', value: holidays, icon: 'behavior', tone: 'gold' },
             { label: 'متبقٍ على نهاية الفصل', value: termEnd && daysUntil(termEnd) >= 0 ? `${daysUntil(termEnd)} يوم` : '—', icon: 'exams' },
           ]}
@@ -85,7 +88,7 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="relative overflow-hidden rounded-[1.4rem] bg-board p-5 text-chalk sm:p-6">
             <div aria-hidden className="absolute -end-12 -top-12 size-48 rounded-full bg-gold/20 blur-2xl" />
             <p className="relative text-sm text-chalk/70">{fmtWeekday(today)} · {fmtShortDate(today)} · {fmtHijri(today)}</p>
-            <p className="relative mt-1 text-2xl font-bold sm:text-3xl">{current ? (current.w.week ?? current.w.event) : 'خارج أسابيع الدراسة'}</p>
+            <p className="relative mt-1 text-2xl font-bold sm:text-3xl">{current ? (current.w.week ? weekName(current.w.week) : current.w.event) : 'خارج أسابيع الدراسة'}</p>
             {current && <p className="relative text-sm text-chalk/75">{fmtShortDate(current.w.from)} ← {fmtShortDate(current.w.to)}</p>}
             <div className="relative mt-5">
               <div className="mb-1.5 flex justify-between text-xs text-chalk/70"><span>تقدّم الفصل الدراسي</span><span className="tabular-nums">{passed} من {studyWeeks.length} أسبوع</span></div>
@@ -135,7 +138,7 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
               {m.items.map(({ w, inner }, i) => {
                 const isCurrent = w.from <= today && w.to >= today;
                 const past = w.to < today;
-                const holiday = !!w.event && !w.week;
+                const holiday = isHoliday(w) && !w.week;
                 return (
                   <motion.li
                     key={w.id}
@@ -151,12 +154,14 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
                     <div className={`rounded-2xl border px-4 py-3 transition-colors ${isCurrent ? 'border-gold/60 bg-gold/[0.07] shadow-[0_14px_30px_-22px_rgb(217_164_65/0.9)]' : holiday ? 'border-danger/20 bg-danger-soft/40' : 'border-line'} ${past && !isCurrent ? 'opacity-60' : ''}`}>
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <p className="font-semibold">
-                          {w.week ?? w.event}
+                          {w.week ? weekName(w.week) : w.event}
                           {w.period && <span className="ms-2 text-sm font-normal text-muted">{w.period}</span>}
                         </p>
                         <div className="flex items-center gap-1.5">
                           {isCurrent && <span className="rounded-full bg-gold px-2.5 py-0.5 text-xs font-bold text-ink">الأسبوع الحالي</span>}
-                          {w.week && w.event && <span className="rounded-full bg-danger-soft px-2.5 py-0.5 text-xs text-danger">{w.event}</span>}
+                          {w.week && notable(w) && (
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs ${isHoliday(w) ? 'bg-danger-soft text-danger' : 'bg-brass-soft text-brass'}`}>{w.event}</span>
+                          )}
                           {!past && !isCurrent && <span className="text-xs text-muted">{inDays(daysUntil(w.from))}</span>}
                         </div>
                       </div>
@@ -166,7 +171,7 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
                       {inner.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {inner.map((e) => (
-                            <span key={e.id} className="rounded-full bg-danger-soft px-2.5 py-0.5 text-xs text-danger">
+                            <span key={e.id} className={`rounded-full px-2.5 py-0.5 text-xs ${eventKind(e.event) === 'holiday' ? 'bg-danger-soft text-danger' : 'bg-brass-soft text-brass'}`}>
                               {e.event ?? e.week} · {fmtShortDate(e.from)}
                             </span>
                           ))}
