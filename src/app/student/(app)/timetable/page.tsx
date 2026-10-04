@@ -1,30 +1,30 @@
 import type { Metadata } from 'next';
 import { requireUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
-import { Empty, PageHeader } from '@/components/ui';
-import { TimetableGrid } from '@/components/timetable-grid';
-import { classLabel } from '@/lib/format';
 import { getMe } from '@/lib/student';
+import { getSlotsFor } from '@/lib/schedule/view';
+import { NowNext, WeekTimetable } from '@/components/schedule/week-view';
+import { classLabel } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'جدولي' };
 
 export default async function StudentTimetable() {
   await requireUser(['student']);
   const me = await getMe();
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from('timetable_slots')
-    .select('id, day_of_week, period_no, starts_at, delivery_mode, subject:subjects(name), teacher:employees(name_ar)')
-    .eq('class_id', me?.class_id ?? -1)
-    .returns<{ id: number; day_of_week: number; period_no: number; starts_at: string | null; delivery_mode: string | null; subject: { name: string } | null; teacher: { name_ar: string } | null }[]>();
-  const slots = (data ?? []).map((r) => ({
-    id: r.id, day: r.day_of_week, period: r.period_no, startsAt: r.starts_at,
-    subject: r.subject?.name ?? '—', sub: r.teacher?.name_ar ?? null, mode: r.delivery_mode,
-  }));
+  const slots = me?.class_id ? await getSlotsFor({ classId: me.class_id }) : [];
+  const subjects = [...new Set(slots.map((s) => s.subject))];
   return (
-    <>
-      <PageHeader title="جدولي" lead={me ? `الجدول الأسبوعي لفصل ${classLabel(me.class)}.` : undefined} />
-      {slots.length ? <TimetableGrid slots={slots} /> : <Empty title="لم يُنشر جدول فصلك بعد" />}
-    </>
+    <div className="space-y-6">
+      <NowNext slots={slots} secondary="teacher" />
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full bg-surface px-3.5 py-1.5 text-sm ring-1 ring-line">{me ? classLabel(me.class, true) : '—'}</span>
+        <span className="rounded-full bg-surface px-3.5 py-1.5 text-sm ring-1 ring-line"><b className="tabular-nums">{slots.length}</b> حصة أسبوعيًا</span>
+        <span className="rounded-full bg-surface px-3.5 py-1.5 text-sm ring-1 ring-line"><b className="tabular-nums">{subjects.length}</b> مادة</span>
+      </div>
+      {slots.length ? (
+        <WeekTimetable slots={slots} secondary="teacher" />
+      ) : (
+        <p className="rounded-2xl border border-dashed border-line bg-surface py-14 text-center text-muted">لم يُنشر جدول فصلك بعد</p>
+      )}
+    </div>
   );
 }

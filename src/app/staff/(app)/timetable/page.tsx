@@ -1,71 +1,65 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { requireUser } from '@/lib/auth/session';
-import { createClient } from '@/lib/supabase/server';
-import { Empty, ErrorNote, FilterBar, PageHeader, Select } from '@/components/ui';
-import { TimetableGrid, type Slot } from '@/components/timetable-grid';
-import { CLASS_SELECT, classLabel, type ClassRef } from '@/lib/format';
-import { classOptions } from '@/lib/data';
+import { getClasses } from '@/lib/data';
+import { getAllSlots, getSlotsFor } from '@/lib/schedule/view';
+import { AdminTimetable } from '@/components/schedule/admin-timetable';
+import { NowNext, WeekTimetable } from '@/components/schedule/week-view';
+import { Insights } from '@/components/registry/insights';
+import { DAYS } from '@/lib/format';
 
 export const metadata: Metadata = { title: 'جدول الحصص' };
 
-type Row = {
-  id: number;
-  day_of_week: number;
-  period_no: number;
-  starts_at: string | null;
-  delivery_mode: string | null;
-  subject: { name: string } | null;
-  teacher: { name_ar: string } | null;
-  class: ClassRef;
-};
-
-export default async function TimetablePage({ searchParams }: { searchParams: Promise<{ class?: string; mine?: string }> }) {
+export default async function TimetablePage({ searchParams }: { searchParams: Promise<{ class?: string }> }) {
   const user = await requireUser(['admin', 'teacher']);
-  const sp = await searchParams;
-  const options = await classOptions();
-  // المعلم يرى جدوله أولًا، والإداري جدول أول فصل
-  const mine = sp.mine === '1' || (user.role === 'teacher' && !sp.class);
-  const classId = mine ? null : Number(sp.class) || (options[0]?.value as number | undefined) || null;
 
-  const supabase = await createClient();
-  let q = supabase
-    .from('timetable_slots')
-    .select(`id, day_of_week, period_no, starts_at, delivery_mode, subject:subjects(name), teacher:employees(name_ar), class:classes(${CLASS_SELECT})`);
-  q = mine ? q.eq('teacher_id', user.employeeId ?? -1) : q.eq('class_id', classId ?? -1);
-  const { data, error } = await q.returns<Row[]>();
+  // الإدارة: كل الحصص مرة واحدة، والتبديل بين الفصول والمعلمين في المتصفح
+  if (user.role === 'admin') {
+    const [slots, classes] = await Promise.all([getAllSlots(), getClasses()]);
+    return <AdminTimetable slots={slots} classes={classes.map((c) => ({ id: c.id, label: `${c.label}${c.branch ? ` · ${c.branch}` : ''}` }))} />;
+  }
 
-  const slots: Slot[] = (data ?? []).map((r) => ({
-    id: r.id,
-    day: r.day_of_week,
-    period: r.period_no,
-    startsAt: r.starts_at,
-    subject: r.subject?.name ?? '—',
-    sub: mine ? classLabel(r.class, true) : (r.teacher?.name_ar ?? null),
-    mode: r.delivery_mode,
-  }));
-  const label = options.find((o) => o.value === classId)?.label ?? '';
+  // المعلم: جدوله، ويمكنه فتح الجدول الكامل لأي فصل يدرّسه
+  const { class: cls } = await searchParams;
+  const mine = await getSlotsFor({ teacherId: user.employeeId ?? -1 });
+  const myClasses = [...new Map(mine.map((s) => [s.classId, s.classLabel])).entries()];
+  const classId = Number(cls) || null;
+  const classSlots = classId && myClasses.some(([id]) => id === classId) ? await getSlotsFor({ classId }) : null;
+
+  const perDay = DAYS.map((d, i) => ({ d, n: mine.filter((s) => s.day === i).length }));
+  const busiest = [...perDay].sort((a, b) => b.n - a.n)[0];
+  const bySubject = new Map<string, number>();
+  mine.forEach((s) => bySubject.set(s.subject, (bySubject.get(s.subject) ?? 0) + 1));
 
   return (
-    <>
-      <PageHeader
-        title="جدول الحصص"
-        lead={mine ? 'حصصك في الأسبوع.' : `الجدول الأسبوعي لفصل ${label}.`}
-        actions={
-          user.employeeId ? (
-            <Link href={mine ? `/staff/timetable?class=${options[0]?.value ?? ''}` : '/staff/timetable?mine=1'} className="btn-quiet">
-              {mine ? 'جداول الفصول' : 'جدولي'}
-            </Link>
-          ) : null
-        }
+    <div className="space-y-6">
+      <NowNext slots={mine} secondary="class" />
+      <Insights
+        stats={[
+          { label: 'حصصي أسبوعيًا', value: mine.length, icon: 'timetable' },
+          { label: 'فصولي', value: myClasses.length, icon: 'students' },
+          { label: 'موادي', value: bySubject.size, icon: 'tasks' },
+          { label: 'أكثر أيامي', value: busiest?.n ? busiest.d : '—', icon: 'calendar', hint: busiest?.n ? `${busiest.n} حصص` : undefined, tone: 'gold' },
+        ]}
+        donut={{ title: 'حصصي حسب المادة', caption: 'في الأسبوع', unit: 'حصة', items: [...bySubject.entries()].map(([name, value]) => ({ name, value })) }}
       />
-      {!mine && (
-        <FilterBar>
-          <Select name="class" label="الفصل" value={classId} options={options} className="w-72" />
-        </FilterBar>
-      )}
-      <ErrorNote error={error} />
-      {slots.length ? <TimetableGrid slots={slots} /> : <Empty title="لا حصص في هذا الجدول" />}
-    </>
+      <section className="rounded-[1.4rem] border border-line bg-surface p-4 sm:p-5">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
+          <Link href="/staff/timetable" className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${!classSlots ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>جدولي</Link>
+          {myClasses.map(([id, label]) => (
+            <Link key={id} href={`/staff/timetable?class=${id}`} className={`rounded-full px-4 py-2 text-sm transition-colors ${classId === id && classSlots ? 'bg-board font-semibold text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+              {label}
+            </Link>
+          ))}
+        </div>
+        {classSlots ? (
+          <WeekTimetable slots={classSlots} secondary="teacher" />
+        ) : mine.length ? (
+          <WeekTimetable slots={mine} secondary="class" />
+        ) : (
+          <p className="rounded-2xl border border-dashed border-line py-14 text-center text-muted">لا حصص مسندة إليك بعد</p>
+        )}
+      </section>
+    </div>
   );
 }

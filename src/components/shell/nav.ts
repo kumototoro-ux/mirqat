@@ -54,6 +54,7 @@ export const STUDENT_NAV: NavGroup[] = [
       { href: '/student', label: 'الرئيسية', icon: 'home' },
       { href: '/student/timetable', label: 'جدولي', icon: 'timetable' },
       { href: '/student/calendar', label: 'التقويم الدراسي', icon: 'calendar' },
+      { href: '/student/exams', label: 'جدول الاختبارات', icon: 'exams' },
       { href: '/student/tasks', label: 'مهامي ونماذجي', icon: 'tasks' },
       { href: '/student/results', label: 'نتائجي', icon: 'results' },
       { href: '/student/content', label: 'الإثراءات', icon: 'content' },
