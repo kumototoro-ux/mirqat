@@ -74,3 +74,12 @@ select test.fails($$select delete_employee((select employee_id from profiles whe
                   'سجلك بنفسك', 'الإداري لا يحذف سجله');
 select test.ok(delete_employee((select id from employees where name_ar = 'إداري جديد')) is null, 'موظف بلا سجلات يُحذف');
 select test.logout();
+
+-- 19: الإداري لا يغيّر نوع حسابه بنفسه
+select test.login('00000000-0000-0000-0000-0000000000a0');
+select test.fails($$select * from save_employee((select employee_id from profiles where id = auth.uid()), '{"name_ar":"أنا","user_type":"teacher","scope":{"branch_id":1,"grade_ids":[1],"section_ids":[1],"subject_ids":[1]}}')$$,
+                  'نوع حسابك بنفسك', 'الإداري لا يُنزل نفسه إلى معلم');
+select test.ok((select count(*) from save_employee((select employee_id from profiles where id = auth.uid()), '{"name_ar":"الإداري","user_type":"admin"}')) = 1,
+               'الإداري يعدّل بياناته دون تغيير نوعه');
+select test.ok((select role = 'admin' from profiles where id = auth.uid()), 'دوره ما زال إداريًا');
+select test.logout();

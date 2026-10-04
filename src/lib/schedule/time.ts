@@ -38,3 +38,22 @@ export function inDays(n: number) {
   if (n === -1) return 'أمس';
   return `قبل ${Math.abs(n)} ${Math.abs(n) <= 10 ? 'أيام' : 'يومًا'}`;
 }
+
+/**
+ * نوع المناسبة من نصها: "دراسة" أسبوع عادي (ليس إجازة)، و"إجازة/عطلة" إجازة، وغيرها مناسبة.
+ * في التقويم المنقول كل أسبوع دراسي مكتوب في عمود المناسبة "دراسة"، فلا يُعامل كإجازة.
+ */
+export function eventKind(text: string | null | undefined): 'study' | 'holiday' | 'event' | null {
+  const t = (text ?? '').trim();
+  if (!t) return null;
+  if (/^(دراس|الدراس|بداية الدراسة|استئناف)/.test(t)) return 'study';
+  if (/(اجاز|إجاز|عطل|راحة)/.test(t)) return 'holiday';
+  return 'event';
+}
+
+/** "السادس" ← "الأسبوع السادس" (التقويم المنقول يكتب رتبة الأسبوع وحدها) */
+export function weekName(label: string | null | undefined) {
+  const t = (label ?? '').trim();
+  if (!t) return '';
+  return /^(الأسبوع|الاسبوع|أسبوع|اسبوع)/.test(t) ? t : `الأسبوع ${t}`;
+}
