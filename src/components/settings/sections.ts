@@ -15,6 +15,15 @@ export const SECTIONS: { group: string; icon: IconName; items: { key: string; la
       { key: 'subjects', label: 'المواد' },
     ],
   },
+  {
+    group: 'الجداول',
+    icon: 'calendar',
+    items: [
+      { key: 'calendar', label: 'التقويم الدراسي' },
+      { key: 'timetable', label: 'جدول الحصص' },
+      { key: 'exams', label: 'جدول الاختبارات' },
+    ],
+  },
   { group: 'التقييم', icon: 'results', items: [{ key: 'eval', label: 'أنواع التقييم' }, { key: 'weights', label: 'توزيع الدرجات' }] },
   { group: 'الحضور والسلوك', icon: 'attendance', items: [{ key: 'attendance', label: 'حالات الحضور' }, { key: 'behavior', label: 'حالات السلوك' }] },
 ];

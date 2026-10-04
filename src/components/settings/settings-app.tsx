@@ -6,6 +6,7 @@ import { Icon } from '@/components/shell/icons';
 import { SECTIONS } from './sections';
 import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, WeightsEditor, type RefItem } from './editors';
 import type { RefTable } from '@/lib/settings/actions';
+import { CalendarEditor, ExamsEditor, TimetableEditor } from './schedule-editors';
 
 export type SettingsData = {
   settings: Record<string, unknown>;
@@ -62,6 +63,9 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
         terms={data.terms}
       />
     );
+  else if (active === 'calendar') content = <CalendarEditor />;
+  else if (active === 'timetable') content = <TimetableEditor />;
+  else if (active === 'exams') content = <ExamsEditor />;
   else if (active === 'eval')
     content = <RefListEditor table="eval_types" title="أنواع التقييم" description="مثل: واجبات، مشاركة، اختبار قصير. النوع (اختبار) يُعامل كاختبار في التقارير." items={L.eval_types} categories />;
   else if (active === 'weights')
@@ -132,7 +136,7 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
         </aside>
       </LayoutGroup>
 
-      <div className="min-w-0 max-w-3xl">
+      <div className={`min-w-0 ${active === 'timetable' ? '' : 'max-w-3xl'}`}>
         <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={active}

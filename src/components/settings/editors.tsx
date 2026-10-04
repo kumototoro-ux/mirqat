@@ -6,6 +6,8 @@ import { AnimatePresence, Reorder, motion } from 'motion/react';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import { deleteRefItem, reorderRef, saveRefItem, saveSetting, saveWeights, uploadLogo, type RefTable } from '@/lib/settings/actions';
+import { getBranchUsage } from '@/lib/schedule/actions';
+import { useQuery } from '@tanstack/react-query';
 import type { ActionResult } from '@/components/registry/types';
 
 /* =====================================================================
@@ -396,6 +398,13 @@ export function RefListEditor({
   const { confirm } = useFeedback();
   const { pending, run } = useSave();
   const orderDirty = order.map((x) => x.id).join() !== items.map((x) => x.id).join();
+  // للفروع: كم فصلًا وطالبًا ومعلمًا مرتبطًا بكل فرع (يُشرح به سبب رفض الحذف)
+  const usage = useQuery({ queryKey: ['branch-usage'], queryFn: () => getBranchUsage(), enabled: table === 'branches' });
+  const usageText = (id: number) => {
+    const u = usage.data?.[id];
+    if (!u) return null;
+    return `${u.students} طالب · ${u.classes} فصل · ${u.staff} معلم`;
+  };
 
   const startEdit = (it: RefItem | null) => {
     setEditing(it ? it.id : 'new');
@@ -411,9 +420,13 @@ export function RefListEditor({
     });
   };
   const remove = async (it: RefItem) => {
+    const u = table === 'branches' ? usage.data?.[it.id] : undefined;
+    const used = u && (u.classes || u.students || u.staff);
     const ok = await confirm({
       title: `حذف "${it.name}"؟`,
-      body: it.usage ? `مستخدم في ${it.usage} سجل، فالحذف سيُرفض. أعد تسميته أو عطّله بدلًا من ذلك.` : 'لا يمكن التراجع.',
+      body: used
+        ? `هذا الفرع مرتبط بـ ${usageText(it.id)}، فالحذف سيُرفض لحماية بياناتهم. إن كان الاسم خطأ فأعد تسميته بزر القلم، وإن لم يعد مستخدمًا فعطّله.`
+        : 'لا يمكن التراجع.',
       confirmLabel: 'حذف',
       danger: true,
     });
@@ -486,6 +499,7 @@ export function RefListEditor({
                     {categories && it.category === 'exam' && <span className="ms-2 rounded-full bg-brass-soft px-2 py-0.5 text-xs text-brass">اختبار</span>}
                   </span>
                   {typeof it.usage === 'number' && <span className="hidden text-xs tabular-nums text-muted sm:inline">{it.usage} استخدام</span>}
+                  {table === 'branches' && usageText(it.id) && <span className="hidden text-xs tabular-nums text-muted sm:inline">{usageText(it.id)}</span>}
                   {hasActive && (
                     <Switch
                       checked={it.is_active !== false}
