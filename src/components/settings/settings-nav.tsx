@@ -3,24 +3,9 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { LayoutGroup, motion } from 'motion/react';
-import { Icon, type IconName } from '@/components/shell/icons';
+import { Icon } from '@/components/shell/icons';
+import { SECTIONS } from './sections';
 
-export const SECTIONS: { group: string; icon: IconName; items: { key: string; label: string }[] }[] = [
-  { group: 'المدرسة', icon: 'home', items: [{ key: 'general', label: 'الهوية' }, { key: 'announcements', label: 'الإعلانات' }, { key: 'visibility', label: 'ما يراه الطلاب' }] },
-  {
-    group: 'البنية الدراسية',
-    icon: 'students',
-    items: [
-      { key: 'branches', label: 'الفروع' },
-      { key: 'stages', label: 'المراحل' },
-      { key: 'grades', label: 'الصفوف' },
-      { key: 'sections', label: 'الشعب' },
-      { key: 'subjects', label: 'المواد' },
-    ],
-  },
-  { group: 'التقييم', icon: 'results', items: [{ key: 'eval', label: 'أنواع التقييم' }, { key: 'weights', label: 'توزيع الدرجات' }] },
-  { group: 'الحضور والسلوك', icon: 'attendance', items: [{ key: 'attendance', label: 'حالات الحضور' }, { key: 'behavior', label: 'حالات السلوك' }] },
-];
 
 /** قائمة أقسام الإعدادات: عمود ثابت على الحاسوب، وشريط أفقي قابل للتمرير على الجوال */
 export function SettingsNav() {

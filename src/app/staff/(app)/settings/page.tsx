@@ -3,7 +3,8 @@ import { Suspense } from 'react';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { getTerms } from '@/lib/data';
-import { SECTIONS, SettingsNav } from '@/components/settings/settings-nav';
+import { SettingsNav } from '@/components/settings/settings-nav';
+import { SECTIONS } from '@/components/settings/sections';
 import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, WeightsEditor } from '@/components/settings/editors';
 import type { RefTable } from '@/lib/settings/actions';
 
