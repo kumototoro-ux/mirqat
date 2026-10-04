@@ -1,6 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
-import { createClient } from '@/lib/supabase/server';
+import { unstable_cache } from 'next/cache';
+import { createAdminClient } from '@/lib/supabase/admin';
+import { REF_TAG } from '@/lib/data';
 
 export type Lookups = {
   branches: { id: number; name: string }[];
@@ -13,8 +15,9 @@ export type Lookups = {
 };
 
 /** القوائم المرجعية لنماذج التسجيل — تُرسل مرة واحدة مع الصفحة */
-export const getLookups = cache(async (): Promise<Lookups> => {
-  const supabase = await createClient();
+const cachedLookups = unstable_cache(
+  async (): Promise<Lookups> => {
+  const supabase = createAdminClient();
   const [b, st, g, se, su, m] = await Promise.all([
     supabase.from('branches').select('id, name').eq('is_active', true).order('sort_order'),
     supabase.from('stages').select('id, name').order('sort_order'),
@@ -31,4 +34,8 @@ export const getLookups = cache(async (): Promise<Lookups> => {
     subjects: su.data ?? [],
     matrix: (m.data ?? []).map((r) => ({ b: r.branch_id, g: r.grade_id, s: r.section_id, sub: r.subject_id })),
   };
-});
+  },
+  ['lookups'],
+  { revalidate: 600, tags: [REF_TAG] },
+);
+export const getLookups = cache(() => cachedLookups());

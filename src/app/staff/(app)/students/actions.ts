@@ -1,11 +1,12 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
+import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { CLASS_SELECT, classLabel, type ClassRef } from '@/lib/format';
-import { PAGE_SIZE, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
+import { pageSize, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
 
 export type StudentRow = {
   id: number;
@@ -47,7 +48,7 @@ export async function listStudents(p: PageParams): Promise<PageResult<StudentRow
     })
     .order(sort.col, { ascending: sort.asc })
     .order('id')
-    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+    .range((page - 1) * pageSize(p), page * pageSize(p) - 1);
   const term = clean(p.q ?? '');
   if (term) q = q.or(`name_ar.ilike.%${term}%,code.ilike.%${term}%,national_id.ilike.%${term}%`);
   const f = p.filters ?? {};
@@ -132,6 +133,7 @@ export async function saveStudent(form: StudentForm): Promise<ActionResult> {
   if (error) return { ok: false, error: error.message };
   const row = (data as { id: number; code: string }[] | null)?.[0];
   revalidatePath('/staff/students');
+  updateTag(REF_TAG); // قد يُنشأ فصل جديد لتركيبة جديدة
   return { ok: true, message: form.id ? 'تم حفظ التعديل' : `تم تسجيل الطالب برقم ${row?.code ?? ''}`, code: row?.code };
 }
 
@@ -147,4 +149,16 @@ export async function deleteStudent(id: number): Promise<ActionResult> {
   }
   revalidatePath('/staff/students');
   return { ok: true, message: 'تم حذف الطالب' };
+}
+
+/** تغيير حالة عدة طلاب دفعة واحدة (منتظم/منسحب/متخرج) — كل تغيير يُسجَّل في سجل النشاط */
+export async function setStudentsStatus(ids: number[], status: 'active' | 'withdrawn' | 'graduated'): Promise<ActionResult> {
+  await requireUser(['admin']);
+  if (!ids.length || ids.length > 100) return { ok: false, error: 'حدد بين 1 و100 طالب' };
+  const supabase = await createClient();
+  const { error, count } = await supabase.from('students').update({ status, is_edited: true }, { count: 'exact' }).in('id', ids);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/staff/students');
+  const label = { active: 'منتظم', withdrawn: 'منسحب', graduated: 'متخرج' }[status];
+  return { ok: true, message: `تغيّرت حالة ${count ?? ids.length} طالب إلى "${label}"` };
 }

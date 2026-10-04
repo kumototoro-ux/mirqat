@@ -32,6 +32,10 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // ذاكرة المسارات في المتصفح: الرجوع لصفحة زرتها قبل أقل من 30 ثانية لا يطلبها من الخادم مجددًا
+    staleTimes: { dynamic: 30, static: 300 },
+  },
   async headers() {
     return [
       {

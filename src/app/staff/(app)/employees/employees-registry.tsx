@@ -3,24 +3,27 @@
 import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Registry, RowButton, StatCards, type RegistryHandle } from '@/components/registry/registry';
+import { BulkButton, Registry, RowButton, type RegistryHandle } from '@/components/registry/registry';
+import { Insights } from '@/components/registry/insights';
+import { downloadCsv } from '@/components/registry/csv';
+import type { EmployeesReport } from '@/lib/reports';
 import type { PageParams, PageResult } from '@/components/registry/types';
 import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import type { Lookups } from '@/lib/lookups';
-import { deleteEmployee, getEmployee, listEmployees, type EmployeeForm, type EmployeeRow } from './actions';
+import { deleteEmployee, getEmployee, listEmployees, setEmployeesActive, type EmployeeForm, type EmployeeRow } from './actions';
 import { EmployeeFormSheet } from './employee-form';
 
 export function EmployeesRegistry({
   initial,
   initialParams,
-  stats,
+  report,
   lookups,
 }: {
   initial: PageResult<EmployeeRow>;
   initialParams: PageParams;
-  stats: { active: number; teachers: number; admins: number };
+  report: EmployeesReport;
   lookups: Lookups;
 }) {
   const registry = useRef<RegistryHandle>(null);
@@ -28,6 +31,26 @@ export function EmployeesRegistry({
   const { toast, confirm } = useFeedback();
   const [editing, setEditing] = useState<EmployeeForm | 'new' | null>(null);
   const [opening, setOpening] = useState<number | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const t = report.totals;
+
+  const bulkActive = async (rows: EmployeeRow[], active: boolean, clear: () => void) => {
+    const ok = await confirm({
+      title: active ? `تفعيل ${rows.length} موظف؟` : `إيقاف ${rows.length} موظف؟`,
+      body: active ? 'يعودون للظهور في القوائم اليومية.' : 'تبقى سجلاتهم كما هي ولا يظهرون في القوائم اليومية. حسابات دخولهم تُدار من "حسابات الموظفين".',
+      confirmLabel: active ? 'تفعيل' : 'إيقاف',
+      danger: !active,
+    });
+    if (!ok) return;
+    setBulkBusy(true);
+    const res = await setEmployeesActive(rows.map((r) => r.id), active);
+    setBulkBusy(false);
+    if (!res.ok) return toast(res.error, 'error');
+    toast(res.message);
+    clear();
+    registry.current?.invalidate();
+    router.refresh();
+  };
 
   const open = useCallback(
     async (id: number) => {
@@ -64,16 +87,23 @@ export function EmployeesRegistry({
 
   return (
     <>
-      <StatCards
-        items={[
-          { label: 'الموظفون النشطون', value: stats.active, icon: 'employees' },
-          { label: 'معلمون', value: stats.teachers, icon: 'tasks' },
-          { label: 'إداريون', value: stats.admins, icon: 'settings', tone: 'gold' },
-          { label: 'إجمالي السجلات', value: initial.total, icon: 'audit' },
+      <Insights
+        stats={[
+          { label: 'الموظفون النشطون', value: t.active, icon: 'employees', hint: `من ${t.all} سجل` },
+          { label: 'معلمون', value: t.teachers, icon: 'tasks', hint: `${t.weekly_periods} حصة أسبوعيًا` },
+          { label: 'إداريون', value: t.admins, icon: 'settings', tone: 'gold' },
+          { label: 'معلمون بلا مواد', value: t.no_scope, icon: 'user', tone: t.no_scope ? 'danger' : undefined, hint: t.no_scope ? 'لن يروا أي طالب' : 'كل المعلمين لهم نطاق' },
         ]}
+        donut={{
+          title: 'المعلمون حسب الفرع',
+          caption: 'المعلمون النشطون',
+          unit: 'معلم',
+          items: report.by_branch.map((b) => ({ name: b.name, value: b.teachers })).filter((b) => b.value > 0).sort((a, b) => b.value - a.value),
+        }}
       />
       <Registry<EmployeeRow>
         ref={registry}
+        queryKey="employees"
         title="قائمة الموظفين"
         fetchPage={listEmployees}
         initial={initial}
@@ -93,11 +123,26 @@ export function EmployeesRegistry({
           { key: 'active', label: 'الحالة', options: [{ value: '1', label: 'نشط' }, { value: '0', label: 'غير نشط' }] },
         ]}
         toolbar={
-          <button type="button" onClick={() => setEditing('new')} className="btn-primary h-10">
-            <Icon name="plus" className="size-4" />
-            تسجيل موظف
-          </button>
+          <>
+            <Link href="/staff/reports/employees" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              <Icon name="results" className="size-4" />
+              التقرير
+            </Link>
+            <button type="button" onClick={() => setEditing('new')} className="btn-primary h-11 rounded-xl px-4">
+              <Icon name="plus" className="size-4" />
+              تسجيل موظف
+            </button>
+          </>
         }
+        bulkActions={(rows, clear) => (
+          <>
+            <BulkButton onClick={() => downloadCsv('موظفون', ['الرمز', 'الاسم', 'النوع', 'المسمى', 'الفرع', 'المواد', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.user_type === 'admin' ? 'إداري' : 'معلم', r.job_role, r.branches.join('، '), r.subjects.join('، '), r.is_active ? 'نشط' : 'غير نشط']))}>
+              <Icon name="audit" className="size-4" /> تصدير
+            </BulkButton>
+            {rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
+            {rows.some((r) => !r.is_active) && <BulkButton busy={bulkBusy} onClick={() => bulkActive(rows, true, clear)}>تفعيل</BulkButton>}
+          </>
+        )}
         columns={[
           {
             key: 'name',

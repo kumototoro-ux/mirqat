@@ -2,7 +2,10 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Registry, RowButton, StatCards, type FilterDef, type RegistryHandle } from '@/components/registry/registry';
+import { BulkButton, Registry, RowButton, type FilterDef, type RegistryHandle } from '@/components/registry/registry';
+import { Insights } from '@/components/registry/insights';
+import { downloadCsv } from '@/components/registry/csv';
+import Link from 'next/link';
 import type { PageParams, PageResult } from '@/components/registry/types';
 import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
@@ -16,6 +19,7 @@ import {
   listStudentAccounts,
   resetAccountPassword,
   setAccountStatus,
+  setAccountsStatus,
   type AccountKind,
   type AccountRow,
 } from '@/lib/accounts/actions';
@@ -50,15 +54,6 @@ function PasswordCard({ name, username, password }: { name: string; username: st
   );
 }
 
-function csv(rows: { code: string; name: string; username: string; password: string }[], label: string) {
-  const cell = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-  const lines = [['الرقم', 'الاسم', 'اسم المستخدم', 'كلمة المرور المؤقتة'].join(','), ...rows.map((r) => [r.code, r.name, r.username, r.password].map(cell).join(','))];
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }));
-  a.download = `${label}-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
 
 export function AccountsRegistry({
   kind,
@@ -70,7 +65,7 @@ export function AccountsRegistry({
   kind: AccountKind;
   initial: PageResult<AccountRow>;
   initialParams: PageParams;
-  stats: { total: number; withAccount: number; temp: number; disabled: number };
+  stats: { total: number; withAccount: number; temp: number; disabled: number; activated: number; login7: number };
   classes?: { value: string; label: string }[];
 }) {
   const registry = useRef<RegistryHandle>(null);
@@ -150,7 +145,7 @@ export function AccountsRegistry({
     if (!res.ok) return toast(res.error, 'error');
     refresh();
     if (res.created.length) {
-      csv(res.created, student ? 'حسابات-الطلاب' : 'حسابات-الموظفين');
+      downloadCsv(student ? 'حسابات-الطلاب' : 'حسابات-الموظفين', ['الرقم', 'الاسم', 'اسم المستخدم', 'كلمة المرور المؤقتة'], res.created.map((r) => [r.code, r.name, r.username, r.password]));
       toast(`أُنشئ ${res.created.length} حسابًا ونُزّل ملف كلمات المرور`);
     }
     if (res.failed.length) toast(`تعذّر ${res.failed.length}: ${res.failed[0].code} — ${res.failed[0].problem}`, 'error');
@@ -171,6 +166,25 @@ export function AccountsRegistry({
       ? { key: 'class', label: 'الفصل', options: classes ?? [] }
       : { key: 'type', label: 'النوع', options: [{ value: 'teacher', label: 'معلم' }, { value: 'admin', label: 'إداري' }] },
   ];
+
+  const bulkStatus = async (rows: AccountRow[], status: 'active' | 'disabled', clear: () => void) => {
+    const ids = rows.flatMap((r) => (r.account && r.account.status !== status ? [r.account.id] : []));
+    if (!ids.length) return toast('لا حسابات تحتاج هذا التغيير في التحديد', 'info');
+    const ok = await confirm({
+      title: status === 'disabled' ? `إيقاف ${ids.length} حساب؟` : `تفعيل ${ids.length} حساب؟`,
+      body: status === 'disabled' ? 'يُمنعون من الدخول فورًا وتنتهي جلساتهم المفتوحة.' : 'يعودون قادرين على الدخول.',
+      confirmLabel: status === 'disabled' ? 'إيقاف' : 'تفعيل',
+      danger: status === 'disabled',
+    });
+    if (!ok) return;
+    setBusy('bulk-status');
+    const res = await setAccountsStatus(kind, ids, status);
+    setBusy(null);
+    if (!res.ok) return toast(res.error, 'error');
+    toast(res.message);
+    clear();
+    refresh();
+  };
 
   const statusBadge = (r: AccountRow) =>
     !r.account ? <Badge>بلا حساب</Badge> : r.account.status !== 'active' ? <Badge tone="danger">موقوف</Badge> : r.account.temp ? <Badge tone="gold">لم يدخل بعد</Badge> : <Badge tone="ok">مفعّل</Badge>;
@@ -199,16 +213,28 @@ export function AccountsRegistry({
 
   return (
     <>
-      <StatCards
-        items={[
-          { label: student ? 'حسابات الطلاب' : 'حسابات الموظفين', value: stats.withAccount, icon: 'accounts', hint: `من ${stats.total} ${who}` },
-          { label: 'بلا حساب', value: stats.total - stats.withAccount, icon: 'user', tone: stats.total - stats.withAccount ? 'gold' : 'plain' },
-          { label: 'لم يغيّروا الكلمة المؤقتة', value: stats.temp, icon: 'key', tone: stats.temp ? 'gold' : 'plain' },
-          { label: 'موقوفة', value: stats.disabled, icon: 'close', tone: stats.disabled ? 'danger' : 'plain' },
+      <Insights
+        stats={[
+          { label: student ? 'حسابات الطلاب' : 'حسابات الموظفين', value: stats.withAccount, icon: 'accounts', hint: `من ${stats.total} ${who} نشط` },
+          { label: 'دخلوا آخر 7 أيام', value: stats.login7, icon: 'logout', hint: stats.withAccount ? `${Math.round((stats.login7 / stats.withAccount) * 100)}% من الحسابات` : undefined },
+          { label: 'لم يغيّروا الكلمة المؤقتة', value: stats.temp, icon: 'key', tone: stats.temp ? 'gold' : undefined },
+          { label: 'بلا حساب', value: stats.total - stats.withAccount, icon: 'user', tone: stats.total - stats.withAccount ? 'danger' : undefined },
         ]}
+        donut={{
+          title: 'حالة الحسابات',
+          caption: `كل ${student ? 'الطلاب' : 'الموظفين'} النشطين`,
+          unit: who,
+          items: [
+            { name: 'مفعّل (غيّر كلمته)', value: stats.activated },
+            { name: 'لم يدخل بعد', value: stats.temp },
+            { name: 'بلا حساب', value: Math.max(0, stats.total - stats.withAccount) },
+            { name: 'موقوف', value: stats.disabled },
+          ].filter((x) => x.value > 0),
+        }}
       />
       <Registry<AccountRow>
         ref={registry}
+        queryKey={student ? 'student-accounts' : 'employee-accounts'}
         title={student ? 'حسابات الطلاب' : 'حسابات الموظفين'}
         fetchPage={student ? listStudentAccounts : listEmployeeAccounts}
         initial={initial}
@@ -224,13 +250,28 @@ export function AccountsRegistry({
         ]}
         filters={filters}
         toolbar={
-          stats.total - stats.withAccount > 0 ? (
-            <button type="button" onClick={bulk} disabled={busy === 'bulk'} className="btn-primary h-10">
-              {busy === 'bulk' ? <span className="spinner" /> : <Icon name="plus" className="size-4" />}
-              إنشاء الناقصة ({stats.total - stats.withAccount})
-            </button>
-          ) : null
+          <>
+            <Link href="/staff/reports/accounts" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              <Icon name="results" className="size-4" />
+              التقرير
+            </Link>
+            {stats.total - stats.withAccount > 0 && (
+              <button type="button" onClick={bulk} disabled={busy === 'bulk'} className="btn-primary h-11 rounded-xl px-4">
+                {busy === 'bulk' ? <span className="spinner" /> : <Icon name="plus" className="size-4" />}
+                إنشاء الناقصة ({stats.total - stats.withAccount})
+              </button>
+            )}
+          </>
         }
+        bulkActions={(rows, clear) => (
+          <>
+            <BulkButton onClick={() => downloadCsv(student ? 'حسابات-طلاب' : 'حسابات-موظفين', ['الرقم', 'الاسم', 'اسم المستخدم', 'الحالة', 'آخر دخول'], rows.map((r) => [r.code, r.name, r.account?.username ?? '', !r.account ? 'بلا حساب' : r.account.status === 'disabled' ? 'موقوف' : r.account.temp ? 'لم يدخل' : 'مفعّل', r.account?.lastLogin ? fmtDateTime(r.account.lastLogin) : '']))}>
+              <Icon name="audit" className="size-4" /> تصدير
+            </BulkButton>
+            <BulkButton tone="danger" busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'disabled', clear)}>إيقاف</BulkButton>
+            <BulkButton busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'active', clear)}>تفعيل</BulkButton>
+          </>
+        )}
         columns={[
           {
             key: 'name',

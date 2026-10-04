@@ -160,6 +160,18 @@ html {
   background: var(--color-paper);
   color: var(--color-ink);
   scroll-behavior: smooth;
+  /* خط أكبر قليلًا من الافتراضي: أوضح على الجوال وأريح للقراءة الطويلة */
+  font-size: 106.25%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* لا شيء يخرج عن عرض الشاشة أفقيًا مهما كان محتوى الصفحة */
+body {
+  overflow-x: clip;
+}
+/* عناصر الشبكات والصفوف المرنة لا تتمدد بسبب محتوى عريض (جدول أو نص طويل) — سبب خروج الصفحات عن الشاشة */
+:where(.grid) > * {
+  min-width: 0;
 }
 
 body {
@@ -279,4 +291,12 @@ body {
   border-radius: 0.6rem;
   background: linear-gradient(90deg, #e9eeeb 25%, #f4f7f5 45%, #e9eeeb 65%) 0 0 / 300% 100%;
   animation: var(--animate-shimmer);
+}
+
+/* الطباعة (التقارير): A4، ألوان الطباعة كما هي على الشاشة، بلا خلفية رمادية */
+@media print {
+  @page { size: A4; margin: 10mm; }
+  html { font-size: 88%; background: #fff; }
+  * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .break-inside-avoid { break-inside: avoid; }
 }

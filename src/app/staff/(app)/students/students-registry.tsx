@@ -3,13 +3,16 @@
 import Link from 'next/link';
 import { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Registry, RowButton, StatCards, type RegistryHandle } from '@/components/registry/registry';
+import { BulkButton, Registry, RowButton, type RegistryHandle } from '@/components/registry/registry';
+import { Insights } from '@/components/registry/insights';
+import { downloadCsv } from '@/components/registry/csv';
+import type { StudentsReport } from '@/lib/reports';
 import type { PageParams, PageResult } from '@/components/registry/types';
 import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import type { Lookups } from '@/lib/lookups';
-import { deleteStudent, getStudent, listStudents, type StudentForm, type StudentRow } from './actions';
+import { deleteStudent, getStudent, listStudents, setStudentsStatus, type StudentForm, type StudentRow } from './actions';
 import { StudentFormSheet } from './student-form';
 
 const STATUS = {
@@ -22,13 +25,13 @@ const feeTone = (f: string | null) => (f === 'سدد' || f === 'إعفاء' ? 'o
 export function StudentsRegistry({
   initial,
   initialParams,
-  stats,
+  report,
   classes,
   lookups,
 }: {
   initial: PageResult<StudentRow>;
   initialParams: PageParams;
-  stats: { active: number; newThisMonth: number; withdrawn: number };
+  report: StudentsReport;
   classes: { value: string; label: string }[];
   lookups: Lookups;
 }) {
@@ -37,6 +40,26 @@ export function StudentsRegistry({
   const { toast, confirm } = useFeedback();
   const [editing, setEditing] = useState<StudentForm | 'new' | null>(null);
   const [opening, setOpening] = useState<number | null>(null);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const t = report.totals;
+
+  const bulkStatus = async (rows: StudentRow[], status: 'active' | 'withdrawn', clear: () => void) => {
+    const ok = await confirm({
+      title: status === 'withdrawn' ? `تغيير ${rows.length} طالب إلى "منسحب"؟` : `إعادة ${rows.length} طالب إلى "منتظم"؟`,
+      body: 'تبقى سجلاتهم ودرجاتهم كما هي، ويُسجَّل التغيير في سجل النشاط.',
+      confirmLabel: 'تأكيد',
+      danger: status === 'withdrawn',
+    });
+    if (!ok) return;
+    setBulkBusy(true);
+    const res = await setStudentsStatus(rows.map((r) => r.id), status);
+    setBulkBusy(false);
+    if (!res.ok) return toast(res.error, 'error');
+    toast(res.message);
+    clear();
+    registry.current?.invalidate();
+    router.refresh();
+  };
 
   const open = useCallback(
     async (id: number) => {
@@ -79,17 +102,24 @@ export function StudentsRegistry({
 
   return (
     <>
-      <StatCards
-        items={[
-          { label: 'الطلاب المنتظمون', value: stats.active, icon: 'students' },
-          { label: 'سُجّلوا هذا الشهر', value: stats.newThisMonth, icon: 'plus', hint: 'منذ بداية الشهر' },
-          { label: 'منسحبون', value: stats.withdrawn, icon: 'user', tone: stats.withdrawn ? 'danger' : 'plain' },
-          { label: 'إجمالي السجلات', value: initial.total, icon: 'audit' },
+      <Insights
+        stats={[
+          { label: 'الطلاب المنتظمون', value: t.active, icon: 'students', hint: `من ${t.all} سجل` },
+          { label: 'سُجّلوا هذا الشهر', value: t.new_this_month, icon: 'plus', delta: { now: t.new_this_month, before: t.new_last_month } },
+          { label: 'انسحبوا هذا الشهر', value: t.withdrawn_this_month, icon: 'logout', delta: { now: t.withdrawn_this_month, before: t.withdrawn_last_month, upIsGood: false }, tone: t.withdrawn_this_month ? 'danger' : undefined },
+          { label: 'منسحبون إجمالًا', value: t.withdrawn, icon: 'user', hint: t.graduated ? `${t.graduated} متخرج` : undefined },
         ]}
+        donut={{
+          title: 'توزيع الطلاب على الفروع',
+          caption: 'الطلاب المنتظمون فقط',
+          unit: 'طالب',
+          items: report.by_branch.map((b) => ({ name: b.name, value: b.active })).filter((b) => b.value > 0).sort((a, b) => b.value - a.value),
+        }}
       />
 
       <Registry<StudentRow>
         ref={registry}
+        queryKey="students"
         title="قائمة الطلاب"
         fetchPage={listStudents}
         initial={initial}
@@ -110,11 +140,30 @@ export function StudentsRegistry({
           { key: 'fee', label: 'الرسوم', options: ['سدد', 'جزئي', 'إعفاء', 'لم يسدد'].map((v) => ({ value: v, label: v })) },
         ]}
         toolbar={
-          <button type="button" onClick={() => setEditing('new')} className="btn-primary h-10">
-            <Icon name="plus" className="size-4" />
-            تسجيل طالب
-          </button>
+          <>
+            <Link href="/staff/reports/students" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              <Icon name="results" className="size-4" />
+              التقرير
+            </Link>
+            <button type="button" onClick={() => setEditing('new')} className="btn-primary h-11 rounded-xl px-4">
+              <Icon name="plus" className="size-4" />
+              تسجيل طالب
+            </button>
+          </>
         }
+        bulkActions={(rows, clear) => (
+          <>
+            <BulkButton onClick={() => downloadCsv('طلاب', ['الرقم', 'الاسم', 'الهوية', 'الفصل', 'الجنس', 'الجنسية', 'الرسوم', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.national_id, r.class_label, r.gender, r.nationality, r.fee_status, STATUS[r.status].label]))}>
+              <Icon name="audit" className="size-4" /> تصدير
+            </BulkButton>
+            {rows.some((r) => r.status === 'active') && (
+              <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkStatus(rows, 'withdrawn', clear)}>منسحب</BulkButton>
+            )}
+            {rows.some((r) => r.status !== 'active') && (
+              <BulkButton busy={bulkBusy} onClick={() => bulkStatus(rows, 'active', clear)}>منتظم</BulkButton>
+            )}
+          </>
+        )}
         columns={[
           {
             key: 'name',

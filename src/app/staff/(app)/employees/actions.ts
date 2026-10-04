@@ -1,10 +1,11 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, updateTag } from 'next/cache';
+import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { PAGE_SIZE, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
+import { pageSize, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
 
 export type EmployeeRow = {
   id: number;
@@ -44,7 +45,7 @@ export async function listEmployees(p: PageParams): Promise<PageResult<EmployeeR
     .select('id, code, name_ar, job_role, user_type, gender, is_active, staff_scope(branch:branches(name), subject:subjects(name)), profiles(id)', { count: 'exact' })
     .order(sort.col, { ascending: sort.asc })
     .order('id')
-    .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+    .range((page - 1) * pageSize(p), page * pageSize(p) - 1);
   const term = clean(p.q ?? '');
   if (term) q = q.or(`name_ar.ilike.%${term}%,code.ilike.%${term}%,national_id.ilike.%${term}%`);
   const f = p.filters ?? {};
@@ -143,6 +144,7 @@ export async function saveEmployee(form: EmployeeForm): Promise<ActionResult> {
     if (metaError) console.error('role metadata', metaError);
   }
   revalidatePath('/staff/employees');
+  updateTag(REF_TAG);
   return { ok: true, message: form.id ? 'تم حفظ التعديل' : `تم تسجيل الموظف برقم ${row?.code ?? ''}`, code: row?.code };
 }
 
@@ -157,4 +159,15 @@ export async function deleteEmployee(id: number): Promise<ActionResult> {
   }
   revalidatePath('/staff/employees');
   return { ok: true, message: 'تم حذف الموظف' };
+}
+
+/** تفعيل أو إيقاف عدة موظفين دفعة واحدة */
+export async function setEmployeesActive(ids: number[], active: boolean): Promise<ActionResult> {
+  await requireUser(['admin']);
+  if (!ids.length || ids.length > 100) return { ok: false, error: 'حدد بين 1 و100 موظف' };
+  const supabase = await createClient();
+  const { error, count } = await supabase.from('employees').update({ is_active: active, is_edited: true }, { count: 'exact' }).in('id', ids);
+  if (error) return { ok: false, error: error.message };
+  revalidatePath('/staff/employees');
+  return { ok: true, message: `${active ? 'تم تفعيل' : 'تم إيقاف'} ${count ?? ids.length} موظف` };
 }

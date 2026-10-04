@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createAccount, resetPassword, setStatus } from '@/lib/accounts/core';
 import { CLASS_SELECT, classLabel, type ClassRef } from '@/lib/format';
-import { PAGE_SIZE, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
+import { pageSize, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
 
 export type AccountKind = 'student' | 'employee';
 
@@ -53,7 +53,7 @@ export async function listAccounts(kind: AccountKind, p: PageParams): Promise<Pa
   if (sort.startsWith('login')) q = q.order('last_login_at', { referencedTable: 'profiles', ascending: sort.endsWith('_desc'), nullsFirst: false });
   else if (sort.startsWith('code')) q = q.order('code', { ascending: !sort.endsWith('_desc') });
   else q = q.order('name_ar', { ascending: !sort.endsWith('_desc') });
-  q = q.order('id').range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
+  q = q.order('id').range((page - 1) * pageSize(p), page * pageSize(p) - 1);
 
   const { data, error, count } = await q;
   if (error) throw new Error(error.message);
@@ -170,4 +170,23 @@ export async function setAccountStatus(kind: AccountKind, userId: string, status
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
+}
+
+/** إيقاف أو تفعيل عدة حسابات دفعة واحدة (حسابك أنت يُستثنى) */
+export async function setAccountsStatus(kind: AccountKind, userIds: string[], status: 'active' | 'disabled'): Promise<ActionResult> {
+  const me = await requireUser(['admin']);
+  const ids = userIds.filter((id) => id !== me.id).slice(0, 100);
+  if (!ids.length) return { ok: false, error: 'لا حسابات صالحة في التحديد' };
+  const admin = createAdminClient();
+  let done = 0;
+  for (const id of ids) {
+    try {
+      await setStatus(admin, id, status);
+      done++;
+    } catch (e) {
+      console.error('bulk status', id, e);
+    }
+  }
+  paths(kind);
+  return { ok: true, message: `${status === 'active' ? 'تم تفعيل' : 'تم إيقاف'} ${done} حساب` };
 }
