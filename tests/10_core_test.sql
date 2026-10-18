@@ -161,8 +161,15 @@ select test.logout();
 select test.login('00000000-0000-0000-0000-0000000000e1');
 select test.fails($$insert into form_questions (assessment_id, position, body, points) values (2, 3, 'س3', 1)$$,
                   'بعد وجود إجابات', 'لا إضافة أسئلة بعد التسليم');
-select test.fails($$update question_options set is_correct = false where id = 1$$,
-                  'بعد وجود إجابات', 'لا تغيير الإجابة الصحيحة بعد التسليم');
+-- تعديل الإجابة الصحيحة بعد التسليم مسموح الآن، ويُعاد التصحيح تلقائيًا (هجرة 20)
+update question_options set is_correct = false where id = 1;
+update question_options set is_correct = true where id = 2;
+select test.ok((select score from form_attempts where assessment_id = 2 and student_id = 1) = 0, 'تغيير الإجابة الصحيحة أعاد التصحيح: 0 من 5');
+select test.ok((select score from grade_entries where assessment_id = 2 and student_id = 1) = 0, 'والرصد تبعه تلقائيًا');
+update question_options set is_correct = false where id = 2;
+update question_options set is_correct = true where id = 1;
+select test.ok((select score from grade_entries where assessment_id = 2 and student_id = 1) = 2, 'إرجاع الإجابة أعاد الدرجة 2 من 5');
+select test.fails($$delete from question_options where id = 2$$, 'بعد وجود إجابات', 'لا حذف خيارات بعد التسليم');
 select test.ok(test.affected($$update form_questions set body = 'س1 (مصحح إملائيًا)' where id = 1$$) = 1,
                'تعديل نص السؤال مسموح بعد التسليم');
 select test.logout();
