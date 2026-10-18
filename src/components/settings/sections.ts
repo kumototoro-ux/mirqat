@@ -24,6 +24,6 @@ export const SECTIONS: { group: string; icon: IconName; items: { key: string; la
       { key: 'exams', label: 'جدول الاختبارات' },
     ],
   },
-  { group: 'التقييم', icon: 'results', items: [{ key: 'eval', label: 'أنواع التقييم' }, { key: 'weights', label: 'توزيع الدرجات' }] },
+  { group: 'التقييم', icon: 'results', items: [{ key: 'eval', label: 'أنواع التقييم' }, { key: 'weights', label: 'توزيع الدرجات' }, { key: 'submissions', label: 'ملفات التسليم' }] },
   { group: 'الحضور والسلوك', icon: 'attendance', items: [{ key: 'attendance', label: 'حالات الحضور' }, { key: 'behavior', label: 'حالات السلوك' }] },
 ];

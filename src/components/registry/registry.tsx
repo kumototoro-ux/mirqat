@@ -30,7 +30,8 @@ type Props<T> = {
   queryKey: string;
   title: string;
   fetchPage: (p: PageParams) => Promise<PageResult<T>>;
-  initial: PageResult<T>;
+  /** الصفحة الأولى من الخادم؛ بدونها تُجلب عند الظهور مع هيكل تحميل */
+  initial?: PageResult<T>;
   initialParams?: Partial<PageParams>;
   columns: Column<T>[];
   mobileCard: (row: T) => React.ReactNode;
@@ -66,8 +67,8 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
   const query = useQuery({
     queryKey: [queryKey, params],
     queryFn: () => fetchPage(params),
-    initialData: sameParams(params, base) ? props.initial : undefined,
-    initialDataUpdatedAt: mountedAt,
+    initialData: props.initial && sameParams(params, base) ? props.initial : undefined,
+    initialDataUpdatedAt: props.initial ? mountedAt : undefined,
     placeholderData: keepPreviousData,
   });
   const data = query.data ?? { rows: [], total: 0 };

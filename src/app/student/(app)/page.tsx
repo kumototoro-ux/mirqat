@@ -7,6 +7,8 @@ import { DAYS, classLabel, fmtDate, fmtNum, fmtTime, todaySchoolDay } from '@/li
 import { getCurrentWeek } from '@/lib/data';
 import { getMe } from '@/lib/student';
 import { subjectColor } from '@/components/timetable-grid';
+import { DueReminders } from '@/components/assess/student-list';
+import type { StudentItem } from '@/lib/assess/student';
 
 export const metadata: Metadata = { title: 'الرئيسية' };
 
@@ -19,7 +21,7 @@ export default async function StudentHome() {
   const classId = me?.class_id ?? -1;
   const nowIso = new Date().toISOString();
 
-  const [lessons, upcoming, grades] = await Promise.all([
+  const [lessons, upcoming, grades, mine] = await Promise.all([
     day === null
       ? Promise.resolve({ data: [] as { id: number; period_no: number; starts_at: string | null; subject: { name: string } | null; teacher: { name_ar: string } | null }[] })
       : supabase
@@ -44,6 +46,7 @@ export default async function StudentHome() {
       .order('recorded_at', { ascending: false })
       .limit(5)
       .returns<{ id: number; score: number; max_score: number; recorded_at: string; assessment: { title: string; subject: { name: string } | null } | null }[]>(),
+    supabase.rpc('my_assessments'),
   ]);
 
   return (
@@ -53,6 +56,7 @@ export default async function StudentHome() {
         title={`أهلًا ${(me?.name_ar ?? user.displayName).split(' ')[0]}`}
         lead={me ? `${classLabel(me.class, true)} · رقم الطالب ${me.code}` : undefined}
       />
+      <DueReminders items={(mine.data as StudentItem[]) ?? []} compact />
       <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
         <Card title="حصص اليوم" action={<Link href="/student/timetable" className="text-sm text-board hover:underline">جدولي</Link>} pad={false}>
           {(lessons.data ?? []).length === 0 ? (
@@ -82,7 +86,8 @@ export default async function StudentHome() {
             ) : (
               <ul className="divide-y divide-line">
                 {(upcoming.data ?? []).map((a) => (
-                  <li key={a.id} className="flex items-center gap-3 px-5 py-3">
+                  <li key={a.id}>
+                    <Link href={`/student/tasks/${a.id}`} className="flex items-center gap-3 px-5 py-3 transition-colors hover:bg-board/[0.03]">
                     <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: subjectColor(a.subject?.name ?? '') }} />
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-medium">{a.title}</p>
@@ -92,6 +97,7 @@ export default async function StudentHome() {
                       <Badge tone={a.kind === 'form' ? 'board' : 'neutral'}>{a.kind === 'form' ? 'نموذج' : 'مهمة'}</Badge>
                       {(a.due_at || a.form?.closes_at) && <p className="mt-1 text-xs text-muted">حتى {fmtDate(a.due_at ?? a.form?.closes_at)}</p>}
                     </div>
+                    </Link>
                   </li>
                 ))}
               </ul>
