@@ -23,6 +23,8 @@ const csp = [
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
   `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace('https://', 'wss://')}`.trim(),
+  // الفيديوهات المضمّنة في المنصة (يوتيوب بلا تتبع، فيميو، قوقل درايف)
+  "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://drive.google.com",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

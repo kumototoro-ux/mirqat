@@ -7,6 +7,7 @@ import { SECTIONS } from './sections';
 import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, WeightsEditor, type RefItem } from './editors';
 import type { RefTable } from '@/lib/settings/actions';
 import { CalendarEditor, ExamsEditor, TimetableEditor } from './schedule-editors';
+import { PurgeSettings } from '@/components/assess/purge-settings';
 
 export type SettingsData = {
   settings: Record<string, unknown>;
@@ -66,6 +67,7 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
   else if (active === 'calendar') content = <CalendarEditor />;
   else if (active === 'timetable') content = <TimetableEditor />;
   else if (active === 'exams') content = <ExamsEditor />;
+  else if (active === 'submissions') content = <PurgeSettings />;
   else if (active === 'eval')
     content = <RefListEditor table="eval_types" title="أنواع التقييم" description="مثل: واجبات، مشاركة، اختبار قصير. النوع (اختبار) يُعامل كاختبار في التقارير." items={L.eval_types} categories />;
   else if (active === 'weights')

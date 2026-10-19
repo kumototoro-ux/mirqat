@@ -30,7 +30,8 @@ type Props<T> = {
   queryKey: string;
   title: string;
   fetchPage: (p: PageParams) => Promise<PageResult<T>>;
-  initial: PageResult<T>;
+  /** الصفحة الأولى من الخادم؛ بدونها تُجلب عند الظهور مع هيكل تحميل */
+  initial?: PageResult<T>;
   initialParams?: Partial<PageParams>;
   columns: Column<T>[];
   mobileCard: (row: T) => React.ReactNode;
@@ -41,7 +42,8 @@ type Props<T> = {
   bulkActions?: (rows: T[], clear: () => void) => React.ReactNode;
   filters?: FilterDef[];
   sorts: { value: string; label: string }[];
-  searchPlaceholder: string;
+  /** بدونه لا يظهر صندوق البحث */
+  searchPlaceholder?: string;
   toolbar?: React.ReactNode;
   emptyTitle: string;
   icon?: IconName;
@@ -66,8 +68,8 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
   const query = useQuery({
     queryKey: [queryKey, params],
     queryFn: () => fetchPage(params),
-    initialData: sameParams(params, base) ? props.initial : undefined,
-    initialDataUpdatedAt: mountedAt,
+    initialData: props.initial && sameParams(params, base) ? props.initial : undefined,
+    initialDataUpdatedAt: props.initial ? mountedAt : undefined,
     placeholderData: keepPreviousData,
   });
   const data = query.data ?? { rows: [], total: 0 };
@@ -129,21 +131,23 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
           <span className="rounded-full bg-board/10 px-2.5 py-0.5 text-sm font-semibold tabular-nums text-board">{data.total}</span>
           <AnimatePresence>{fetching && !firstLoad && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="spinner text-board" />}</AnimatePresence>
         </h2>
+        {props.searchPlaceholder && (
         <div className="relative basis-full sm:basis-auto sm:w-72">
-          <Icon name="search" className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted" />
-          <input
-            value={qInput}
-            onChange={(e) => setQInput(e.target.value)}
-            placeholder={props.searchPlaceholder}
-            aria-label="بحث"
-            className="h-11 w-full rounded-xl border border-line bg-paper/70 pe-9 ps-10 text-[0.95rem] transition-[border-color,background-color,box-shadow] focus:border-board focus:bg-surface focus:outline-none focus:ring-4 focus:ring-gold/20"
-          />
-          {qInput && (
-            <button type="button" onClick={() => setQInput('')} aria-label="مسح البحث" className="absolute inset-y-0 end-2 my-auto grid size-7 place-items-center rounded-lg text-muted hover:bg-paper hover:text-ink">
-              <Icon name="close" className="size-4" />
-            </button>
-          )}
-        </div>
+            <Icon name="search" className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted" />
+            <input
+              value={qInput}
+              onChange={(e) => setQInput(e.target.value)}
+              placeholder={props.searchPlaceholder}
+              aria-label="بحث"
+              className="h-11 w-full rounded-xl border border-line bg-paper/70 pe-9 ps-10 text-[0.95rem] transition-[border-color,background-color,box-shadow] focus:border-board focus:bg-surface focus:outline-none focus:ring-4 focus:ring-gold/20"
+            />
+            {qInput && (
+              <button type="button" onClick={() => setQInput('')} aria-label="مسح البحث" className="absolute inset-y-0 end-2 my-auto grid size-7 place-items-center rounded-lg text-muted hover:bg-paper hover:text-ink">
+                <Icon name="close" className="size-4" />
+              </button>
+            )}
+          </div>
+        )}
         {props.filters && props.filters.length > 0 && (
           <button
             type="button"

@@ -9,7 +9,8 @@ import { homeFor, readSessionMeta } from '@/lib/auth/roles';
  *     القرار الحقيقي في الصفحات (requireUser من القاعدة) وفي RLS.
  */
 const LOGIN_PATHS = ['/login', '/student/login'];
-const PUBLIC_PATHS = [...LOGIN_PATHS, '/auth/signout'];
+// /api/cron: المهام المجدولة تحمي نفسها بـ CRON_SECRET (لا جلسة مستخدم فيها)
+const PUBLIC_PATHS = [...LOGIN_PATHS, '/auth/signout', '/api/cron'];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

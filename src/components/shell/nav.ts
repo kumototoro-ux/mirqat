@@ -23,10 +23,10 @@ export const STAFF_NAV: NavGroup[] = [
     title: 'الطلاب',
     items: [
       { href: '/staff/attendance', label: 'التحضير', icon: 'attendance' },
-      { href: '/staff/tasks', label: 'المهام والتكاليف', icon: 'tasks' },
-      { href: '/staff/forms', label: 'النماذج الإلكترونية', icon: 'forms' },
-      { href: '/staff/content', label: 'الإثراءات والفيديوهات', icon: 'content' },
-      { href: '/staff/behavior', label: 'السلوك', icon: 'behavior', roles: ['admin'] },
+      { href: '/staff/tasks', label: 'المهام والنماذج', icon: 'tasks' },
+      { href: '/staff/grading', label: 'الرصد اليومي', icon: 'edit' },
+      { href: '/staff/content', label: 'الفيديوهات والإثراءات', icon: 'content' },
+      { href: '/staff/behavior', label: 'السلوك', icon: 'behavior' },
       { href: '/staff/results', label: 'النتائج', icon: 'results', roles: ['admin'] },
     ],
   },
@@ -57,7 +57,7 @@ export const STUDENT_NAV: NavGroup[] = [
       { href: '/student/exams', label: 'جدول الاختبارات', icon: 'exams' },
       { href: '/student/tasks', label: 'مهامي ونماذجي', icon: 'tasks' },
       { href: '/student/results', label: 'نتائجي', icon: 'results' },
-      { href: '/student/content', label: 'الإثراءات', icon: 'content' },
+      { href: '/student/content', label: 'الفيديوهات والإثراءات', icon: 'content' },
     ],
   },
 ];
@@ -88,6 +88,6 @@ export function tabsFor(role: AppRole): NavLink[] {
     { href: '/staff', label: 'الرئيسية', icon: 'home' },
     { href: '/staff/timetable', label: 'جدولي', icon: 'timetable' },
     { href: '/staff/tasks', label: 'المهام', icon: 'tasks' },
-    { href: '/staff/forms', label: 'النماذج', icon: 'forms' },
+    { href: '/staff/grading', label: 'الرصد', icon: 'edit' },
   ];
 }
