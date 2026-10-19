@@ -41,6 +41,7 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
   const [shuffleO, setShuffleO] = useState(d?.shuffle_options ?? false);
   const [show, setShow] = useState<ShowResults>(d?.show_results ?? 'after_submit');
   const [track, setTrack] = useState(d?.track_focus ?? true);
+  const [review, setReview] = useState(d?.allow_review ?? true);
   const [showIssues, setShowIssues] = useState(false);
   const [importing, setImporting] = useState(false);
   const [preview, setPreview] = useState(false);
@@ -132,6 +133,7 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
               { label: 'يُغلق', value: closesAt, empty: 'لم يُحدَّد', warn: !!closesPast },
               { label: 'مدة الحل', value: null, empty: timed ? `${minutes} دقيقة لكل طالب من لحظة بدئه` : 'بلا حد — حتى الإغلاق' },
               { label: 'المحاولات', value: null, empty: `${attempts} · ${SHOW_RESULTS.find((s) => s.value === show)?.label} تظهر النتيجة` },
+              { label: 'بعد الحل', value: null, empty: show === 'never' ? 'لا يرى الطالب شيئًا' : review ? 'يستعرض الأسئلة وإجاباته' : 'الدرجة فقط — بلا استعراض الأسئلة' },
             ]}
           />
           {closesPast && <span className="mt-2 block font-semibold text-danger">تنبيه: وقت الإغلاق في الماضي — لن يستطيع أحد الحل!</span>}
@@ -162,6 +164,7 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
           shuffle_options: shuffleO,
           show_results: show,
           track_focus: track,
+          allow_review: review,
           intro_video_url: d?.intro_video_url ?? null,
         },
       },
@@ -358,6 +361,7 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
           <Switch checked={shuffleQ} onChange={touch(setShuffleQ)} label="خلط ترتيب الأسئلة لكل طالب" hint="كل طالب يرى ترتيبًا مختلفًا ثابتًا طوال محاولته." />
           <Switch checked={shuffleO} onChange={touch(setShuffleO)} label="خلط ترتيب الخيارات" hint="لأسئلة الاختيار من متعدد. التوصيل يُخلط دائمًا." />
           <Switch checked={track} onChange={touch(setTrack)} label="رصد الخروج من الصفحة" hint="يُسجَّل كل خروج من الصفحة أو تبديل تبويب أثناء الحل، ويظهر لك في النتائج." />
+          <Switch checked={review} onChange={touch(setReview)} label="السماح باستعراض الأسئلة بعد الحل" hint="أوقفه للاختبارات الشهرية والنهائية: يرى الطالب درجته فقط، دون الأسئلة وإجاباته والإجابات الصحيحة." />
         </div>
         <div>
           <p className="label">متى يرى الطالب نتيجته وإجاباته الصحيحة؟</p>

@@ -41,11 +41,11 @@ export default async function StudentHome() {
       .returns<{ id: number; kind: string; title: string; due_at: string | null; subject: { name: string } | null; form: { closes_at: string | null; status: string } | null }[]>(),
     supabase
       .from('grade_entries')
-      .select('id, score, max_score, recorded_at, assessment:assessments(title, subject:subjects(name))')
+      .select('id, score, max_score, recorded_at, note, assessment:assessments(title, subject:subjects(name))')
       .eq('student_id', me?.id ?? -1)
       .order('recorded_at', { ascending: false })
-      .limit(5)
-      .returns<{ id: number; score: number; max_score: number; recorded_at: string; assessment: { title: string; subject: { name: string } | null } | null }[]>(),
+      .limit(6)
+      .returns<{ id: number; score: number; max_score: number; recorded_at: string; note: string | null; assessment: { title: string; subject: { name: string } | null } | null }[]>(),
     supabase.rpc('my_assessments'),
   ]);
 
@@ -113,6 +113,7 @@ export default async function StudentHome() {
                     <span className="min-w-0">
                       <span className="block truncate font-medium">{g.assessment?.title}</span>
                       <span className="text-xs text-muted">{g.assessment?.subject?.name}</span>
+                      {g.note && <span className="mt-0.5 block text-xs text-board">✎ {g.note}</span>}
                     </span>
                     <span className="shrink-0 font-semibold tabular-nums">
                       {fmtNum(Number(g.score), 2)} <span className="text-xs font-normal text-muted">/ {fmtNum(Number(g.max_score), 2)}</span>

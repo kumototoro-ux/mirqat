@@ -51,7 +51,7 @@ export type SessionPayload = {
 type Answer = number | string | string[] | Record<string, number> | undefined;
 type Answers = Record<string, Answer>;
 type SaveState = 'saved' | 'saving' | 'pending' | 'offline' | 'error';
-type SubmitResult = { attempt_no: number; show_score: boolean; score: number | null; max_score: number | null; pending_review: number };
+type SubmitResult = { attempt_no: number; show_score: boolean; score: number | null; max_score: number | null; pending_review: number; allow_review?: boolean };
 
 const isAnswered = (q: PlayerQuestion, a: Answer) => {
   if (a == null) return false;
@@ -671,7 +671,7 @@ function SubmittedScreen({ result, backHref, reviewHref, title }: { result: Subm
           <p className="mt-6 rounded-2xl bg-paper p-4 text-sm text-muted">تظهر نتيجتك بعد أن يسمح بها المعلم.</p>
         )}
         <div className="mt-6 grid gap-2">
-          {pct != null && <Link href={reviewHref} className="btn-primary py-3">مراجعة إجاباتي</Link>}
+          {pct != null && result.allow_review !== false && <Link href={reviewHref} className="btn-primary py-3">مراجعة إجاباتي</Link>}
           <Link href={backHref} className="btn-quiet py-3">العودة لمهامي</Link>
         </div>
       </motion.div>

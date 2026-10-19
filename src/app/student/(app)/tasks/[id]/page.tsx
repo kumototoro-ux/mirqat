@@ -21,6 +21,7 @@ export const metadata: Metadata = { title: 'التفاصيل' };
 type Review =
   | { status: 'none' }
   | { status: 'hidden'; submitted_at: string; attempt_no: number; show_results: string; closes_at: string | null }
+  | { status: 'score_only'; score: number; max_score: number; pending_review: number; submitted_at: string; attempt_no: number }
   | { status: 'shown'; score: number; max_score: number; pending_review: number; submitted_at: string; attempt_no: number; questions: ReviewQuestion[] };
 
 export default async function StudentItemPage({ params }: { params: Promise<{ id: string }> }) {
@@ -172,6 +173,14 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
               <Icon name="check" className="mx-auto size-8 text-ok" />
               <p className="mt-2 font-bold">سلّمت إجاباتك {fmtFull(rv.submitted_at)}</p>
               <p className="mt-1 text-sm text-muted">{rv.show_results === 'after_close' ? `تظهر نتيجتك ومراجعة إجاباتك بعد إغلاق النموذج${rv.closes_at ? ` (${relTime(rv.closes_at)})` : ''}.` : 'نتيجة هذا النموذج عند المعلم.'}</p>
+            </section>
+          )}
+          {rv?.status === 'score_only' && (
+            <section className="rounded-[1.4rem] border border-line bg-surface p-6 text-center">
+              <Icon name="check" className="mx-auto size-8 text-ok" />
+              <p className="mt-2 font-bold">سلّمت إجاباتك {fmtFull(rv.submitted_at)}</p>
+              <p className="mt-1 text-sm text-muted">درجتك ظاهرة أعلى الصفحة. استعراض الأسئلة والإجابات غير متاح في هذا الاختبار.</p>
+              {rv.pending_review > 0 && <p className="mt-2 text-xs text-brass">{rv.pending_review} سؤال بانتظار تصحيح المعلم — قد تتغير درجتك.</p>}
             </section>
           )}
           {rv?.status === 'shown' && (

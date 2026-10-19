@@ -242,6 +242,7 @@ export type FormDetails = {
   time_limit_minutes: number | null;
   show_results: ShowResults;
   track_focus: boolean;
+  allow_review: boolean;
   intro_video_url: string | null;
   absence_settled_at: string | null;
 };
@@ -276,7 +277,7 @@ export async function getFormDetail(id: number, user: CurrentUser): Promise<Form
   const [details, qs, roster, attempts, sessions] = await Promise.all([
     supabase
       .from('form_details')
-      .select('status, opens_at, closes_at, max_attempts, shuffle_questions, shuffle_options, time_limit_minutes, show_results, track_focus, intro_video_url, absence_settled_at')
+      .select('status, opens_at, closes_at, max_attempts, shuffle_questions, shuffle_options, time_limit_minutes, show_results, track_focus, allow_review, intro_video_url, absence_settled_at')
       .eq('assessment_id', id)
       .maybeSingle<FormDetails>(),
     supabase
@@ -309,7 +310,7 @@ export async function getFormDetail(id: number, user: CurrentUser): Promise<Form
     ...base,
     details: details.data ?? {
       status: 'draft', opens_at: null, closes_at: null, max_attempts: 1, shuffle_questions: false, shuffle_options: false,
-      time_limit_minutes: null, show_results: 'after_submit', track_focus: true, intro_video_url: null, absence_settled_at: null,
+      time_limit_minutes: null, show_results: 'after_submit', track_focus: true, allow_review: true, intro_video_url: null, absence_settled_at: null,
     },
     questions: ((qs.data ?? []) as RawQ[]).map((q) => ({
       ...q,
@@ -326,5 +327,73 @@ export async function getFormDetail(id: number, user: CurrentUser): Promise<Form
     })),
     sessions: (sessions.data ?? []).map(({ answers, ...s }) => ({ ...s, answered: Object.keys((answers as object) ?? {}).length })),
     events: (events.data ?? []) as FormDetail['events'],
+  };
+}
+
+/* =====================================================================
+   رصد يدوي (كشف أو طالب واحد)
+   ===================================================================== */
+export type ManualDetail = {
+  id: number;
+  title: string;
+  description: string | null;
+  class_id: number;
+  class_label: string;
+  subject_id: number;
+  subject: string;
+  term_id: number;
+  eval_type_id: number | null;
+  eval_type: string | null;
+  teacher: string | null;
+  max_score: number;
+  date: string | null;
+  target_student_id: number | null;
+  canEdit: boolean;
+  roster: RosterStudent[];
+  grades: (GradeRow & { note: string | null })[];
+};
+
+export async function getManualDetail(id: number, user: CurrentUser): Promise<ManualDetail | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from('assessments')
+    .select(`id, title, description, class_id, subject_id, term_id, eval_type_id, teacher_id, max_score, published_at, target_student_id,
+             class:classes(${CLASS_SELECT}), subj:subjects(name), ev:eval_types(name), t:employees(name_ar)`)
+    .eq('id', id)
+    .eq('kind', 'manual')
+    .maybeSingle<{
+      id: number; title: string; description: string | null; class_id: number; subject_id: number; term_id: number; eval_type_id: number | null;
+      teacher_id: number | null; max_score: number; published_at: string | null; target_student_id: number | null;
+      class: ClassRef; subj: { name: string } | null; ev: { name: string } | null; t: { name_ar: string } | null;
+    }>();
+  if (!data) return null;
+  const [roster, grades] = await Promise.all([
+    data.target_student_id
+      ? supabase.from('students').select('id, code, name_ar').eq('id', data.target_student_id)
+      : supabase.from('students').select('id, code, name_ar').eq('class_id', data.class_id).eq('status', 'active').order('name_ar'),
+    supabase.from('grade_entries').select('student_id, score, max_score, source, recorded_at, is_edited, note').eq('assessment_id', id),
+  ]);
+  const g = ((grades.data ?? []) as (GradeRow & { note: string | null })[]).map((x) => ({ ...x, score: Number(x.score), max_score: Number(x.max_score) }));
+  const ids = new Set((roster.data ?? []).map((r) => r.id));
+  const extra = g.filter((x) => !ids.has(x.student_id)).map((x) => x.student_id);
+  const extraRows = extra.length ? ((await supabase.from('students').select('id, code, name_ar').in('id', extra)).data ?? []) : [];
+  return {
+    id: data.id,
+    title: data.title,
+    description: data.description,
+    class_id: data.class_id,
+    class_label: classLabel(data.class, true),
+    subject_id: data.subject_id,
+    subject: data.subj?.name ?? '',
+    term_id: data.term_id,
+    eval_type_id: data.eval_type_id,
+    eval_type: data.ev?.name ?? null,
+    teacher: data.t?.name_ar ?? null,
+    max_score: Number(data.max_score),
+    date: data.published_at,
+    target_student_id: data.target_student_id,
+    canEdit: user.role === 'admin' || (data.teacher_id != null && data.teacher_id === user.employeeId),
+    roster: [...(roster.data ?? []), ...extraRows],
+    grades: g,
   };
 }

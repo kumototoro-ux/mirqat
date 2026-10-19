@@ -200,12 +200,16 @@ export async function uploadAttachment(fd: FormData): Promise<Result<UploadedAtt
 /* ---------------------------------------------------------------------
    التصحيح
 --------------------------------------------------------------------- */
-export async function gradeTask(id: number, rows: { student_id: number; score: number | null; feedback?: string | null }[]): Promise<Result> {
+export type GradeRowInput = { student_id: number; score?: number | null; feedback?: string | null; note?: string | null; clear?: boolean };
+
+export async function gradeTask(id: number, rows: GradeRowInput[]): Promise<Result> {
   await requireUser(STAFF);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('grade_task', { p_id: id, p_rows: rows });
   if (error) return fail(error);
   refresh(id);
+  revalidatePath('/staff/grading');
+  revalidatePath(`/staff/grading/${id}`);
   return { ok: true, message: rows.length === 1 ? 'حُفظ الرصد' : `حُفظ رصد ${data} طالب` };
 }
 

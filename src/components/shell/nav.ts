@@ -24,6 +24,7 @@ export const STAFF_NAV: NavGroup[] = [
     items: [
       { href: '/staff/attendance', label: 'التحضير', icon: 'attendance' },
       { href: '/staff/tasks', label: 'المهام والنماذج', icon: 'tasks' },
+      { href: '/staff/grading', label: 'الرصد اليومي', icon: 'edit' },
       { href: '/staff/content', label: 'الإثراءات والفيديوهات', icon: 'content' },
       { href: '/staff/behavior', label: 'السلوك', icon: 'behavior', roles: ['admin'] },
       { href: '/staff/results', label: 'النتائج', icon: 'results', roles: ['admin'] },
@@ -87,6 +88,6 @@ export function tabsFor(role: AppRole): NavLink[] {
     { href: '/staff', label: 'الرئيسية', icon: 'home' },
     { href: '/staff/timetable', label: 'جدولي', icon: 'timetable' },
     { href: '/staff/tasks', label: 'المهام', icon: 'tasks' },
-    { href: '/staff/attendance', label: 'التحضير', icon: 'attendance' },
+    { href: '/staff/grading', label: 'الرصد', icon: 'edit' },
   ];
 }
