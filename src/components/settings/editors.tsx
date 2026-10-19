@@ -346,8 +346,8 @@ export function VisibilityEditor({
       description="تتحكم في ظهور النتائج والدرجات والتقويم والاختبارات في بوابة الطالب. الإدارة ترى كل شيء دائمًا."
       footer={<SaveButton pending={pending} dirty={dirty} onClick={save} />}
     >
-      <SettingRow title="عرض النتائج" description="من يرى مجموع درجاته في كل مادة (صفحة نتائجي).">
-        <ScopeChips value={r} options={opts} onChange={setR} />
+      <SettingRow title="عرض النتائج" description="انتقل التحكم إلى صفحة النتائج: حجب وإتاحة لكل فرع ومرحلة وصف وفصل وطالب، مع مواعيد إتاحة وإغلاق.">
+        <a href="/staff/results?tab=rules" className="btn-quiet w-full justify-center sm:w-auto">إتاحة النتائج ←</a>
       </SettingRow>
       <SettingRow title="عرض الدرجات الأسبوعية" description="من يرى درجة كل مهمة ونموذج فور رصدها.">
         <ScopeChips value={w} options={opts} onChange={setW} />

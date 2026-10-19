@@ -15,6 +15,7 @@ export function Sheet({
   subtitle,
   children,
   footer,
+  wide,
 }: {
   open: boolean;
   onClose: () => void;
@@ -22,6 +23,7 @@ export function Sheet({
   subtitle?: string;
   children: React.ReactNode;
   footer?: React.ReactNode;
+  wide?: boolean;
 }) {
   const [render, setRender] = useState(open);
   const [closing, setClosing] = useState(false);
@@ -56,7 +58,7 @@ export function Sheet({
       <div onClick={onClose} className={`absolute inset-0 bg-ink/40 backdrop-blur-[3px] ${closing ? 'animate-fade-out' : 'animate-fade-in'}`} />
       <div
         ref={panel}
-        className={`absolute inset-y-0 end-0 flex w-full flex-col bg-surface shadow-[0_0_60px_-10px_rgb(0_0_0/0.35)] sm:w-[34rem] sm:rounded-s-3xl ${
+        className={`absolute inset-y-0 end-0 flex w-full flex-col bg-surface shadow-[0_0_60px_-10px_rgb(0_0_0/0.35)] ${wide ? 'sm:w-[min(58rem,94vw)]' : 'sm:w-[34rem]'} sm:rounded-s-3xl ${
           closing ? 'animate-panel-out' : 'animate-panel-in'
         }`}
       >
