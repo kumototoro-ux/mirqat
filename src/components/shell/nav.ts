@@ -25,7 +25,7 @@ export const STAFF_NAV: NavGroup[] = [
       { href: '/staff/attendance', label: 'التحضير', icon: 'attendance' },
       { href: '/staff/tasks', label: 'المهام والنماذج', icon: 'tasks' },
       { href: '/staff/grading', label: 'الرصد اليومي', icon: 'edit' },
-      { href: '/staff/content', label: 'الإثراءات والفيديوهات', icon: 'content' },
+      { href: '/staff/content', label: 'الفيديوهات والإثراءات', icon: 'content' },
       { href: '/staff/behavior', label: 'السلوك', icon: 'behavior' },
       { href: '/staff/results', label: 'النتائج', icon: 'results', roles: ['admin'] },
     ],
@@ -57,7 +57,7 @@ export const STUDENT_NAV: NavGroup[] = [
       { href: '/student/exams', label: 'جدول الاختبارات', icon: 'exams' },
       { href: '/student/tasks', label: 'مهامي ونماذجي', icon: 'tasks' },
       { href: '/student/results', label: 'نتائجي', icon: 'results' },
-      { href: '/student/content', label: 'الإثراءات', icon: 'content' },
+      { href: '/student/content', label: 'الفيديوهات والإثراءات', icon: 'content' },
     ],
   },
 ];
