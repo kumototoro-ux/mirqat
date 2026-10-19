@@ -26,7 +26,7 @@ export const STAFF_NAV: NavGroup[] = [
       { href: '/staff/tasks', label: 'المهام والنماذج', icon: 'tasks' },
       { href: '/staff/grading', label: 'الرصد اليومي', icon: 'edit' },
       { href: '/staff/content', label: 'الإثراءات والفيديوهات', icon: 'content' },
-      { href: '/staff/behavior', label: 'السلوك', icon: 'behavior', roles: ['admin'] },
+      { href: '/staff/behavior', label: 'السلوك', icon: 'behavior' },
       { href: '/staff/results', label: 'النتائج', icon: 'results', roles: ['admin'] },
     ],
   },
