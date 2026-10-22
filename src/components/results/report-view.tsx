@@ -59,6 +59,12 @@ export function ReportSummary({ s }: { s: ReportStudent }) {
             المجموع <b className="tabular-nums text-chalk" dir="ltr">{n2(s.total)} / {n2(s.max_total)}</b> · {s.graded} مادة مرصودة
             {s.rank ? <> · الترتيب <b className="text-gold">{s.rank}</b></> : null}
           </p>
+          {s.progress != null && s.recorded_max != null && s.max_total != null && Number(s.recorded_max) < Number(s.max_total) && (
+            <p className="mt-2 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-chalk/10 px-3 py-1 text-xs text-chalk/85" title="المجموع مقسومًا على درجات التقييمات التي رُصدت حتى الآن">
+              أداؤك فيما رُصد حتى الآن <b className="text-sm tabular-nums text-gold" dir="ltr">{n2(s.progress)}%</b>
+              <span className="text-chalk/60">({rating(s.progress)?.ar}) — يكتمل المجموع برصد بقية التقييمات</span>
+            </p>
+          )}
         </div>
         <div className="grid w-full grid-cols-2 gap-2 sm:w-auto sm:min-w-64">
           <div className="rounded-2xl bg-chalk/10 px-3.5 py-3">
@@ -114,6 +120,11 @@ export function SubjectBreakdown({ s, subjects, showEvals = false }: { s: Report
               <div className="text-end">
                 <p className="text-xl font-bold tabular-nums" dir="ltr">{r.total == null ? '—' : n2(r.total)}<span className="text-xs font-medium text-muted"> / {n2(r.max ?? sub.max)}</span></p>
                 {rt ? <p className={`text-xs font-bold ${rt.tone}`}>{rt.ar} · <span dir="ltr">{rt.en}</span></p> : <p className="text-xs text-muted">لم تُرصد</p>}
+                {r.progress != null && r.recorded_max != null && Number(r.recorded_max) < Number(r.max ?? sub.max) && (
+                  <p className="mt-0.5 text-[0.7rem] text-muted" title="المجموع ÷ درجات ما رُصد حتى الآن">
+                    حتى الآن <b className={`tabular-nums ${rating(r.progress)?.tone ?? ''}`} dir="ltr">{n2(r.progress)}%</b> من {n2(r.recorded_max)}
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-3 space-y-2">

@@ -48,7 +48,7 @@ export async function AssessmentsView({
     .select(
       `id, title, max_score, due_at, published_at, grades_recorded_at, created_at,
        class:classes(${CLASS_SELECT}), subject:subjects(name), eval_type:eval_types(name),
-       teacher:employees(name_ar), term:terms(name),
+       teacher:staff_directory(name_ar), term:terms(name),
        form:form_details(status, opens_at, closes_at, max_attempts)`,
       { count: 'exact' },
     )

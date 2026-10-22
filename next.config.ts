@@ -17,7 +17,8 @@ const supabaseOrigin = (() => {
 const csp = [
   "default-src 'self'",
   // Next.js يحتاج سكربتات مضمّنة للتحميل الأولي
-  "script-src 'self' 'unsafe-inline'",
+  // eval في التطوير فقط (أدوات React لتتبع الأخطاء) — لا يُرسل أبدًا في الإنتاج
+  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   // شعار المدرسة رابط خارجي يحدده الإداري
   "img-src 'self' data: blob: https:",
@@ -34,6 +35,7 @@ const csp = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  devIndicators: false,
   experimental: {
     // ذاكرة المسارات في المتصفح: الرجوع لصفحة زرتها قبل أقل من 30 ثانية لا يطلبها من الخادم مجددًا
     staleTimes: { dynamic: 30, static: 300 },

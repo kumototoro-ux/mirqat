@@ -19,6 +19,9 @@ export type StudentSubject = {
   total: number | null;
   max: number | null;
   pct: number | null;
+  /** المجموع ÷ نسب الأنواع المرصودة فعلًا × 100 (الأداء حتى الآن) */
+  progress: number | null;
+  recorded_max: number | null;
   rating_ar: string | null;
   rating_en: string | null;
   entries: number;
@@ -46,6 +49,8 @@ export type ReportStudent = {
   total: number | null;
   max_total: number | null;
   average: number | null;
+  progress: number | null;
+  recorded_max: number | null;
   graded: number;
   rating_ar: string | null;
   rating_en: string | null;

@@ -147,7 +147,7 @@ async function loadBase(id: number, user: CurrentUser) {
     .select(
       `id, kind, title, description, class_id, subject_id, term_id, eval_type_id, teacher_id, max_score, published_at, due_at,
        submission_mode, allow_late, is_draft, created_at,
-       class:classes(${CLASS_SELECT}), subj:subjects(name), ev:eval_types(name), t:employees(name_ar)`,
+       class:classes(${CLASS_SELECT}), subj:subjects(name), ev:eval_types(name), t:staff_directory(name_ar)`,
     )
     .eq('id', id)
     .in('kind', ['task', 'form'])
@@ -358,7 +358,7 @@ export async function getManualDetail(id: number, user: CurrentUser): Promise<Ma
   const { data } = await supabase
     .from('assessments')
     .select(`id, title, description, class_id, subject_id, term_id, eval_type_id, teacher_id, max_score, published_at, target_student_id,
-             class:classes(${CLASS_SELECT}), subj:subjects(name), ev:eval_types(name), t:employees(name_ar)`)
+             class:classes(${CLASS_SELECT}), subj:subjects(name), ev:eval_types(name), t:staff_directory(name_ar)`)
     .eq('id', id)
     .eq('kind', 'manual')
     .maybeSingle<{

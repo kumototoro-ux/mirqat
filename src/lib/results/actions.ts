@@ -32,7 +32,7 @@ export async function studentCard(studentId: number, termId: number): Promise<St
   return data as StudentCard;
 }
 
-export type OverviewRow = { class_id: number; students: number; graded: number; average: number | null; visible: number };
+export type OverviewRow = { class_id: number; students: number; graded: number; average: number | null; progress: number | null; visible: number };
 export async function resultsOverview(termId: number): Promise<OverviewRow[]> {
   await requireUser(ADMIN);
   const supabase = await createClient();
