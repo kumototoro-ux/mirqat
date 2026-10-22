@@ -22,7 +22,7 @@ export type EmployeeRow = {
 
 type Raw = Omit<EmployeeRow, 'branches' | 'subjects' | 'has_account'> & {
   staff_scope: { branch: { name: string } | null; subject: { name: string } | null }[];
-  profiles: { id: string }[];
+  profiles: { id: string }[] | { id: string } | null;
 };
 
 const SORTS: Record<string, { col: string; asc: boolean }> = {
@@ -34,6 +34,9 @@ const SORTS: Record<string, { col: string; asc: boolean }> = {
   newest_desc: { col: 'created_at', asc: true },
 };
 const clean = (q: string) => q.replace(/[,()*%\\"]/g, ' ').trim().slice(0, 60);
+
+// علاقة واحد-لواحد (profiles.student_id/employee_id فريد): PostgREST يعيد كائنًا أو null لا قائمة
+const hasRow = (v: unknown) => (Array.isArray(v) ? v.length > 0 : v != null);
 
 export async function listEmployees(p: PageParams): Promise<PageResult<EmployeeRow>> {
   await requireUser(['admin']);
@@ -59,7 +62,7 @@ export async function listEmployees(p: PageParams): Promise<PageResult<EmployeeR
       ...r,
       branches: [...new Set(staff_scope.flatMap((s) => (s.branch ? [s.branch.name] : [])))],
       subjects: [...new Set(staff_scope.flatMap((s) => (s.subject ? [s.subject.name] : [])))],
-      has_account: profiles.length > 0,
+      has_account: hasRow(profiles),
     })),
   };
 }

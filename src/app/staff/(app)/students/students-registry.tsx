@@ -20,7 +20,9 @@ const STATUS = {
   withdrawn: { label: 'منسحب', tone: 'danger' },
   graduated: { label: 'متخرج', tone: 'neutral' },
 } as const;
-const feeTone = (f: string | null) => (f === 'سدد' || f === 'إعفاء' ? 'ok' : f === 'جزئي' ? 'gold' : f ? 'danger' : 'neutral');
+// القيم حرة من القائمة: سدد/مسدد/مدفوع/معفى = أخضر، جزئي = ذهبي، غير ذلك (متأخر/لم يسدد) = أحمر
+const feeTone = (f: string | null) =>
+  !f ? 'neutral' : /(^|\s)(لم|غير)/.test(f) ? 'danger' : /سدد|مسدد|مدفوع|إعفاء|اعفاء|معفى|معفي/.test(f) ? 'ok' : /جزئ/.test(f) ? 'gold' : 'danger';
 
 export function StudentsRegistry({
   initial,

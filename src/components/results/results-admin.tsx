@@ -150,6 +150,9 @@ function Board({ termId, ref_, overview }: { termId: number; ref_: RefData; over
                       <div>
                         <p className="text-[1.6rem] font-bold leading-none tabular-nums" dir="ltr">{o?.average == null ? '—' : `${n2(o.average)}%`}</p>
                         <p className={`mt-1 text-xs font-semibold ${r?.tone ?? 'text-muted'}`}>{r ? `${r.ar} · ${r.en}` : 'لا درجات بعد'}</p>
+                        {o?.progress != null && o.average != null && Number(o.progress) - Number(o.average) > 1 && (
+                          <p className="mt-1 text-[0.7rem] text-muted">الأداء حتى الآن <b className={`tabular-nums ${rating(o.progress)?.tone ?? ''}`} dir="ltr">{n2(o.progress)}%</b></p>
+                        )}
                       </div>
                       <span className="inline-flex items-center gap-1 text-sm font-semibold text-board opacity-70 transition-opacity group-hover:opacity-100">
                         الكشف <Icon name="chevron" className="size-4" />
@@ -201,6 +204,8 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
   const view = students.slice(page * size, page * size + size);
   const graded = data.students.filter((s) => s.average != null);
   const avg = graded.length ? graded.reduce((a, s) => a + Number(s.average), 0) / graded.length : null;
+  const progAll = graded.filter((s) => s.progress != null);
+  const prog = progAll.length ? progAll.reduce((a, s) => a + Number(s.progress), 0) / progAll.length : null;
   const top = [...graded].sort((a, b) => Number(b.average) - Number(a.average))[0];
   const weak = graded.filter((s) => Number(s.average) < 60).length;
   const visibleN = data.students.filter((s) => data.access[String(s.id)]?.visible).length;
@@ -253,7 +258,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
 
       <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line lg:grid-cols-4">
         {[
-          { l: 'معدل الفصل', v: avg == null ? '—' : `${n2(avg)}%`, h: rating(avg) ? `${rating(avg)!.ar} · ${rating(avg)!.en}` : '' },
+          { l: 'معدل الفصل', v: avg == null ? '—' : `${n2(avg)}%`, h: prog != null && avg != null && prog - avg > 1 ? `الأداء حتى الآن ${n2(prog)}% (${rating(prog)?.ar})` : rating(avg) ? `${rating(avg)!.ar} · ${rating(avg)!.en}` : '' },
           { l: 'الأول على الفصل', v: top ? `${n2(top.average)}%` : '—', h: top?.name_ar ?? '' },
           { l: 'تحت 60%', v: String(weak), h: weak ? 'بحاجة لمتابعة' : 'لا أحد 🎉' },
           { l: 'لهم درجات', v: `${graded.length} من ${data.students.length}`, h: '' },
@@ -285,7 +290,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
         <div className="rounded-[1.4rem] border border-dashed border-line bg-surface px-6 py-12 text-center text-muted">لا مواد موزعة على هذا الفصل. راجع توزيع المواد في الإعدادات.</div>
       ) : (
         <div className="overflow-x-auto rounded-[1.4rem] border border-line bg-surface">
-          <table className="w-full text-sm" style={{ minWidth: 300 + subjects.length * cellW + 330 }}>
+          <table className="w-full text-sm" style={{ minWidth: 300 + subjects.length * cellW + 410 }}>
             <thead className="border-b border-line bg-paper/70 text-muted">
               <tr>
                 <th className="sticky start-0 z-10 bg-paper px-4 py-2.5 text-start font-medium">الطالب</th>
@@ -302,6 +307,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
                   </th>
                 ))}
                 <th className="px-2 py-2.5 text-center font-medium">المعدل</th>
+                <th className="px-2 py-2.5 text-center font-medium" title="المجموع ÷ درجات ما رُصد حتى الآن">حتى الآن</th>
                 <th className="px-2 py-2.5 text-center font-medium">الترتيب</th>
                 <th className="px-2 py-2.5 text-center font-medium">المواظبة</th>
                 <th className="px-2 py-2.5 text-center font-medium">السلوك</th>
@@ -323,7 +329,8 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
                     </th>
                     {subjects.map((sub) => {
                       const x = by.get(sub.id);
-                      const rt = rating(x?.pct);
+                      // اللون حسب الأداء فيما رُصد (لا يحمرّ الجدول كله في أول الفصل)
+                      const rt = rating(x?.progress ?? x?.pct);
                       if (!x || x.total == null) return <td key={sub.id} className="px-2 py-2 text-center text-muted">—</td>;
                       return (
                         <td key={sub.id} className={`px-2 py-2 text-center ${x.visible ? '' : 'opacity-60'}`} title={x.visible ? '' : 'مخفية عن الطالب'}>
@@ -342,6 +349,9 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
                       <span className="block font-bold tabular-nums" dir="ltr">{s.average == null ? '—' : `${n2(s.average)}%`}</span>
                       {r && <span className={`text-[0.7rem] font-semibold ${r.tone}`}>{r.ar}</span>}
                     </td>
+                    <td className="px-2 py-2 text-center">
+                      <span className={`font-semibold tabular-nums ${rating(s.progress)?.tone ?? 'text-muted'}`} dir="ltr">{s.progress == null ? '—' : `${n2(s.progress)}%`}</span>
+                    </td>
                     <td className="px-2 py-2 text-center font-bold tabular-nums">{s.rank ?? '—'}</td>
                     <td className="px-2 py-2 text-center tabular-nums">
                       {s.attendance.pct == null ? <span className="text-xs text-brass">{s.attendance.intisab ? 'منتسب' : '—'}</span> : <span dir="ltr">{n2(s.attendance.pct)}%</span>}
@@ -354,7 +364,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
                 );
               })}
               {!view.length && (
-                <tr><td colSpan={subjects.length + 6} className="px-4 py-12 text-center text-muted">لا نتائج للبحث</td></tr>
+                <tr><td colSpan={subjects.length + 7} className="px-4 py-12 text-center text-muted">لا نتائج للبحث</td></tr>
               )}
             </tbody>
           </table>

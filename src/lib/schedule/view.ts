@@ -64,7 +64,23 @@ type RawSlot = {
   subject: { name: string } | null; teacher: { name_ar: string } | null; class: ClassRef;
 };
 const SLOT_SELECT = `id, day_of_week, period_no, starts_at, delivery_mode, subject_id, teacher_id, class_id,
-  subject:subjects(name), teacher:employees(name_ar), class:classes(${CLASS_SELECT})`;
+  subject:subjects(name), class:classes(${CLASS_SELECT})`;
+
+/*
+  أسماء المعلمين من دليل المعلمين (staff_directory: الاسم فقط) لا من جدول الموظفين:
+  جدول الموظفين محمي — الطالب لا يقرؤه، والمعلم يقرأ نفسه فقط — فكان الاسم يظهر "بلا معلم".
+*/
+async function teacherNames(ids: (number | null)[]): Promise<Map<number, string>> {
+  const uniq = [...new Set(ids.filter((x): x is number => x != null))];
+  if (!uniq.length) return new Map();
+  const supabase = await createClient();
+  const { data } = await supabase.from('staff_directory').select('id, name_ar').in('id', uniq);
+  return new Map((data ?? []).map((d) => [d.id as number, d.name_ar as string]));
+}
+async function withTeachers<T extends { teacher_id: number | null; teacher?: { name_ar: string } | null }>(rows: T[]): Promise<T[]> {
+  const names = await teacherNames(rows.map((r) => r.teacher_id));
+  return rows.map((r) => ({ ...r, teacher: r.teacher_id != null && names.has(r.teacher_id) ? { name_ar: names.get(r.teacher_id)! } : null }));
+}
 
 const toSlot = (r: RawSlot): ViewSlot => ({
   id: r.id, day: r.day_of_week, period: r.period_no, startsAt: r.starts_at, subjectId: r.subject_id,
@@ -77,7 +93,7 @@ export async function getAllSlots(): Promise<ViewSlot[]> {
   const supabase = await createClient();
   const { data, error } = await supabase.from('timetable_slots').select(SLOT_SELECT).limit(8000).returns<RawSlot[]>();
   if (error) throw new Error(error.message);
-  return (data ?? []).map(toSlot);
+  return (await withTeachers(data ?? [])).map(toSlot);
 }
 
 export async function getSlotsFor(filter: { classId?: number; teacherId?: number }): Promise<ViewSlot[]> {
@@ -87,7 +103,7 @@ export async function getSlotsFor(filter: { classId?: number; teacherId?: number
   if (filter.teacherId) q = q.eq('teacher_id', filter.teacherId);
   const { data, error } = await q.returns<RawSlot[]>();
   if (error) throw new Error(error.message);
-  return (data ?? []).map(toSlot);
+  return (await withTeachers(data ?? [])).map(toSlot);
 }
 
 type RawExam = {
@@ -99,7 +115,7 @@ export async function getExamsFor(filter: { classIds?: number[]; teacherId?: num
   const supabase = await createClient();
   let q = supabase
     .from('exam_schedule')
-    .select(`id, exam_date, starts_at, exam_period, class_id, teacher_id, subject:subjects(name), teacher:employees(name_ar), class:classes(${CLASS_SELECT})`)
+    .select(`id, exam_date, starts_at, exam_period, class_id, teacher_id, subject:subjects(name), class:classes(${CLASS_SELECT})`)
     .order('exam_date')
     .order('starts_at')
     .limit(3000);
@@ -107,7 +123,7 @@ export async function getExamsFor(filter: { classIds?: number[]; teacherId?: num
   else if (filter.classIds) q = q.in('class_id', filter.classIds.length ? filter.classIds : [-1]);
   const { data, error } = await q.returns<RawExam[]>();
   if (error) throw new Error(error.message);
-  return (data ?? []).map((r) => ({
+  return (await withTeachers(data ?? [])).map((r) => ({
     id: r.id, date: r.exam_date, startsAt: r.starts_at, period: r.exam_period, subject: r.subject?.name ?? '—',
     classId: r.class_id, classLabel: classLabel(r.class), branch: r.class?.branch?.name ?? '', teacherId: r.teacher_id, teacher: r.teacher?.name_ar ?? null,
   }));

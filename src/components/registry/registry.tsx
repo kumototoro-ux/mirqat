@@ -320,11 +320,15 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
               <PageBtn onClick={() => go(params.page - 1)} onHover={() => prefetch(params.page - 1)} disabled={params.page === 1} label="السابقة">
                 <Icon name="chevron" className="size-4 rotate-180" />
               </PageBtn>
+              {/* على الجوال: الصفحة الحالية من الكل فقط، فلا تتجاوز الأزرار عرض الشاشة */}
+              <span className="px-2 text-sm tabular-nums text-muted sm:hidden">{params.page} / {pages}</span>
               {pageList.map((p, i) =>
                 p === '…' ? (
-                  <span key={`g${i}`} className="px-1 text-muted">…</span>
+                  <span key={`g${i}`} className="hidden px-1 text-muted sm:inline">…</span>
                 ) : (
-                  <PageBtn key={p} onClick={() => go(p)} onHover={() => prefetch(p)} active={p === params.page} label={`الصفحة ${p}`}>{p}</PageBtn>
+                  <span key={p} className="hidden sm:contents">
+                    <PageBtn onClick={() => go(p)} onHover={() => prefetch(p)} active={p === params.page} label={`الصفحة ${p}`}>{p}</PageBtn>
+                  </span>
                 ),
               )}
               <PageBtn onClick={() => go(params.page + 1)} onHover={() => prefetch(params.page + 1)} disabled={params.page === pages} label="التالية">

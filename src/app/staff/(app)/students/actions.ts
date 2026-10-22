@@ -22,7 +22,7 @@ export type StudentRow = {
   has_account: boolean;
 };
 
-type Raw = Omit<StudentRow, 'class_label' | 'has_account'> & { class: ClassRef; profiles: { id: string }[] };
+type Raw = Omit<StudentRow, 'class_label' | 'has_account'> & { class: ClassRef; profiles: { id: string }[] | { id: string } | null };
 
 const SORTS: Record<string, { col: string; asc: boolean }> = {
   name: { col: 'name_ar', asc: true },
@@ -36,6 +36,9 @@ const SORTS: Record<string, { col: string; asc: boolean }> = {
 const clean = (q: string) => q.replace(/[,()*%\\"]/g, ' ').trim().slice(0, 60);
 
 /** صفحة واحدة من الطلاب (15 صفًا) مع العدد الكلي — استعلام واحد */
+// علاقة واحد-لواحد (profiles.student_id/employee_id فريد): PostgREST يعيد كائنًا أو null لا قائمة
+const hasRow = (v: unknown) => (Array.isArray(v) ? v.length > 0 : v != null);
+
 export async function listStudents(p: PageParams): Promise<PageResult<StudentRow>> {
   await requireUser(['admin']);
   const supabase = await createClient();
@@ -59,7 +62,7 @@ export async function listStudents(p: PageParams): Promise<PageResult<StudentRow
   if (error) throw new Error(error.message);
   return {
     total: count ?? 0,
-    rows: (data ?? []).map(({ class: c, profiles, ...r }) => ({ ...r, class_label: classLabel(c, true), has_account: profiles.length > 0 })),
+    rows: (data ?? []).map(({ class: c, profiles, ...r }) => ({ ...r, class_label: classLabel(c, true), has_account: hasRow(profiles) })),
   };
 }
 

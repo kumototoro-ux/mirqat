@@ -36,6 +36,7 @@ const EXTRA: { prefix: string; label: string; group?: string }[] = [
   { prefix: '/staff/reports/employees', label: 'تقرير الموظفين', group: 'التقارير' },
   { prefix: '/staff/reports/accounts', label: 'تقرير الحسابات', group: 'التقارير' },
   { prefix: '/staff/reports/activity', label: 'تقرير النشاط', group: 'التقارير' },
+  { prefix: '/staff/reports', label: 'التقارير', group: 'الإدارة' },
   { prefix: '/staff/password', label: 'تغيير كلمة المرور', group: 'حسابي' },
   { prefix: '/student/password', label: 'تغيير كلمة المرور', group: 'حسابي' },
 ];
