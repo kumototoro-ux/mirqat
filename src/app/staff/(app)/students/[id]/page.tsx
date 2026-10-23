@@ -1,3 +1,5 @@
+import { TermSelect } from '@/components/term-select';
+import { PendingSwap } from '@/components/shell/pending-search';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -158,16 +160,10 @@ export default async function StudentProfile({
             <Card
               title="النتائج"
               action={
-                <form className="flex items-center gap-2">
-                  <select name="term" defaultValue={termId ?? ''} className="field w-auto py-1 text-sm">
-                    {terms.map((t) => (
-                      <option key={t.id} value={t.id}>{t.name} {t.year}</option>
-                    ))}
-                  </select>
-                  <button className="btn-quiet px-3 py-1 text-xs">عرض</button>
-                </form>
+                <TermSelect terms={terms.map((t) => ({ id: t.id, name: t.name, year: t.year }))} value={termId ?? null} />
               }
             >
+              <PendingSwap fallback={<div className="space-y-3">{[0, 1, 2, 3, 4].map((i) => <div key={i} className="skeleton h-9 rounded-lg" style={{ opacity: 1 - i * 0.15 }} />)}</div>}>
               {!totals?.length ? (
                 <p className="text-sm text-muted">لا درجات في هذا الفصل الدراسي.</p>
               ) : (
@@ -191,6 +187,7 @@ export default async function StudentProfile({
                     })}
                 </ul>
               )}
+              </PendingSwap>
             </Card>
 
             <Card title="آخر الدرجات المرصودة" pad={false}>

@@ -1,3 +1,5 @@
+import { PendingSwap } from '@/components/shell/pending-search';
+import { PanelSkeleton } from '@/components/skeletons';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { requireUser } from '@/lib/auth/session';
@@ -60,14 +62,16 @@ export default async function AssessmentPage({ params, searchParams }: { params:
             hasAttempts: task.submissions.length > 0,
           }}
         />
-        {active === 'edit' ? (
-          <TaskEditor ctx={ctx} task={task} />
-        ) : (
-          <>
-            {task.attachments.length > 0 && <Attachments items={task.attachments} className="mb-4" />}
-            <TaskGrading task={task} />
-          </>
-        )}
+        <PendingSwap fallback={<PanelSkeleton stats={false} rows={6} />}>
+          {active === 'edit' ? (
+            <TaskEditor ctx={ctx} task={task} />
+          ) : (
+            <>
+              {task.attachments.length > 0 && <Attachments items={task.attachments} className="mb-4" />}
+              <TaskGrading task={task} />
+            </>
+          )}
+        </PendingSwap>
       </>
     );
   }
@@ -114,7 +118,9 @@ export default async function AssessmentPage({ params, searchParams }: { params:
           hasAttempts,
         }}
       />
-      {active === 'questions' ? <FormBuilder ctx={ctx} form={form} /> : active === 'analysis' ? <FormAnalytics form={form} /> : <FormResults form={form} />}
+      <PendingSwap fallback={<PanelSkeleton stats={false} rows={6} />}>
+        {active === 'questions' ? <FormBuilder ctx={ctx} form={form} /> : active === 'analysis' ? <FormAnalytics form={form} /> : <FormResults form={form} />}
+      </PendingSwap>
     </>
   );
 }

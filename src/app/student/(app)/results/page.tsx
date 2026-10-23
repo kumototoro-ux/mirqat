@@ -8,6 +8,8 @@ import { getCurrentTermId } from '@/lib/data';
 import { getNoticeSettings, getSchoolBrand } from '@/lib/results/server';
 import type { Access, StudentCard } from '@/lib/results/shared';
 import { StudentResults } from '@/components/results/student-results';
+import { PendingLink, PendingSwap } from '@/components/shell/pending-search';
+import { CardGridSkeleton } from '@/components/skeletons';
 import { StudentCertificate } from '@/components/results/student-certificate';
 import { getCertImages, getCertSettings } from '@/lib/results/cert-server';
 import { buildYear, type YearInput } from '@/lib/results/certificate';
@@ -61,21 +63,25 @@ export default async function StudentResultsPage({ searchParams }: { searchParam
           {terms.map((t) => {
             const on = t.id === termId;
             return (
-              <Link
+              <PendingLink
                 key={t.id}
                 href={`/student/results?term=${t.id}`}
-                aria-current={on ? 'page' : undefined}
-                className={`flex shrink-0 items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold transition-colors ${on ? 'border-board bg-board text-chalk' : 'border-line bg-surface hover:border-board/40'}`}
+                active={on}
+                base="group flex shrink-0 items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold transition-colors"
+                on="is-on border-board bg-board text-chalk"
+                off="border-line bg-surface hover:border-board/40"
               >
-                {!t.access.visible && <Icon name="key" className={`size-4 ${on ? 'text-gold' : 'text-muted'}`} />}
+                {!t.access.visible && <Icon name="key" className="size-4 text-muted group-[.is-on]:text-gold" />}
                 {t.name}
-                <span className={`text-xs font-normal ${on ? 'text-chalk/70' : 'text-muted'}`}>{t.year}</span>
-              </Link>
+                <span className="text-xs font-normal text-muted group-[.is-on]:text-chalk/70">{t.year}</span>
+              </PendingLink>
             );
           })}
         </nav>
       )}
-      <StudentResults card={card} brand={brand} settings={settings} />
+      <PendingSwap fallback={<CardGridSkeleton header={false} hero cols={2} />}>
+        <StudentResults card={card} brand={brand} settings={settings} />
+      </PendingSwap>
     </>
   );
 }

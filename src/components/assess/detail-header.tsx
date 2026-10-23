@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { usePendingSearch } from '@/components/shell/pending-search';
 import { motion } from 'motion/react';
 import { Icon } from '@/components/shell/icons';
 import { Badge } from '@/components/ui';
@@ -38,6 +39,9 @@ export type HeaderInfo = {
 export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; tabs: { key: string; label: string; badge?: number }[]; active: string; ctx: AuthorContext }) {
   const router = useRouter();
   const { toast, confirm } = useFeedback();
+  // التبويب المضغوط يُبرز فورًا قبل وصول محتواه
+  const to = usePendingSearch();
+  const shown = to ? (to.searchParams.get('tab') ?? tabs[0]?.key ?? active) : active;
   const [copy, setCopy] = useState(false);
   const [reopen, setReopen] = useState(false);
   const [newClose, setNewClose] = useState<string | null>(null);
@@ -142,11 +146,11 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
               href={`/staff/tasks/${info.id}?tab=${t.key}`}
               replace
               scroll={false}
-              className={`relative flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${active === t.key ? 'text-chalk' : 'text-muted hover:bg-paper hover:text-ink'}`}
+              className={`relative flex shrink-0 items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors ${shown === t.key ? 'text-chalk' : 'text-muted hover:bg-paper hover:text-ink'}`}
             >
-              {active === t.key && <motion.span layoutId="detail-tab" className="absolute inset-0 rounded-xl bg-board" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
+              {shown === t.key && <motion.span layoutId="detail-tab" className="absolute inset-0 rounded-xl bg-board" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
               <span className="relative">{t.label}</span>
-              {t.badge ? <span className={`relative rounded-full px-1.5 text-[0.7rem] tabular-nums ${active === t.key ? 'bg-chalk/20' : 'bg-gold/25 text-brass'}`}>{t.badge}</span> : null}
+              {t.badge ? <span className={`relative rounded-full px-1.5 text-[0.7rem] tabular-nums ${shown === t.key ? 'bg-chalk/20' : 'bg-gold/25 text-brass'}`}>{t.badge}</span> : null}
             </Link>
           ))}
         </nav>

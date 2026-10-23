@@ -5,6 +5,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { Icon } from './icons';
 import { NavLink, setPendingHref, usePendingHref } from './nav-link';
+import { useSearchNavTracker } from './pending-search';
 import { installActionTracker, useActionsInFlight } from './action-activity';
 import { tabsFor, type NavGroup, type NavLink as NavItem } from './nav';
 import { ROLE_LABEL, type AppRole } from '@/lib/auth/roles';
@@ -71,7 +72,8 @@ function NavProgress() {
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      // الالتقاط لا الفقاعة: Link يُلغي السلوك الافتراضي فيبدو defaultPrevented دائمًا
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as HTMLElement).closest('a');
       if (!a || a.target === '_blank' || a.hasAttribute('download') || !a.href) return;
       const url = new URL(a.href, location.href);
@@ -82,10 +84,10 @@ function NavProgress() {
       const f = e.target as HTMLFormElement;
       if ((f.getAttribute('method') || 'get').toLowerCase() === 'get' && !f.dataset.local) setState('loading');
     };
-    document.addEventListener('click', onClick);
+    document.addEventListener('click', onClick, true);
     document.addEventListener('submit', onSubmit);
     return () => {
-      document.removeEventListener('click', onClick);
+      document.removeEventListener('click', onClick, true);
       document.removeEventListener('submit', onSubmit);
     };
   }, []);
@@ -287,6 +289,7 @@ function ShellInner(props: Props) {
   const pendingHref = usePendingHref();
   const path = pendingHref ?? realPath;
   useEffect(() => setPendingHref(null), [realPath]);
+  useSearchNavTracker();
   const [collapsed, setCollapsed] = useState(props.initialCollapsed);
   const [moreOpen, setMoreOpen] = useState(false);
   const current = findCurrent(props.nav, path, props.home);

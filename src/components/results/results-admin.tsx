@@ -15,6 +15,8 @@ import { ReportSummary, SubjectBreakdown } from './report-view';
 import { ReleaseRules } from './release-rules';
 import { ResultsSettings } from './results-settings';
 import { CertificatesTab } from './certificates-tab';
+import { PendingSwap, usePendingSearch } from '@/components/shell/pending-search';
+import { PanelSkeleton, SettingsBodySkeleton } from '@/components/skeletons';
 import type { CertBrand } from './certificate';
 import type { CertSettings } from '@/lib/results/certificate';
 
@@ -65,22 +67,26 @@ export function ResultsAdmin({
   cert: { settings: CertSettings; brand: CertBrand } | null;
 }) {
   const term = ref_.terms.find((t) => t.id === termId);
+  // أثناء الانتقال: التبويب والفصل الدراسي المقصودان يُبرزان فورًا
+  const to = usePendingSearch();
+  const shownTab = to ? ((to.searchParams.get('tab') as Tab | null) ?? 'board') : tab;
+  const shownTerm = to ? Number(to.searchParams.get('term')) || termId : termId;
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex w-full rounded-2xl border border-line bg-surface p-1 sm:inline-flex sm:w-auto" role="tablist">
           {([['board', 'الكشوف', 'results'], ['certs', 'الشهادات', 'award'], ['rules', 'الإتاحة', 'eye'], ['settings', 'الإعدادات', 'settings']] as const).map(([k, l, ic]) => (
-            <Link key={k} href={href({ tab: k, term: termId })} role="tab" aria-selected={tab === k} className={`relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-2 text-[0.82rem] font-semibold transition-colors sm:flex-none sm:px-4 sm:text-sm ${tab === k ? 'text-chalk' : 'text-muted hover:text-ink'}`}>
-              {tab === k && <motion.span layoutId="res-tab" className="absolute inset-0 rounded-xl bg-board" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
+            <Link key={k} href={href({ tab: k, term: termId })} role="tab" aria-selected={shownTab === k} className={`relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-2 text-[0.82rem] font-semibold transition-colors sm:flex-none sm:px-4 sm:text-sm ${shownTab === k ? 'text-chalk' : 'text-muted hover:text-ink'}`}>
+              {shownTab === k && <motion.span layoutId="res-tab" className="absolute inset-0 rounded-xl bg-board" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
               <Icon name={ic} className="relative hidden size-4 sm:block" />
               <span className="relative">{l}</span>
             </Link>
           ))}
         </div>
-        {tab === 'board' && (
+        {shownTab === 'board' && (
           <div className="flex max-w-full gap-1.5 overflow-x-auto pb-0.5">
             {ref_.terms.map((t) => (
-              <Link key={t.id} href={href({ term: t.id, class: classId })} aria-current={t.id === termId ? 'page' : undefined} className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors ${t.id === termId ? 'bg-ink text-chalk' : 'bg-surface text-ink ring-1 ring-line hover:ring-board/40'}`}>
+              <Link key={t.id} href={href({ term: t.id, class: classId })} aria-current={t.id === shownTerm ? 'page' : undefined} className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors ${t.id === shownTerm ? 'bg-ink text-chalk' : 'bg-surface text-ink ring-1 ring-line hover:ring-board/40'}`}>
                 {t.name} <span className="text-xs opacity-60">{t.year}</span>
               </Link>
             ))}
@@ -88,6 +94,7 @@ export function ResultsAdmin({
         )}
       </div>
 
+      <PendingSwap fallback={(u) => <ResultsSkeleton tab={(u.searchParams.get('tab') as Tab | null) ?? 'board'} cls={!!u.searchParams.get('class')} />}>
       <motion.div key={`${tab}-${classId}`} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.22 }}>
         {tab === 'board' &&
           (classId ? (
@@ -99,8 +106,18 @@ export function ResultsAdmin({
         {tab === 'rules' && <ReleaseRules ref_={ref_} rules={rules} />}
         {tab === 'settings' && <ResultsSettings ref_={ref_} grants={grants} notice={notice} />}
       </motion.div>
+      </PendingSwap>
     </>
   );
+}
+
+/** هيكل التبويب المقصود أثناء الانتقال إليه */
+function ResultsSkeleton({ tab, cls }: { tab: Tab; cls: boolean }) {
+  if (tab === 'certs') return <PanelSkeleton hero stats={false} rows={0} />;
+  if (tab === 'rules') return <PanelSkeleton stats={false} rows={5} />;
+  if (tab === 'settings') return <SettingsBodySkeleton />;
+  if (cls) return <PanelSkeleton hero rows={8} />;
+  return <PanelSkeleton tools={false} cards />;
 }
 
 /* =====================================================================
