@@ -90,7 +90,14 @@ function useSave() {
   const router = useRouter();
   const [pending, start] = useTransition();
   const run = async (fn: () => Promise<ActionResult>, after?: () => void, ask?: Ask) => {
-    if (ask && !(await confirm({ confirmLabel: 'حفظ', ...ask }))) return;
+    if (ask) {
+      // التأكيد والتنفيذ في بطاقة واحدة: زر دوّار أثناء الحفظ، والخطأ يظهر داخلها دون إغلاقها
+      const ok = await confirm({ confirmLabel: 'حفظ', ...ask, run: fn });
+      if (!ok) return;
+      after?.();
+      start(() => router.refresh());
+      return;
+    }
     start(async () => {
       const r = await fn();
       if (!r.ok) return toast(r.error, 'error');

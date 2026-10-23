@@ -4,7 +4,8 @@ import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { Icon } from './icons';
-import { NavLink } from './nav-link';
+import { NavLink, setPendingHref, usePendingHref } from './nav-link';
+import { installActionTracker, useActionsInFlight } from './action-activity';
 import { tabsFor, type NavGroup, type NavLink as NavItem } from './nav';
 import { ROLE_LABEL, type AppRole } from '@/lib/auth/roles';
 import { LogoMark } from '@/components/home/logo-mark';
@@ -55,6 +56,18 @@ function NavProgress() {
   const path = usePathname();
   const search = useSearchParams();
   const [state, setState] = useState<'idle' | 'loading' | 'done'>('idle');
+  const actions = useActionsInFlight();
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => installActionTracker(), []);
+  // عملية خادم (حفظ/تعديل/حذف/جلب): يظهر الشريط إن تجاوزت ربع ثانية فقط — لا وميض للعمليات السريعة
+  useEffect(() => {
+    if (actions > 0) {
+      const t = setTimeout(() => setBusy(true), 250);
+      return () => clearTimeout(t);
+    }
+    setBusy(false);
+  }, [actions]);
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -83,10 +96,11 @@ function NavProgress() {
     return () => clearTimeout(t);
   }, [path, search]);
 
-  if (state === 'idle') return null;
+  const loading = state === 'loading' || busy;
+  if (!loading && state === 'idle') return null;
   return (
     <div aria-hidden className="pointer-events-none fixed inset-x-0 top-0 z-[80] h-[3px]">
-      <div className={`h-full rounded-l-full bg-gradient-to-l from-board via-gold to-gold ${state === 'loading' ? 'animate-progress' : 'w-full opacity-0 transition-opacity duration-300'}`} />
+      <div className={`h-full rounded-l-full bg-gradient-to-l from-board via-gold to-gold ${loading ? 'animate-progress' : 'w-full opacity-0 transition-opacity duration-300'}`} />
     </div>
   );
 }
@@ -268,13 +282,30 @@ export function AppShell(props: Props) {
 }
 
 function ShellInner(props: Props) {
-  const path = usePathname();
+  const realPath = usePathname();
+  // الوجهة المضغوطة تُعامَل كأنها الصفحة الحالية حتى يكتمل الانتقال (إبراز فوري بلا انتظار)
+  const pendingHref = usePendingHref();
+  const path = pendingHref ?? realPath;
+  useEffect(() => setPendingHref(null), [realPath]);
   const [collapsed, setCollapsed] = useState(props.initialCollapsed);
   const [moreOpen, setMoreOpen] = useState(false);
   const current = findCurrent(props.nav, path, props.home);
   const tabs = tabsFor(props.user.role);
   const onTab = tabs.some((t) => isActive(path, t.href, props.home));
-  const { hidden, scrolled } = useHideOnScroll();
+  const { hidden, scrolled } = useHideOnScroll(realPath);
+
+  // التنقل لصفحة جديدة يبدأ من أعلاها فورًا (لا تمرير ناعم مرئي، ولا بقاء في منتصف الصفحة)،
+  // أما الرجوع بزر المتصفح فيترك للمتصفح استعادة موضعه
+  const backNav = useRef(false);
+  useEffect(() => {
+    const onPop = () => { backNav.current = true; };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
+  useEffect(() => {
+    if (backNav.current) { backNav.current = false; return; }
+    if (!location.hash) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [realPath]);
 
   const toggle = () => {
     setCollapsed((c) => {
@@ -283,7 +314,7 @@ function ShellInner(props: Props) {
     });
   };
 
-  useEffect(() => setMoreOpen(false), [path]);
+  useEffect(() => setMoreOpen(false), [realPath]);
   useEffect(() => {
     document.body.style.overflow = moreOpen ? 'hidden' : '';
     return () => {
@@ -385,7 +416,7 @@ function ShellInner(props: Props) {
 
             <main className="flex-1 px-4 pb-32 pt-6 sm:px-8 lg:pb-12 lg:pt-8 print:p-0">
               <motion.div
-                key={path}
+                key={realPath}
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.38, ease: EASE }}

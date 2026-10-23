@@ -54,20 +54,12 @@ export function ReleaseRules({ ref_, rules }: { ref_: RefData; rules: ReleaseRul
   ];
 
   const toggle = async (r: ReleaseRule, v: boolean) => {
-    const ok = await confirm({ title: v ? 'تفعيل القاعدة؟' : 'تعطيل القاعدة؟', body: 'يتغير ما يراه الطلاب فورًا.', confirmLabel: v ? 'تفعيل' : 'تعطيل', danger: !v });
-    if (!ok) return;
-    const res = await setRuleActive(r.id, v);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
-    router.refresh();
+    const ok = await confirm({ title: v ? 'تفعيل القاعدة؟' : 'تعطيل القاعدة؟', body: 'يتغير ما يراه الطلاب فورًا.', confirmLabel: v ? 'تفعيل' : 'تعطيل', danger: !v, run: () => setRuleActive(r.id, v) });
+    if (ok) router.refresh();
   };
   const remove = async (r: ReleaseRule) => {
-    const ok = await confirm({ title: 'حذف القاعدة؟', body: 'يعود الطلاب المشمولون للقاعدة الأعم التالية (أو الظهور إن لم توجد).', confirmLabel: 'حذف', danger: true });
-    if (!ok) return;
-    const res = await deleteRule(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
-    router.refresh();
+    const ok = await confirm({ title: 'حذف القاعدة؟', body: 'يعود الطلاب المشمولون للقاعدة الأعم التالية (أو الظهور إن لم توجد).', confirmLabel: 'حذف', danger: true, run: () => deleteRule(r.id) });
+    if (ok) router.refresh();
   };
   const preset = (v: Partial<RuleInput>) => setEditing({ id: null, v: { ...EMPTY, ...v } });
   const current = ref_.terms.find((t) => t.is_current);

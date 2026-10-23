@@ -216,11 +216,9 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
       body: kind === 'block' ? `تُحجب نتائج ${termName} عن ${data.students.length} طالب حتى تلغي القاعدة أو تحدد موعد إتاحة من تبويب "إتاحة النتائج".` : `تظهر نتائج ${termName} لطلاب الفصل الآن، حتى لو كان هناك حجب أعم (فرع أو مرحلة أو الكل).`,
       confirmLabel: kind === 'block' ? 'حجب' : 'إتاحة',
       danger: kind === 'block',
+      run: () => saveRule(null, { kind, term_ids: [termId], branch_ids: [], stage_ids: [], grade_ids: [], class_ids: [classId], student_ids: [], opens_at: null, closes_at: null, note: kind === 'block' ? 'حجب سريع من كشف الفصل' : 'إتاحة سريعة من كشف الفصل' }),
     });
     if (!ok) return;
-    const res = await saveRule(null, { kind, term_ids: [termId], branch_ids: [], stage_ids: [], grade_ids: [], class_ids: [classId], student_ids: [], opens_at: null, closes_at: null, note: kind === 'block' ? 'حجب سريع من كشف الفصل' : 'إتاحة سريعة من كشف الفصل' });
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     router.refresh();
   };
 
@@ -404,21 +402,16 @@ function StudentSheet({ student, termId, termName, access, onClose, notice, bran
       body: kind === 'block' ? `لا يرى إشعار ${termName} حتى تلغي القاعدة.` : `يرى إشعار ${termName} الآن حتى لو كان فصله محجوبًا.`,
       confirmLabel: kind === 'block' ? 'حجب' : 'إتاحة',
       danger: kind === 'block',
+      run: () => saveRule(null, { kind, term_ids: [termId], branch_ids: [], stage_ids: [], grade_ids: [], class_ids: [], student_ids: [student.id], opens_at: null, closes_at: null, note: null }),
     });
     if (!ok) return;
-    const res = await saveRule(null, { kind, term_ids: [termId], branch_ids: [], stage_ids: [], grade_ids: [], class_ids: [], student_ids: [student.id], opens_at: null, closes_at: null, note: null });
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     onClose();
     router.refresh();
   };
   const grant = async () => {
     if (!student) return;
-    const ok = await confirm({ title: `منح درجة المواظبة لـ ${student.name_ar}؟`, body: `طالب منتسب: تُحتسب له مواظبة 100% في ${termName} بطلبه. يمكنك تعديل الدرجة أو إلغاء المنح من الإعدادات.`, confirmLabel: 'منح' });
+    const ok = await confirm({ title: `منح درجة المواظبة لـ ${student.name_ar}؟`, body: `طالب منتسب: تُحتسب له مواظبة 100% في ${termName} بطلبه. يمكنك تعديل الدرجة أو إلغاء المنح من الإعدادات.`, confirmLabel: 'منح', run: () => saveGrant(student.id, termId, 100, 'بطلب الطالب') });
     if (!ok) return;
-    const res = await saveGrant(student.id, termId, 100, 'بطلب الطالب');
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     void card.refetch();
     router.refresh();
   };

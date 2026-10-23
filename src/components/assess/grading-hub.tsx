@@ -402,11 +402,8 @@ function SingleMode({ ctx }: { ctx: AuthorContext }) {
   };
 
   const undo = async (r: SingleRecent) => {
-    const ok = await confirm({ title: 'حذف هذا الرصد؟', body: `${r.title} — ${r.student} (${Number(r.score)} من ${Number(r.max_score)})`, confirmLabel: 'حذف', danger: true });
+    const ok = await confirm({ title: 'حذف هذا الرصد؟', body: `${r.title} — ${r.student} (${Number(r.score)} من ${Number(r.max_score)})`, confirmLabel: 'حذف', danger: true, run: () => deleteManual(r.id) });
     if (!ok) return;
-    const res = await deleteManual(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     recent.refetch();
   };
 

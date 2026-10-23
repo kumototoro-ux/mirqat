@@ -57,20 +57,15 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
             : 'يختفي عن الطلاب حتى تنشره من جديد.',
       confirmLabel: s === 'published' ? 'نشر' : s === 'closed' ? 'إغلاق' : 'مسودة',
       danger: s === 'closed',
+      run: () => setFormStatus(info.id, s),
     });
     if (!ok) return;
-    const res = await setFormStatus(info.id, s);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     router.refresh();
   };
 
   const remove = async () => {
-    const ok = await confirm({ title: 'حذف نهائي؟', body: <><b className="text-ink">{info.title}</b><br />تُحذف المرفقات والتسليمات. لا يمكن حذف ما له درجات مرصودة.</>, confirmLabel: 'حذف', danger: true });
+    const ok = await confirm({ title: 'حذف نهائي؟', body: <><b className="text-ink">{info.title}</b><br />تُحذف المرفقات والتسليمات. لا يمكن حذف ما له درجات مرصودة.</>, confirmLabel: 'حذف', danger: true, run: () => deleteAssessment(info.id) });
     if (!ok) return;
-    const res = await deleteAssessment(info.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     router.push('/staff/tasks');
     router.refresh();
   };

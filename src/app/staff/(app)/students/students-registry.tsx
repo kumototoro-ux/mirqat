@@ -86,11 +86,10 @@ export function StudentsRegistry({
       ),
       confirmLabel: 'حذف نهائيًا',
       danger: true,
+      // البطاقة تبقى مفتوحة بزر دوّار حتى ينتهي الحذف، والخطأ (مثل وجود درجات) يظهر داخلها
+      run: () => deleteStudent(r.id),
     });
     if (!ok) return;
-    const res = await deleteStudent(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     registry.current?.invalidate();
     router.refresh();
   };

@@ -88,11 +88,8 @@ export function TaskDesk({ task }: { task: TaskDetail }) {
 
   const giveBack = async () => {
     if (!row?.sub) return;
-    const ok = await confirm({ title: 'إعادة التسليم للطالب؟', body: 'يستطيع الطالب تعديل تسليمه وإعادة إرساله. تبقى درجته حتى تغيّرها.', confirmLabel: 'إعادة' });
+    const ok = await confirm({ title: 'إعادة التسليم للطالب؟', body: 'يستطيع الطالب تعديل تسليمه وإعادة إرساله. تبقى درجته حتى تغيّرها.', confirmLabel: 'إعادة', run: () => returnSubmission(row.sub!.id, task.id) });
     if (!ok) return;
-    const res = await returnSubmission(row.sub.id, task.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     router.refresh();
   };
 

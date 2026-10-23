@@ -187,11 +187,8 @@ function AttemptSheet({ form, student, attempt, onClose }: { form: FormDetail; s
   const events = session ? form.events.filter((e) => e.session_id === session.id) : [];
 
   const reset = async () => {
-    const ok = await confirm({ title: `تصفير محاولة ${student.name_ar}؟`, body: 'تُحذف إجاباته ودرجته في هذا النموذج، ويستطيع الحل من جديد ما دام النموذج مفتوحًا.', confirmLabel: 'تصفير', danger: true });
+    const ok = await confirm({ title: `تصفير محاولة ${student.name_ar}؟`, body: 'تُحذف إجاباته ودرجته في هذا النموذج، ويستطيع الحل من جديد ما دام النموذج مفتوحًا.', confirmLabel: 'تصفير', danger: true, run: () => resetAttempt(attempt.id, form.id) });
     if (!ok) return;
-    const res = await resetAttempt(attempt.id, form.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     onClose();
     router.refresh();
   };

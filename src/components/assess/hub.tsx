@@ -58,11 +58,9 @@ export function AssessHub({
       ),
       confirmLabel: 'حذف',
       danger: true,
+      run: () => deleteAssessment(r.id),
     });
     if (!ok) return;
-    const res = await deleteAssessment(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     registry.current?.invalidate();
     router.refresh();
   };
