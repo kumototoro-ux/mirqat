@@ -11,22 +11,35 @@ export const CERT_IMAGES: { kind: CertImageKind; ar: string; hint: string }[] = 
 ];
 
 export type CertSettings = {
-  /** أسطر الترويسة العربية (يمين) */
+  /** السطر الأول من الترويسة العربية (يمين) — المملكة العربية السعودية */
   header_ar: string;
-  /** أسطر الترويسة الإنجليزية (يسار) */
+  /** السطر الأول من الترويسة الإنجليزية (يسار) */
   header_en: string;
+  /** حكومية: الترويسة الدولة فقط — أهلية/خيرية: تُضاف الجهة الداعمة تحتها */
+  school_type: 'public' | 'private';
+  sponsor_ar: string;
+  sponsor_en: string;
+  /** عنوان الشهادة: {الصف} {العام} بالعربي، {grade} {year} بالإنجليزي */
+  title_ar: string;
+  title_en: string;
   show_basmala: boolean;
   school_ar: string;
   school_en: string;
   school_code: string;
   year_hijri: string;
   year_greg: string;
+  principal_gender: 'm' | 'f';
+  /** فارغ = مدير المدرسة / مديرة المدرسة حسب الجنس */
   principal_title: string;
+  principal_title_en: string;
   principal_name: string;
+  principal_name_en: string;
   /** {الصف} يُستبدل باسم الصف */
   closing_ar: string;
   /** {grade} is replaced with the grade name */
   closing_en: string;
+  /** عبارة "صادرة إلكترونيًا من منصة مِرقاة" أسفل الشهادة */
+  show_footer: boolean;
   /** درجة النجاح في المادة (المعدل السنوي للمادة) — دونها لا تظهر عبارة الاجتياز */
   pass_mark: number;
   student_visible: boolean;
@@ -39,16 +52,25 @@ export type CertSettings = {
 export const CERT_DEFAULTS: CertSettings = {
   header_ar: 'المملكة العربية السعودية',
   header_en: 'Kingdom of Saudi Arabia',
+  school_type: 'public',
+  sponsor_ar: '',
+  sponsor_en: '',
+  title_ar: 'شهادة {الصف} للعام الدراسي {العام} هـ',
+  title_en: '{grade} Certificate for the Academic Year {year}',
   show_basmala: true,
   school_ar: '',
   school_en: '',
   school_code: '',
   year_hijri: '',
   year_greg: '',
-  principal_title: 'مدير المدرسة',
+  principal_gender: 'm',
+  principal_title: '',
+  principal_title_en: '',
   principal_name: '',
+  principal_name_en: '',
   closing_ar: 'تمنح هذه الشهادة تقديرًا لاجتياز {الصف} بنجاح، مع أطيب التمنيات بمزيد من التفوق.',
   closing_en: 'This certificate is awarded in recognition of successfully completing the {grade}, with best wishes for further achievements.',
+  show_footer: false,
   pass_mark: 50,
   student_visible: false,
   grades: {},
@@ -75,19 +97,33 @@ export function normalizeCert(raw: unknown): CertSettings {
       if (typeof p === 'string' && /^certificate\/[\w.-]+$/.test(p)) images[kind] = p;
     }
   const pm = Number(v.pass_mark);
+  // الإصدار الأول خزّن الترويسة أسطرًا متعددة: السطر الأول الدولة وما بعده الجهة الداعمة
+  const legacyAr = typeof v.header_ar === 'string' && !('school_type' in v) ? v.header_ar.split('\n') : null;
+  const legacyEn = typeof v.header_en === 'string' && !('school_type' in v) ? v.header_en.split('\n') : null;
+  const legacySponsor = legacyAr && legacyAr.length > 1 ? legacyAr.slice(1).join('\n').trim() : '';
   return {
-    header_ar: str(v.header_ar, 400, CERT_DEFAULTS.header_ar),
-    header_en: str(v.header_en, 400, CERT_DEFAULTS.header_en),
+    header_ar: (legacyAr ? legacyAr[0] : str(v.header_ar, 120, CERT_DEFAULTS.header_ar)).trim() || CERT_DEFAULTS.header_ar,
+    header_en: (legacyEn ? legacyEn[0] : str(v.header_en, 120, CERT_DEFAULTS.header_en)).trim() || CERT_DEFAULTS.header_en,
+    school_type: v.school_type === 'private' || legacySponsor ? 'private' : 'public',
+    sponsor_ar: legacySponsor || str(v.sponsor_ar, 300),
+    sponsor_en: (legacyEn && legacyEn.length > 1 ? legacyEn.slice(1).join('\n').trim() : '') || str(v.sponsor_en, 300),
+    title_ar: str(v.title_ar, 200, CERT_DEFAULTS.title_ar) || CERT_DEFAULTS.title_ar,
+    title_en: str(v.title_en, 200, CERT_DEFAULTS.title_en) || CERT_DEFAULTS.title_en,
     show_basmala: typeof v.show_basmala === 'boolean' ? v.show_basmala : true,
     school_ar: str(v.school_ar, 120),
     school_en: str(v.school_en, 120),
     school_code: str(v.school_code, 30),
     year_hijri: str(v.year_hijri, 40),
     year_greg: str(v.year_greg, 40),
-    principal_title: str(v.principal_title, 60, CERT_DEFAULTS.principal_title),
+    // المسمى الافتراضي يتبع الجنس، فلا يُخزَّن نصًا ثابتًا (الإصدار الأول كان يخزّنه)
+    principal_gender: v.principal_gender === 'f' || (!v.principal_gender && /^مديرة/.test(str(v.principal_title, 60))) ? 'f' : 'm',
+    principal_title: /^مدير(ة)? المدرسة$/.test(str(v.principal_title, 60).trim()) ? '' : str(v.principal_title, 60),
+    principal_title_en: str(v.principal_title_en, 60),
     principal_name: str(v.principal_name, 80),
+    principal_name_en: str(v.principal_name_en, 80),
     closing_ar: str(v.closing_ar, 400, CERT_DEFAULTS.closing_ar),
     closing_en: str(v.closing_en, 400, CERT_DEFAULTS.closing_en),
+    show_footer: v.show_footer === true,
     pass_mark: Number.isFinite(pm) && pm >= 0 && pm <= 100 ? pm : 50,
     student_visible: v.student_visible === true,
     grades,
@@ -97,12 +133,48 @@ export function normalizeCert(raw: unknown): CertSettings {
 
 export const gradeKey = (stage: string | null, grade: string | null) => `${stage ?? ''}|${grade ?? ''}`;
 
-/** اسم الصف في الشهادة (عربي/إنجليزي) — من الإعداد، وإلا من اسم الصف والمرحلة */
+/* ---------------- تسمية الصف الذكية ---------------- */
+const stem = (w: string) => w.replace(/^ال/, '').replace(/(ية|ة|ي)$/, '');
+const ORD: [RegExp, string][] = [
+  [/الأول|الاول/, 'First'], [/الثاني/, 'Second'], [/الثالث/, 'Third'], [/الرابع/, 'Fourth'],
+  [/الخامس/, 'Fifth'], [/السادس/, 'Sixth'], [/السابع/, 'Seventh'], [/الثامن/, 'Eighth'], [/التاسع/, 'Ninth'],
+];
+const STAGE: [RegExp, string][] = [[/ابتدائ/, 'Primary'], [/متوسط/, 'Intermediate'], [/ثانو/, 'Secondary'], [/روض|تمهيد/, 'Kindergarten']];
+
+/**
+ * اسم الصف في الشهادة — من الإعداد إن كُتب، وإلا يُركَّب تلقائيًا بلا تكرار:
+ * (الأول المتوسط + المتوسطة) ← "الصف الأول المتوسط"، (الأول + المتوسطة) ← "الصف الأول المتوسط"
+ * والإنجليزي: First Intermediate Grade
+ */
 export function gradeLabel(s: CertSettings, stage: string | null, grade: string | null) {
   const g = s.grades[gradeKey(stage, grade)];
-  const raw = [grade, stage].filter(Boolean).join(' ');
-  const ar = g?.ar || (raw ? (/^الصف/.test(raw) ? raw : `الصف ${raw}`) : '');
-  return { ar, en: g?.en || '' };
+  const gr = (grade ?? '').trim();
+  const st = (stage ?? '').trim();
+  const words = gr.split(/\s+/).filter(Boolean);
+  const hasStage = !!st && words.some((w) => stem(w) === stem(st) || (stem(st).length > 3 && w.includes(stem(st))));
+  const stageAdj = st.replace(/ية$/, 'ي').replace(/ة$/, '');
+  const base = [gr, hasStage || !st ? '' : stageAdj].filter(Boolean).join(' ');
+  const autoAr = base ? (/^الصف/.test(base) ? base : `الصف ${base}`) : '';
+  const all = `${gr} ${st}`;
+  const ord = ORD.find(([r]) => r.test(gr))?.[1];
+  const stg = STAGE.find(([r]) => r.test(all))?.[1];
+  const autoEn = ord ? `${ord}${stg ? ` ${stg}` : ''} Grade` : '';
+  return { ar: g?.ar || autoAr, en: g?.en || autoEn };
+}
+
+/** يملأ قالب العنوان، ويحذف عبارة العام إن لم يُحدَّد */
+export function fillTitle(tpl: string, grade: string, year: string, lang: 'ar' | 'en') {
+  let t = tpl;
+  if (!year.trim()) t = lang === 'ar' ? t.replace(/\s*للعام الدراسي\s*\{(العام|year)\}\s*هـ?/, '') : t.replace(/\s*for the Academic Year\s*\{(year|العام)\}/i, '');
+  return t.replaceAll('{الصف}', grade).replaceAll('{grade}', grade).replaceAll('{العام}', year).replaceAll('{year}', year).replace(/\s{2,}/g, ' ').trim();
+}
+
+/** صفة الموقّع: من الإعداد، وإلا حسب الجنس */
+export function principalTitle(s: CertSettings) {
+  return {
+    ar: s.principal_title || (s.principal_gender === 'f' ? 'مديرة المدرسة' : 'مدير المدرسة'),
+    en: s.principal_title_en || 'School Principal',
+  };
 }
 
 /** التقدير مع "ممتاز+" للدرجة الكاملة كما في الشهادة المعتمدة */

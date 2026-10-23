@@ -7,10 +7,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import { Field, Sheet } from '@/components/sheet';
-import { SettingsCard, Switch } from '@/components/settings/editors';
 import { classYear, saveCertSettings } from '@/lib/results/cert-actions';
-import { CertImagesEditor } from './cert-images';
-import { buildClassYear, certRating, fmt, gradeKey, gradeLabel, type CertSettings, type YearCert } from '@/lib/results/certificate';
+import { CertSettingsForm } from './cert-settings';
+import { buildClassYear, certRating, fmt, type CertSettings, type YearCert } from '@/lib/results/certificate';
 import { CertificateViewer, exportClassPdf, type CertBrand } from './certificate';
 import type { RefData } from './results-admin';
 
@@ -275,122 +274,9 @@ function ClassCerts({ classId, label, terms, settings, brand }: { classId: numbe
 
 /* ------------------------- إعداد الشهادة ------------------------- */
 function CertSettingsSheet({ open, onClose, settings, brand, ref_, schoolName, principal }: { open: boolean; onClose: () => void; settings: CertSettings; brand: CertBrand; ref_: RefData; schoolName: string; principal: string }) {
-  const router = useRouter();
-  const { confirm } = useFeedback();
-  const { images: _img, ...base } = settings;
-  void _img;
-  const [v, setV] = useState(base);
-  const [pending, setPending] = useState(false);
-  const dirty = JSON.stringify(v) !== JSON.stringify(base);
-  const set = <K extends keyof typeof v>(k: K, val: (typeof v)[K]) => setV((x) => ({ ...x, [k]: val }));
-  const stageName = (id: number) => ref_.stages.find((s) => s.id === id)?.name ?? '';
-
-  const save = async () => {
-    const ok = await confirm({
-      title: 'حفظ إعداد الشهادة؟',
-      body: 'يظهر في كل الشهادات التي تُنزَّل من الآن.',
-      confirmLabel: 'حفظ',
-      run: async () => {
-        setPending(true);
-        try {
-          return await saveCertSettings(v);
-        } finally {
-          setPending(false);
-        }
-      },
-    });
-    if (ok) router.refresh();
-  };
-
   return (
-    <Sheet
-      open={open}
-      onClose={onClose}
-      title="إعداد الشهادة"
-      subtitle="النصوص والصور التي تظهر في شهادة نهاية العام"
-      wide
-      footer={
-        <button type="button" onClick={save} disabled={pending || !dirty} className="btn-primary w-full py-3">
-          {pending ? <span className="spinner" /> : <Icon name="check" className="size-4" />} حفظ الإعداد
-        </button>
-      }
-    >
-      <div className="space-y-5">
-        <CertImagesEditor images={brand.images} schoolLogo={brand.logo} />
-
-        <SettingsCard title="الترويسة والعام الدراسي">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="الترويسة العربية" hint="كل سطر في سطر — تظهر أعلى اليمين">
-              <textarea value={v.header_ar} onChange={(e) => set('header_ar', e.target.value.slice(0, 400))} rows={3} className="field" />
-            </Field>
-            <Field label="الترويسة الإنجليزية" hint="Top-left lines">
-              <textarea value={v.header_en} onChange={(e) => set('header_en', e.target.value.slice(0, 400))} rows={3} className="field" dir="ltr" />
-            </Field>
-            <Field label="العام الهجري" hint="مثال: 1447 – 1448">
-              <input value={v.year_hijri} onChange={(e) => set('year_hijri', e.target.value.slice(0, 40))} className="field" dir="ltr" />
-            </Field>
-            <Field label="العام الميلادي" hint="مثال: 2025 - 2026">
-              <input value={v.year_greg} onChange={(e) => set('year_greg', e.target.value.slice(0, 40))} className="field" dir="ltr" />
-            </Field>
-            <div className="flex items-center justify-between gap-3 rounded-xl bg-paper px-3.5 py-3 sm:col-span-2">
-              <span className="text-sm font-semibold">إظهار البسملة أعلى الشهادة</span>
-              <Switch checked={v.show_basmala} onChange={(b) => set('show_basmala', b)} label="البسملة" />
-            </div>
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="المدرسة والمدير">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="اسم المدرسة" hint={`فارغ = ${schoolName || 'اسم المدرسة العام'}`}>
-              <input value={v.school_ar} onChange={(e) => set('school_ar', e.target.value.slice(0, 120))} className="field" placeholder={schoolName} />
-            </Field>
-            <Field label="School name (English)">
-              <input value={v.school_en} onChange={(e) => set('school_en', e.target.value.slice(0, 120))} className="field" dir="ltr" placeholder="Dar Al Huda" />
-            </Field>
-            <Field label="رمز المدرسة" hint="اختياري — يظهر بجانب الاسم">
-              <input value={v.school_code} onChange={(e) => set('school_code', e.target.value.slice(0, 30))} className="field" dir="ltr" />
-            </Field>
-            <Field label="صفة الموقّع" hint="مثال: مديرة المدرسة">
-              <input value={v.principal_title} onChange={(e) => set('principal_title', e.target.value.slice(0, 60))} className="field" />
-            </Field>
-            <Field label="اسم الموقّع" hint={principal ? `فارغ = ${principal}` : undefined} className="sm:col-span-2">
-              <input value={v.principal_name} onChange={(e) => set('principal_name', e.target.value.slice(0, 80))} className="field" placeholder={principal} />
-            </Field>
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="أسماء الصفوف في الشهادة" description="تظهر في العنوان وعبارة الاجتياز. الإنجليزي مثل: Third Intermediate Grade">
-          <div className="space-y-2">
-            {ref_.grades.map((g) => {
-              const key = gradeKey(stageName(g.stage_id), g.name);
-              const cur = v.grades[key] ?? { ar: '', en: '' };
-              const def = gradeLabel({ ...v, images: {} , grades: {} }, stageName(g.stage_id), g.name).ar;
-              const put = (p: Partial<{ ar: string; en: string }>) => set('grades', { ...v.grades, [key]: { ...cur, ...p } });
-              return (
-                <div key={g.id} className="grid gap-2 rounded-xl bg-paper p-2.5 sm:grid-cols-[8rem_1fr_1fr] sm:items-center">
-                  <span className="text-sm font-semibold">{g.name} <span className="text-xs font-normal text-muted">{stageName(g.stage_id)}</span></span>
-                  <input value={cur.ar} onChange={(e) => put({ ar: e.target.value.slice(0, 80) })} placeholder={def} className="field py-2 text-sm" />
-                  <input value={cur.en} onChange={(e) => put({ en: e.target.value.slice(0, 80) })} placeholder="Grade name in English" className="field py-2 text-sm" dir="ltr" />
-                </div>
-              );
-            })}
-          </div>
-        </SettingsCard>
-
-        <SettingsCard title="عبارة الاجتياز" description="{الصف} و {grade} تُستبدلان باسم الصف. لا تظهر لمن لم يجتز مادة أو لم تكتمل درجاته.">
-          <div className="grid gap-4">
-            <Field label="العبارة العربية">
-              <textarea value={v.closing_ar} onChange={(e) => set('closing_ar', e.target.value.slice(0, 400))} rows={2} className="field" />
-            </Field>
-            <Field label="English sentence">
-              <textarea value={v.closing_en} onChange={(e) => set('closing_en', e.target.value.slice(0, 400))} rows={2} className="field" dir="ltr" />
-            </Field>
-            <Field label="درجة النجاح في المادة" hint="المعدل السنوي للمادة من 100" className="sm:w-48">
-              <input type="number" min={0} max={100} value={v.pass_mark} onChange={(e) => set('pass_mark', Math.max(0, Math.min(100, Number(e.target.value) || 0)))} className="field tabular-nums" dir="ltr" />
-            </Field>
-          </div>
-        </SettingsCard>
-      </div>
+    <Sheet open={open} onClose={onClose} title="إعداد الشهادة" subtitle="النصوص والصور — يُحفظ نفس الإعداد في صفحة الإعدادات" wide>
+      <CertSettingsForm settings={settings} grades={ref_.grades} stages={ref_.stages} schoolName={schoolName} principal={principal} schoolLogo={brand.logo} images={brand.images} />
     </Sheet>
   );
 }

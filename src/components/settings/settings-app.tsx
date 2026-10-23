@@ -8,7 +8,8 @@ import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, W
 import type { RefTable } from '@/lib/settings/actions';
 import { CalendarEditor, ExamsEditor, TimetableEditor } from './schedule-editors';
 import { PurgeSettings } from '@/components/assess/purge-settings';
-import { CertImagesEditor } from '@/components/results/cert-images';
+import { CertSettingsForm } from '@/components/results/cert-settings';
+import { normalizeCert } from '@/lib/results/certificate';
 
 export type SettingsData = {
   settings: Record<string, unknown>;
@@ -65,7 +66,17 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
         terms={data.terms}
       />
     );
-  else if (active === 'certificate') content = <CertImagesEditor schoolLogo={typeof v.school_logo_url === 'string' && v.school_logo_url ? v.school_logo_url : null} />;
+  else if (active === 'certificate')
+    content = (
+      <CertSettingsForm
+        settings={normalizeCert(v.certificate)}
+        grades={L.grades.map((g) => ({ id: g.id, name: g.name, stage_id: Number((g as { stage_id?: number }).stage_id ?? 0) }))}
+        stages={L.stages.map((s) => ({ id: s.id, name: s.name }))}
+        schoolName={String(v.school_name ?? '')}
+        principal={typeof (v.results_notice as { principal?: unknown } | undefined)?.principal === 'string' ? String((v.results_notice as { principal: string }).principal) : ''}
+        schoolLogo={typeof v.school_logo_url === 'string' && v.school_logo_url ? v.school_logo_url : null}
+      />
+    );
   else if (active === 'calendar') content = <CalendarEditor />;
   else if (active === 'timetable') content = <TimetableEditor />;
   else if (active === 'exams') content = <ExamsEditor />;
