@@ -8,6 +8,7 @@ import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, W
 import type { RefTable } from '@/lib/settings/actions';
 import { CalendarEditor, ExamsEditor, TimetableEditor } from './schedule-editors';
 import { PurgeSettings } from '@/components/assess/purge-settings';
+import { CertImagesEditor } from '@/components/results/cert-images';
 
 export type SettingsData = {
   settings: Record<string, unknown>;
@@ -64,6 +65,7 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
         terms={data.terms}
       />
     );
+  else if (active === 'certificate') content = <CertImagesEditor schoolLogo={typeof v.school_logo_url === 'string' && v.school_logo_url ? v.school_logo_url : null} />;
   else if (active === 'calendar') content = <CalendarEditor />;
   else if (active === 'timetable') content = <TimetableEditor />;
   else if (active === 'exams') content = <ExamsEditor />;
