@@ -75,11 +75,9 @@ export function EmployeesRegistry({
       ),
       confirmLabel: 'حذف نهائيًا',
       danger: true,
+      run: () => deleteEmployee(r.id),
     });
     if (!ok) return;
-    const res = await deleteEmployee(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     setEditing(null);
     registry.current?.invalidate();
     router.refresh();

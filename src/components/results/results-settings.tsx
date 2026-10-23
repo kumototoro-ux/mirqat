@@ -31,16 +31,19 @@ function useRun() {
   const { toast, confirm } = useFeedback();
   const [pending, setPending] = useState(false);
   const run = async (fn: () => Promise<{ ok: true; message: string } | { ok: false; error: string }>, c: { title: string; body: React.ReactNode; confirmLabel?: string; danger?: boolean }) => {
-    const ok = await confirm({ confirmLabel: 'حفظ', ...c });
+    const ok = await confirm({
+      confirmLabel: 'حفظ',
+      ...c,
+      run: async () => {
+        setPending(true);
+        try {
+          return await fn();
+        } finally {
+          setPending(false);
+        }
+      },
+    });
     if (!ok) return false;
-    setPending(true);
-    const res = await fn();
-    setPending(false);
-    if (!res.ok) {
-      toast(res.error, 'error');
-      return false;
-    }
-    toast(res.message);
     router.refresh();
     return true;
   };

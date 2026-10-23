@@ -228,11 +228,8 @@ function StudentPanel({ student, statuses, ctx, term, myEmployeeId, onClose }: {
   };
 
   const remove = async (r: BehaviorRecord) => {
-    const ok = await confirm({ title: 'حذف هذا السجل؟', body: `${r.status}${r.note ? ` — ${r.note}` : ''}`, confirmLabel: 'حذف', danger: true });
+    const ok = await confirm({ title: 'حذف هذا السجل؟', body: `${r.status}${r.note ? ` — ${r.note}` : ''}`, confirmLabel: 'حذف', danger: true, run: () => deleteBehavior(r.id) });
     if (!ok) return;
-    const res = await deleteBehavior(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     qc.invalidateQueries({ queryKey: ['beh-student', student.id] });
     qc.invalidateQueries({ queryKey: ['beh-board'] });
     qc.invalidateQueries({ queryKey: ['beh-recent'] });

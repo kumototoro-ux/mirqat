@@ -248,11 +248,8 @@ function SubmissionSheet({
 
   const giveBack = async () => {
     if (!row?.sub) return;
-    const ok = await confirm({ title: 'إعادة التسليم للطالب؟', body: 'يُلغى تصحيح التسليم فيستطيع الطالب تعديله وإعادة إرساله (تبقى الدرجة المرصودة حتى تغيّرها).', confirmLabel: 'إعادة' });
+    const ok = await confirm({ title: 'إعادة التسليم للطالب؟', body: 'يُلغى تصحيح التسليم فيستطيع الطالب تعديله وإعادة إرساله (تبقى الدرجة المرصودة حتى تغيّرها).', confirmLabel: 'إعادة', run: () => returnSubmission(row.sub!.id, task.id) });
     if (!ok) return;
-    const res = await returnSubmission(row.sub.id, task.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     onSaved();
     onClose();
   };

@@ -160,6 +160,11 @@ html {
   background: var(--color-paper);
   color: var(--color-ink);
   scroll-behavior: smooth;
+  /*
+    مكان شريط التمرير محجوز دائمًا: الصفحة القصيرة (بلا تمرير) والطويلة بنفس العرض،
+    وفتح نافذة تمنع التمرير لا يُزيح المحتوى. بدونه كان المحتوى والقائمة يتحركان ~15px عند التنقل.
+  */
+  scrollbar-gutter: stable;
   /* خط أكبر قليلًا من الافتراضي: أوضح على الجوال وأريح للقراءة الطويلة */
   font-size: 106.25%;
   -webkit-tap-highlight-color: transparent;
@@ -299,4 +304,17 @@ body {
   html { font-size: 88%; background: #fff; }
   * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
   .break-inside-avoid { break-inside: avoid; }
+}
+
+/* شريط العدّ التنازلي داخل التنبيه (خارج @theme حتى لا يُحذف لأنه يُستخدم من style مباشرة) */
+@keyframes toast-countdown {
+  from { transform: scaleX(1); }
+  to { transform: scaleX(0); }
+}
+/* "تقليل الحركة" يلغي الحركات، لكن مهلة التنبيه نفسها يجب أن تبقى كما هي (وإلا يختفي فورًا) */
+.toast-timer {
+  animation: toast-countdown var(--toast-ms, 3400ms) linear forwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .toast-timer { animation-duration: var(--toast-ms, 3400ms) !important; }
 }

@@ -41,12 +41,20 @@ function useMutate(key: unknown[]) {
   const qc = useQueryClient();
   const [busy, setBusy] = useState(false);
   const run = async (fn: () => Promise<ActionResult>, ask: { title: string; body?: React.ReactNode; confirmLabel?: string; danger?: boolean }, after?: () => void) => {
-    if (!(await confirm({ confirmLabel: 'حفظ', ...ask }))) return;
-    setBusy(true);
-    const r = await fn();
-    setBusy(false);
-    if (!r.ok) return toast(r.error, 'error');
-    toast(r.message);
+    // التأكيد والتنفيذ في بطاقة واحدة: زر دوّار أثناء الحفظ، والخطأ داخل البطاقة
+    const ok = await confirm({
+      confirmLabel: 'حفظ',
+      ...ask,
+      run: async () => {
+        setBusy(true);
+        try {
+          return await fn();
+        } finally {
+          setBusy(false);
+        }
+      },
+    });
+    if (!ok) return;
     after?.();
     qc.invalidateQueries({ queryKey: key });
   };

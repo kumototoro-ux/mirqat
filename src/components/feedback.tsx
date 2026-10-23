@@ -16,6 +16,11 @@ type ConfirmOptions = {
   confirmLabel?: string;
   cancelLabel?: string;
   danger?: boolean;
+  /**
+   * العملية نفسها (اختياري): تبقى البطاقة مفتوحة وزرها يدور حتى تنتهي،
+   * فإن فشلت ظهر الخطأ داخل البطاقة دون إغلاقها، وإن نجحت أُغلقت وظهر تنبيه النجاح.
+   */
+  run?: () => Promise<{ ok: true; message?: string } | { ok: false; error: string }>;
 };
 
 type Ctx = {
@@ -31,9 +36,10 @@ export function useFeedback() {
   return ctx;
 }
 
-const TONE: Record<ToastTone, { box: string; icon: React.ReactNode }> = {
+const TONE: Record<ToastTone, { box: string; icon: React.ReactNode; bar: string }> = {
   ok: {
     box: 'border-ok/25 bg-surface text-ink',
+    bar: 'bg-ok/50',
     icon: (
       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ok text-chalk">
         <svg viewBox="0 0 20 20" className="size-4"><path d="m5 10.5 3.2 3.2L15 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -42,6 +48,7 @@ const TONE: Record<ToastTone, { box: string; icon: React.ReactNode }> = {
   },
   error: {
     box: 'border-danger/25 bg-surface text-ink',
+    bar: 'bg-danger/50',
     icon: (
       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-danger text-chalk">
         <svg viewBox="0 0 20 20" className="size-4"><path d="M10 5.5v5.5M10 14.2v.3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
@@ -50,6 +57,7 @@ const TONE: Record<ToastTone, { box: string; icon: React.ReactNode }> = {
   },
   info: {
     box: 'border-board/25 bg-surface text-ink',
+    bar: 'bg-board/40',
     icon: (
       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-board text-chalk">
         <svg viewBox="0 0 20 20" className="size-4"><path d="M10 9v5M10 5.8v.3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" /></svg>
@@ -66,11 +74,16 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
   const seq = useRef(0);
   useEffect(() => setMounted(true), []);
 
+  // التنبيه يختفي حين ينتهي شريط العدّ التنازلي داخله (يتوقف عند مرور الفأرة أو اللمس)
+  const dismiss = useCallback((id: number) => {
+    setToasts((t) => t.map((x) => (x.id === id ? { ...x, leaving: true } : x)));
+    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), 380);
+  }, []);
   const toast = useCallback((text: string, tone: ToastTone = 'ok') => {
+    if (!text) return;
     const id = ++seq.current;
-    setToasts((t) => [...t.slice(-3), { id, tone, text }]);
-    setTimeout(() => setToasts((t) => t.map((x) => (x.id === id ? { ...x, leaving: true } : x))), tone === 'error' ? 5200 : 3200);
-    setTimeout(() => setToasts((t) => t.filter((x) => x.id !== id)), tone === 'error' ? 5600 : 3600);
+    // نفس الرسالة مرتين متتاليتين = تنبيه واحد يُجدَّد
+    setToasts((t) => [...t.filter((x) => !(x.text === text && x.tone === tone)).slice(-3), { id, tone, text }]);
   }, []);
 
   const confirm = useCallback(
@@ -100,12 +113,23 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
                 <div
                   key={t.id}
                   role={t.tone === 'error' ? 'alert' : 'status'}
-                  className={`pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-2xl border px-3.5 py-3 text-sm font-medium shadow-[0_18px_40px_-18px_rgb(31_42_36/0.45)] ${TONE[t.tone].box} ${
+                  className={`group/toast pointer-events-auto relative flex w-full max-w-sm items-center gap-3 overflow-hidden rounded-2xl border px-3.5 py-3 text-sm font-medium shadow-[0_18px_40px_-18px_rgb(31_42_36/0.45)] ${TONE[t.tone].box} ${
                     t.leaving ? 'animate-toast-out' : 'animate-toast-in'
                   }`}
                 >
                   {TONE[t.tone].icon}
                   <span className="flex-1 leading-snug">{t.text}</span>
+                  <button type="button" onClick={() => dismiss(t.id)} aria-label="إغلاق التنبيه" className="-me-1 grid size-7 shrink-0 place-items-center rounded-lg text-muted opacity-60 transition-opacity hover:bg-paper hover:opacity-100">
+                    <svg viewBox="0 0 20 20" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m6 6 8 8M14 6l-8 8" /></svg>
+                  </button>
+                  {!t.leaving && (
+                    <span
+                      aria-hidden
+                      onAnimationEnd={() => dismiss(t.id)}
+                      className={`toast-timer absolute bottom-0 start-0 h-[3px] w-full origin-right group-hover/toast:[animation-play-state:paused] ${TONE[t.tone].bar}`}
+                      style={{ '--toast-ms': `${t.tone === 'error' ? 6000 : 3400}ms` } as React.CSSProperties}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -115,7 +139,13 @@ export function FeedbackProvider({ children }: { children: React.ReactNode }) {
                 {...dialog}
                 closing={closing}
                 onCancel={() => close(false)}
-                onConfirm={() => close(true)}
+                onConfirm={async () => {
+                  if (!dialog.run) return close(true) as undefined;
+                  const res = await dialog.run();
+                  if (!res.ok) return res.error;
+                  if (res.message) toast(res.message);
+                  close(true);
+                }}
               />
             )}
           </>,
@@ -134,18 +164,34 @@ function ConfirmDialog({
   closing,
   onCancel,
   onConfirm,
-}: ConfirmOptions & { closing: boolean; onCancel: () => void; onConfirm: () => void }) {
+}: ConfirmOptions & { closing: boolean; onCancel: () => void; onConfirm: () => Promise<string | undefined> }) {
   const okRef = useRef<HTMLButtonElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const cancel = useCallback(() => !busy && onCancel(), [busy, onCancel]);
   useEffect(() => {
     okRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onCancel();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && cancel();
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [onCancel]);
+  }, [cancel]);
+  const go = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const err = await onConfirm();
+      if (err) setError(err);
+    } catch {
+      setError('تعذّر الاتصال. تحقق من الإنترنت وحاول مجددًا');
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-end p-3 sm:place-items-center" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-      <div onClick={onCancel} className={`absolute inset-0 bg-ink/45 backdrop-blur-[3px] ${closing ? 'animate-fade-out' : 'animate-fade-in'}`} />
+      <div onClick={cancel} className={`absolute inset-0 bg-ink/45 backdrop-blur-[3px] ${closing ? 'animate-fade-out' : 'animate-fade-in'}`} />
       <div
         className={`relative w-full max-w-md rounded-3xl bg-surface p-6 shadow-[0_30px_80px_-24px_rgb(0_0_0/0.5)] ${closing ? 'animate-sheet-out' : 'animate-sheet-in'}`}
       >
@@ -158,15 +204,24 @@ function ConfirmDialog({
         </span>
         <h2 id="confirm-title" className="mt-4 text-lg font-bold">{title}</h2>
         {body && <div className="mt-2 text-sm leading-relaxed text-muted">{body}</div>}
+        {error && (
+          <p role="alert" className="mt-3 flex items-start gap-2 rounded-xl bg-danger-soft px-3 py-2.5 text-sm text-danger animate-shake">
+            <svg viewBox="0 0 20 20" className="mt-0.5 size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="M10 5.5v5.5M10 14.2v.3" /></svg>
+            {error}
+          </p>
+        )}
         <div className="mt-6 grid grid-cols-2 gap-2">
-          <button type="button" onClick={onCancel} className="btn-quiet py-3">{cancelLabel}</button>
+          <button type="button" onClick={cancel} disabled={busy} className="btn-quiet py-3">{cancelLabel}</button>
           <button
             ref={okRef}
             type="button"
-            onClick={onConfirm}
-            className={`btn py-3 text-chalk ${danger ? 'bg-danger hover:bg-[#93281f]' : 'bg-board hover:bg-board-deep'}`}
+            onClick={go}
+            disabled={busy}
+            aria-busy={busy}
+            className={`btn py-3 text-chalk disabled:opacity-90 ${danger ? 'bg-danger hover:bg-[#93281f]' : 'bg-board hover:bg-board-deep'}`}
           >
-            {confirmLabel}
+            {busy ? <span className="spinner border-chalk/30 border-t-chalk" /> : null}
+            {busy ? 'جارٍ التنفيذ…' : error ? 'إعادة المحاولة' : confirmLabel}
           </button>
         </div>
       </div>

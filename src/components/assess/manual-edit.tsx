@@ -36,11 +36,8 @@ export function ManualEdit({ m, ctx }: { m: ManualDetail; ctx: AuthorContext }) 
   };
 
   const remove = async () => {
-    const ok = await confirm({ title: 'حذف هذا الرصد كاملًا؟', body: <><b className="text-ink">{m.title}</b> — تُحذف درجات {m.grades.length} طالب. للمعلم خلال 6 ساعات فقط، والإداري دائمًا.</>, confirmLabel: 'حذف', danger: true });
+    const ok = await confirm({ title: 'حذف هذا الرصد كاملًا؟', body: <><b className="text-ink">{m.title}</b> — تُحذف درجات {m.grades.length} طالب. للمعلم خلال 6 ساعات فقط، والإداري دائمًا.</>, confirmLabel: 'حذف', danger: true, run: () => deleteManual(m.id) });
     if (!ok) return;
-    const res = await deleteManual(m.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     router.push('/staff/grading?mode=records');
   };
 

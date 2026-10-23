@@ -57,19 +57,18 @@ export function ContentStudio({ ctx, initial, initialStats, myEmployeeId }: { ct
   const activeFilters = [cls, subj, status].filter(Boolean).length + (mine ? 1 : 0);
 
   const flag = async (r: StaffContent, f: Parameters<typeof setContentFlags>[1], c?: { title: string; body: string; danger?: boolean; label: string }) => {
-    if (c && !(await confirm({ title: c.title, body: c.body, confirmLabel: c.label, danger: c.danger }))) return;
+    if (c) {
+      if (await confirm({ title: c.title, body: c.body, confirmLabel: c.label, danger: c.danger, run: () => setContentFlags(r.id, f) })) refresh();
+      return;
+    }
     const res = await setContentFlags(r.id, f);
     if (!res.ok) return toast(res.error, 'error');
     toast(res.message);
     refresh();
   };
   const remove = async (r: StaffContent) => {
-    const ok = await confirm({ title: `حذف "${r.title}"؟`, body: `يُحذف من ${classLabel(r.class_id)} مع سجل مشاهداته (${r.viewers} طالب). لا يمكن التراجع.`, confirmLabel: 'حذف', danger: true });
-    if (!ok) return;
-    const res = await deleteContent(r.id);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
-    refresh();
+    const ok = await confirm({ title: `حذف "${r.title}"؟`, body: `يُحذف من ${classLabel(r.class_id)} مع سجل مشاهداته (${r.viewers} طالب). لا يمكن التراجع.`, confirmLabel: 'حذف', danger: true, run: () => deleteContent(r.id) });
+    if (ok) refresh();
   };
 
   const s = stats.data;

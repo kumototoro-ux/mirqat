@@ -205,11 +205,8 @@ function Roster({ k, statuses, title, onClose, onSaved }: { k: SessionKey; statu
   };
 
   const remove = async () => {
-    const ok = await confirm({ title: 'حذف تحضير هذه الحصة؟', body: 'تُحذف حالات كل الطلاب في هذه الحصة. للمعلم خلال 6 ساعات من التسجيل.', confirmLabel: 'حذف', danger: true });
+    const ok = await confirm({ title: 'حذف تحضير هذه الحصة؟', body: 'تُحذف حالات كل الطلاب في هذه الحصة. للمعلم خلال 6 ساعات من التسجيل.', confirmLabel: 'حذف', danger: true, run: () => deleteSession(k) });
     if (!ok) return;
-    const res = await deleteSession(k);
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     qc.invalidateQueries({ queryKey: ['att-sessions'] });
     onSaved();
     onClose();
@@ -308,11 +305,8 @@ function RecordsTab({ ctx, classNames, subjectNames, onOpen }: { ctx: AuthorCont
   const ref = useRef<RegistryHandle>(null);
   const key = (r: SessionSummary): SessionKey => ({ class_id: r.class_id, subject_id: r.subject_id, period_no: r.period_no, date: r.occurred_on });
   const remove = async (r: SessionSummary) => {
-    const ok = await confirm({ title: 'حذف تحضير هذه الحصة؟', body: `${classNames[r.class_id]} · ${fmtDay(r.occurred_on)} · الحصة ${r.period_no}`, confirmLabel: 'حذف', danger: true });
+    const ok = await confirm({ title: 'حذف تحضير هذه الحصة؟', body: `${classNames[r.class_id]} · ${fmtDay(r.occurred_on)} · الحصة ${r.period_no}`, confirmLabel: 'حذف', danger: true, run: () => deleteSession(key(r)) });
     if (!ok) return;
-    const res = await deleteSession(key(r));
-    if (!res.ok) return toast(res.error, 'error');
-    toast(res.message);
     ref.current?.invalidate();
   };
   return (

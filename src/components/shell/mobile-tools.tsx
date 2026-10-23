@@ -16,9 +16,13 @@ import { listStudents } from '@/app/staff/(app)/students/actions';
    ===================================================================== */
 
 /** يخفي الشريط العلوي على الجوال أثناء النزول في الصفحة، ويعيده عند أي صعود */
-export function useHideOnScroll() {
+export function useHideOnScroll(path?: string) {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  // صفحة جديدة: الشريط العلوي ظاهر دائمًا (لا يبقى مخفيًا من تمرير الصفحة السابقة)
+  useEffect(() => {
+    setHidden(false);
+  }, [path]);
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 1023px)');
     let last = window.scrollY;
