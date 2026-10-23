@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'motion/react';
 import { useQuery } from '@tanstack/react-query';
@@ -8,8 +8,9 @@ import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import { Field, Sheet } from '@/components/sheet';
 import { SettingsCard, Switch } from '@/components/settings/editors';
-import { classYear, removeCertImage, saveCertSettings, uploadCertImage } from '@/lib/results/cert-actions';
-import { CERT_IMAGES, buildClassYear, certRating, fmt, gradeKey, gradeLabel, type CertImageKind, type CertSettings, type YearCert } from '@/lib/results/certificate';
+import { classYear, saveCertSettings } from '@/lib/results/cert-actions';
+import { CertImagesEditor } from './cert-images';
+import { buildClassYear, certRating, fmt, gradeKey, gradeLabel, type CertSettings, type YearCert } from '@/lib/results/certificate';
 import { CertificateViewer, exportClassPdf, type CertBrand } from './certificate';
 import type { RefData } from './results-admin';
 
@@ -315,11 +316,7 @@ function CertSettingsSheet({ open, onClose, settings, brand, ref_, schoolName, p
       }
     >
       <div className="space-y-5">
-        <SettingsCard title="الصور" description="تُحفظ في مجلد خاص لا يصل إليه أحد مباشرة، وتُضمَّن في الشهادة عند عرضها فقط. شعار المدرسة من الإعدادات العامة.">
-          <div className="grid gap-3 sm:grid-cols-3">
-            {CERT_IMAGES.map((x) => <ImageSlot key={x.kind} kind={x.kind} label={x.ar} hint={x.hint} src={brand.images[x.kind]} />)}
-          </div>
-        </SettingsCard>
+        <CertImagesEditor images={brand.images} schoolLogo={brand.logo} />
 
         <SettingsCard title="الترويسة والعام الدراسي">
           <div className="grid gap-4 sm:grid-cols-2">
@@ -395,65 +392,5 @@ function CertSettingsSheet({ open, onClose, settings, brand, ref_, schoolName, p
         </SettingsCard>
       </div>
     </Sheet>
-  );
-}
-
-function ImageSlot({ kind, label, hint, src }: { kind: CertImageKind; label: string; hint: string; src?: string }) {
-  const router = useRouter();
-  const { toast, confirm } = useFeedback();
-  const file = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
-
-  const pick = async (f: File) => {
-    if (f.size > 1024 * 1024) return toast('حجم الصورة أكبر من 1 ميجابايت', 'error');
-    const preview = URL.createObjectURL(f);
-    const ok = await confirm({
-      title: `رفع ${label}؟`,
-      body: (
-        <span className="mt-2 grid place-items-center rounded-xl bg-paper p-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={preview} alt="" className="max-h-28 max-w-full object-contain" />
-        </span>
-      ),
-      confirmLabel: 'رفع',
-      run: async () => {
-        setBusy(true);
-        try {
-          const fd = new FormData();
-          fd.append('file', f);
-          return await uploadCertImage(kind, fd);
-        } finally {
-          setBusy(false);
-        }
-      },
-    });
-    URL.revokeObjectURL(preview);
-    if (ok) router.refresh();
-  };
-  const remove = async () => {
-    const ok = await confirm({ title: `حذف ${label}؟`, body: 'تختفي من كل الشهادات.', confirmLabel: 'حذف', danger: true, run: () => removeCertImage(kind) });
-    if (ok) router.refresh();
-  };
-
-  return (
-    <div className="flex flex-col rounded-2xl border border-line p-3">
-      <p className="text-sm font-semibold">{label}</p>
-      <p className="text-[0.7rem] text-muted">{hint}</p>
-      <div className="my-2.5 grid h-24 place-items-center rounded-xl bg-[repeating-conic-gradient(#f1f4f2_0%_25%,#fff_0%_50%)] bg-[length:16px_16px]">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        {src ? <img src={src} alt={label} className="max-h-20 max-w-[90%] object-contain" /> : <Icon name="image" className="size-7 text-muted" />}
-      </div>
-      <input ref={file} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) void pick(f); }} />
-      <div className="mt-auto flex gap-2">
-        <button type="button" onClick={() => file.current?.click()} disabled={busy} className="btn-quiet flex-1 px-2 py-1.5 text-xs">
-          {busy ? <span className="spinner" /> : <Icon name="upload" className="size-3.5" />} {src ? 'تغيير' : 'رفع'}
-        </button>
-        {src && (
-          <button type="button" onClick={remove} className="btn-quiet px-2 py-1.5 text-xs text-danger" aria-label={`حذف ${label}`}>
-            <Icon name="trash" className="size-3.5" />
-          </button>
-        )}
-      </div>
-    </div>
   );
 }

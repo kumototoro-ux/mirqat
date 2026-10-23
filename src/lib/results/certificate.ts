@@ -1,8 +1,10 @@
 // شهادة نهاية العام (أعمال السنة) — أنواع وحسابات مشتركة بين الخادم والمتصفح
 import { rating, type ClassReport, type ReportStudent, type ReportSubject, type TermInfo } from './shared';
 
-export type CertImageKind = 'vision' | 'signature' | 'stamp';
+export type CertImageKind = 'basmala' | 'logo' | 'vision' | 'signature' | 'stamp';
 export const CERT_IMAGES: { kind: CertImageKind; ar: string; hint: string }[] = [
+  { kind: 'basmala', ar: 'صورة البسملة', hint: 'تحل محل البسملة المكتوبة أعلى الشهادة' },
+  { kind: 'logo', ar: 'شعار المدرسة', hint: 'للشهادة فقط — إن لم يُرفع يُستخدم الشعار العام' },
   { kind: 'vision', ar: 'شعار الرؤية', hint: 'يظهر أعلى يسار الشهادة' },
   { kind: 'signature', ar: 'صورة التوقيع', hint: 'توقيع المدير — يُفضّل PNG بخلفية شفافة' },
   { kind: 'stamp', ar: 'صورة الختم', hint: 'ختم المدرسة — يُفضّل PNG بخلفية شفافة' },

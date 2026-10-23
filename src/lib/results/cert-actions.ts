@@ -111,3 +111,10 @@ export async function classYear(classId: number, terms: TermInfo[]): Promise<{ t
     }),
   );
 }
+
+/** معاينة صور الشهادة لصفحة الإعدادات (تُحمَّل عند فتح القسم فقط) */
+export async function certImagesPreview(): Promise<Partial<Record<CertImageKind, string>>> {
+  await requireUser(ADMIN);
+  const { getCertImages, getCertSettings } = await import('./cert-server');
+  return getCertImages(await getCertSettings());
+}
