@@ -6,7 +6,7 @@ import { createRoot } from 'react-dom/client';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import { LogoMark } from '@/components/home/logo-mark';
-import { certRating, fmt, gradeLabel, type CertImageKind, type CertSettings, type YearCert } from '@/lib/results/certificate';
+import { certRating, fillTitle, fmt, gradeLabel, principalTitle, type CertImageKind, type CertSettings, type YearCert } from '@/lib/results/certificate';
 import { dataUrlToBlob, saveBlob } from './notice';
 
 /* =====================================================================
@@ -114,44 +114,39 @@ export function CertificateSheet({ cert, settings, brand }: { cert: YearCert; se
   const rh = (x: React.CSSProperties = {}) => th({ fontSize: D.head, padding: `${D.headPad}px 2px`, lineHeight: 1.15, ...x });
   const long = (t: string | null | undefined, n: number) => { const l = (t ?? '').length; return l > n ? { fontSize: `${Math.max(0.72, n / l)}em`, letterSpacing: -0.1 } : {}; };
   const logo = brand.images.logo ?? brand.logo;
+  const pt = principalTitle(settings);
   return (
     <div ref={box} data-fitted={fitted ? '1' : undefined} dir="rtl" style={{ width: CERT_W, minHeight: CERT_H, background: '#fff', color: INK, fontFamily: '"IBM Plex Sans Arabic", system-ui, sans-serif', padding: 14, boxSizing: 'border-box' }}>
       <div style={{ border: '1.5px solid #356854', padding: 3, minHeight: CERT_H - 28, boxSizing: 'border-box', display: 'flex' }}>
         <div style={{ border: '0.75px solid #d9a441', flex: 1, padding: '14px 18px 12px', display: 'flex', flexDirection: 'column' }}>
-          {/* الترويسة */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 190px 1fr', alignItems: 'center', gap: 8 }}>
-            <Lines text={settings.header_ar} size={12.5} />
+          {/* الترويسة: الدولة (والجهة الداعمة للمدارس الخاصة) يمينًا، البسملة والشعار وسطًا، الإنجليزي والرؤية يسارًا */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 230px 1fr', alignItems: 'center', gap: 10, minHeight: 150 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.6 }}>{settings.header_ar}</div>
+              {settings.school_type === 'private' && settings.sponsor_ar && <Lines text={settings.sponsor_ar} size={12} />}
+            </div>
             <div style={{ textAlign: 'center' }}>
               {settings.show_basmala &&
                 (brand.images.basmala ? (
-                  <div style={{ marginBottom: 6 }}><Img src={brand.images.basmala} h={40} w={190} alt="بسم الله الرحمن الرحيم" /></div>
+                  <div style={{ marginBottom: 6 }}><Img src={brand.images.basmala} h={42} w={210} alt="بسم الله الرحمن الرحيم" /></div>
                 ) : (
-                  <div style={{ fontFamily: 'Amiri, "IBM Plex Sans Arabic", serif', fontSize: 19, fontWeight: 700, lineHeight: 1.4, marginBottom: 4 }}>بسم الله الرحمن الرحيم</div>
+                  <div style={{ fontFamily: 'Amiri, "IBM Plex Sans Arabic", serif', fontSize: 20, fontWeight: 700, lineHeight: 1.4, marginBottom: 4 }}>بسم الله الرحمن الرحيم</div>
                 ))}
-              {logo ? <Img src={logo} h={74} w={150} /> : <LogoMark className="mx-auto h-16 w-20" />}
+              {logo ? <Img src={logo} h={118} w={210} /> : <LogoMark className="mx-auto h-20 w-24" />}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
-              <Lines text={settings.header_en} size={12.5} ltr />
-              <Img src={brand.images.vision} h={56} w={130} />
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <div dir="ltr" style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 14, fontWeight: 700, lineHeight: 1.6 }}>{settings.header_en}</div>
+                {settings.school_type === 'private' && settings.sponsor_en && <Lines text={settings.sponsor_en} size={11.5} ltr />}
+              </div>
+              <Img src={brand.images.vision} h={92} w={190} />
             </div>
           </div>
 
-          {/* العنوان */}
-          <div style={{ textAlign: 'center', marginTop: 6 }}>
-            <div style={{ fontSize: 19, fontWeight: 700, lineHeight: 1.5 }}>
-              شهادة {g.ar}
-              {settings.year_hijri ? ` للعام الدراسي ${settings.year_hijri} هـ` : ''}
-            </div>
-            {(g.en || settings.year_greg) && (
-              <div dir="ltr" style={{ fontSize: 13, fontWeight: 600, color: '#2c3a34' }}>
-                {g.en ? `${g.en} Certificate` : 'Certificate'}
-                {settings.year_greg ? ` for the Academic Year ${settings.year_greg}` : ''}
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, fontWeight: 600, margin: '2px 6px 4px' }}>
-            <span>{settings.year_hijri ? `${settings.year_hijri} هـ` : ''}</span>
-            <span dir="ltr">{settings.year_greg}</span>
+          {/* العنوان: يُركَّب من القالب + اسم الصف + العام */}
+          <div style={{ textAlign: 'center', margin: '8px 0 8px' }}>
+            <div style={{ fontSize: 20, fontWeight: 700, lineHeight: 1.5 }}>{fillTitle(settings.title_ar, g.ar, settings.year_hijri, 'ar')}</div>
+            {g.en && <div dir="ltr" style={{ fontSize: 13.5, fontWeight: 600, color: '#2c3a34' }}>{fillTitle(settings.title_en, g.en, settings.year_greg, 'en')}</div>}
           </div>
 
           {/* بيانات الطالب */}
@@ -165,6 +160,14 @@ export function CertificateSheet({ cert, settings, brand }: { cert: YearCert; se
               <col style={{ width: '15%' }} />
             </colgroup>
             <tbody>
+              {(settings.year_hijri || settings.year_greg) && (
+                <tr>
+                  <td style={th()}>العام الدراسي</td>
+                  <td style={td({ fontWeight: 700 })} colSpan={2}>{settings.year_hijri ? <span dir="ltr" style={{ unicodeBidi: 'isolate' }}>{settings.year_hijri}</span> : '—'}{settings.year_hijri ? ' هـ' : ''}</td>
+                  <td style={td({ fontWeight: 700 })} colSpan={2} dir="ltr">{settings.year_greg || '—'}</td>
+                  <td style={th()} dir="ltr">Academic Year</td>
+                </tr>
+              )}
               <tr>
                 <td style={th()}>اسم المدرسة</td>
                 <td style={td({ fontWeight: 700 })} colSpan={2}>
@@ -261,23 +264,19 @@ export function CertificateSheet({ cert, settings, brand }: { cert: YearCert; se
             </table>
           ))}
 
-          {/* الملخص والتوقيع */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.25fr', gap: 18, marginTop: 10, alignItems: 'start' }}>
-            <div style={{ position: 'relative', textAlign: 'center' }}>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{settings.principal_title}</div>
-              <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 4 }}>{settings.principal_name}</div>
-              <div style={{ position: 'relative', height: 100, marginTop: 2 }}>
-                {brand.images.stamp && (
-                  <div style={{ position: 'absolute', insetInlineStart: 18, top: 2, opacity: 0.92 }}>
-                    <Img src={brand.images.stamp} h={98} w={116} />
-                  </div>
-                )}
-                {brand.images.signature && (
-                  <div style={{ position: 'absolute', insetInlineEnd: 10, top: 14 }}>
-                    <Img src={brand.images.signature} h={70} w={150} />
-                  </div>
-                )}
+          {/* التوقيع (تحت اسم المدير مباشرة) | الختم مستقلًا | الملخص */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 130px 1.35fr', gap: 12, marginTop: 10, alignItems: 'center' }}>
+            <div style={{ textAlign: 'center', alignSelf: 'start' }}>
+              <div style={{ fontSize: 13.5, fontWeight: 700 }}>{pt.ar}</div>
+              <div dir="ltr" style={{ fontSize: 10.5, fontWeight: 600, color: '#55645d' }}>{pt.en}</div>
+              {settings.principal_name && <div style={{ fontSize: 13.5, fontWeight: 600, marginTop: 5 }}>{settings.principal_name}</div>}
+              {settings.principal_name_en && <div dir="ltr" style={{ fontSize: 10.5, color: '#55645d' }}>{settings.principal_name_en}</div>}
+              <div style={{ height: 70, marginTop: 2, display: 'grid', placeItems: 'center' }}>
+                <Img src={brand.images.signature} h={66} w={170} />
               </div>
+            </div>
+            <div style={{ display: 'grid', placeItems: 'center' }}>
+              <Img src={brand.images.stamp} h={122} w={126} />
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', tableLayout: 'fixed', fontSize: 11.5 }}>
               <colgroup>
@@ -291,7 +290,7 @@ export function CertificateSheet({ cert, settings, brand }: { cert: YearCert; se
                   { ar: 'المواظبة', en: 'Attendance', v: cert.intisab ? null : fmt(cert.attendance), note: cert.intisab ? { ar: 'منتسب', en: 'Affiliated' } : null },
                   { ar: 'السلوك', en: 'Behavior', v: fmt(cert.behavior) },
                   { ar: 'المجموع التراكمي', en: 'Total Weighted', v: fmt(cert.total) },
-                  { ar: 'المعدل', en: 'CGPA', v: cert.average == null ? '—' : fmt(cert.average) },
+                  { ar: 'المعدل', en: 'CGPA', v: cert.average == null ? '—' : `${fmt(cert.average)}%` },
                 ].map((x) => (
                   <tr key={x.ar}>
                     <td style={th()}>{x.ar}</td>
@@ -323,10 +322,12 @@ export function CertificateSheet({ cert, settings, brand }: { cert: YearCert; se
               {settings.closing_en && <div dir="ltr" style={{ fontSize: 11, color: '#2c3a34', lineHeight: 1.6 }}>{fill(settings.closing_en, g.ar, g.en)}</div>}
             </div>
           )}
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 8.5, color: '#8a968f' }}>
-            <LogoMark className="h-3 w-4" />
-            <span>صادرة إلكترونيًا من منصة مِرقاة</span>
-          </div>
+          {settings.show_footer && (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, marginTop: 8, fontSize: 8.5, color: '#8a968f' }}>
+              <LogoMark className="h-3 w-4" />
+              <span>صادرة إلكترونيًا من منصة مِرقاة</span>
+            </div>
+          )}
         </div>
       </div>
     </div>

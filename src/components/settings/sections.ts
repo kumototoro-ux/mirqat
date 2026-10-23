@@ -3,7 +3,7 @@ import type { IconName } from '@/components/shell/icons';
 // أقسام الإعدادات — ملف عادي (لا 'use client') لأن الصفحة تقرؤه في الخادم والقائمة في المتصفح.
 // الثوابت المصدَّرة من ملف 'use client' تصل للخادم كمرجع لا كقيمة، فلا تُستخدم هناك.
 export const SECTIONS: { group: string; icon: IconName; items: { key: string; label: string }[] }[] = [
-  { group: 'المدرسة', icon: 'home', items: [{ key: 'general', label: 'الهوية' }, { key: 'announcements', label: 'الإعلانات' }, { key: 'visibility', label: 'ما يراه الطلاب' }, { key: 'certificate', label: 'صور الشهادة' }] },
+  { group: 'المدرسة', icon: 'home', items: [{ key: 'general', label: 'الهوية' }, { key: 'announcements', label: 'الإعلانات' }, { key: 'visibility', label: 'ما يراه الطلاب' }, { key: 'certificate', label: 'الشهادة' }] },
   {
     group: 'البنية الدراسية',
     icon: 'students',
