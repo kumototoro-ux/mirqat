@@ -48,6 +48,7 @@ const P: Record<string, React.ReactNode> = {
   arrowDown: <><path d="M12 5v14M6.5 13.5 12 19l5.5-5.5" /></>,
   undo: <><path d="M9 14.5 4.5 10 9 5.5" /><path d="M4.5 10h10a5 5 0 0 1 0 10H11" /></>,
   sparkle: <><path d="M12 3.5 13.8 9l5.7 1.9-5.7 1.9L12 18.5l-1.8-5.7L4.5 10.9 10.2 9z" /></>,
+  award: <><circle cx="12" cy="9" r="5.5" /><path d="m8.6 13.4-1.6 7.1 5-2.6 5 2.6-1.6-7.1M12 6.5l.8 1.6 1.7.2-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.2z" /></>,
 };
 
 export type IconName = keyof typeof P;

@@ -8,6 +8,9 @@ import { getCurrentTermId } from '@/lib/data';
 import { getNoticeSettings, getSchoolBrand } from '@/lib/results/server';
 import type { Access, StudentCard } from '@/lib/results/shared';
 import { StudentResults } from '@/components/results/student-results';
+import { StudentCertificate } from '@/components/results/student-certificate';
+import { getCertImages, getCertSettings } from '@/lib/results/cert-server';
+import { buildYear, type YearInput } from '@/lib/results/certificate';
 
 export const metadata: Metadata = { title: 'نتائجي' };
 
@@ -27,9 +30,32 @@ export default async function StudentResultsPage({ searchParams }: { searchParam
   ]);
   const card = cardData as StudentCard | null;
 
+  // شهادة نهاية العام: حين تتيحها الإدارة وتكون نتائج كل فصول العام الحالي ظاهرة للطالب
+  const cert = await (async () => {
+    const yearTerms = terms.filter((t) => t.year === terms[0]?.year);
+    if (!yearTerms.length || !yearTerms.every((t) => t.access.visible)) return null;
+    const cs = await getCertSettings();
+    if (!cs.student_visible) return null;
+    const cards = await Promise.all(yearTerms.map((t) => supabase.rpc('my_report_card', { p_term_id: t.id }).then((r) => r.data as StudentCard | null)));
+    const input: YearInput = [];
+    for (let i = 0; i < yearTerms.length; i++) {
+      const c = cards[i];
+      if (c?.status !== 'ok') return null;
+      input.push({ term: c.term ?? { id: yearTerms[i].id, name: yearTerms[i].name, year: yearTerms[i].year }, subjects: c.subjects, student: c.student });
+    }
+    const built = buildYear(input, cs.pass_mark);
+    if (!built) return null;
+    return {
+      cert: built,
+      settings: { ...cs, school_ar: cs.school_ar || brand.name, principal_name: cs.principal_name || settings.principal },
+      brand: { logo: brand.logo, images: await getCertImages(cs) },
+    };
+  })();
+
   return (
     <>
       <PageHeader title="نتائجي" lead="درجاتك في كل مادة مقسّمة على أعمال الترم والاختبارات، مع إشعار الدرجات للتنزيل." />
+      {cert && <StudentCertificate {...cert} />}
       {terms.length > 1 && (
         <nav className="mb-5 flex gap-2 overflow-x-auto pb-1" aria-label="الفصول الدراسية">
           {terms.map((t) => {

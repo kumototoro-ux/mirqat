@@ -14,6 +14,9 @@ import { NoticeViewer } from './notice';
 import { ReportSummary, SubjectBreakdown } from './report-view';
 import { ReleaseRules } from './release-rules';
 import { ResultsSettings } from './results-settings';
+import { CertificatesTab } from './certificates-tab';
+import type { CertBrand } from './certificate';
+import type { CertSettings } from '@/lib/results/certificate';
 
 export type RefData = {
   terms: { id: number; name: string; year: string; is_current: boolean }[];
@@ -25,7 +28,7 @@ export type RefData = {
   evalTypes: { id: number; name: string; name_en: string | null; report_section: Section; category: string }[];
 };
 
-type Tab = 'board' | 'rules' | 'settings';
+type Tab = 'board' | 'certs' | 'rules' | 'settings';
 
 const href = (p: { tab?: Tab; term?: number; class?: number | null }) => {
   const q = new URLSearchParams();
@@ -47,6 +50,7 @@ export function ResultsAdmin({
   grants,
   notice,
   brand,
+  cert,
 }: {
   tab: Tab;
   termId: number;
@@ -58,13 +62,14 @@ export function ResultsAdmin({
   grants: Grant[];
   notice: NoticeSettings;
   brand: { name: string; logo: string | null };
+  cert: { settings: CertSettings; brand: CertBrand } | null;
 }) {
   const term = ref_.terms.find((t) => t.id === termId);
   return (
     <>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex w-full rounded-2xl border border-line bg-surface p-1 sm:inline-flex sm:w-auto" role="tablist">
-          {([['board', 'الكشوف', 'results'], ['rules', 'إتاحة النتائج', 'eye'], ['settings', 'الإعدادات', 'settings']] as const).map(([k, l, ic]) => (
+          {([['board', 'الكشوف', 'results'], ['certs', 'الشهادات', 'award'], ['rules', 'الإتاحة', 'eye'], ['settings', 'الإعدادات', 'settings']] as const).map(([k, l, ic]) => (
             <Link key={k} href={href({ tab: k, term: termId })} role="tab" aria-selected={tab === k} className={`relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-2 text-[0.82rem] font-semibold transition-colors sm:flex-none sm:px-4 sm:text-sm ${tab === k ? 'text-chalk' : 'text-muted hover:text-ink'}`}>
               {tab === k && <motion.span layoutId="res-tab" className="absolute inset-0 rounded-xl bg-board" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
               <Icon name={ic} className="relative hidden size-4 sm:block" />
@@ -90,6 +95,7 @@ export function ResultsAdmin({
           ) : (
             <Board termId={termId} ref_={ref_} overview={overview} />
           ))}
+        {tab === 'certs' && cert && <CertificatesTab ref_={ref_} settings={cert.settings} brand={cert.brand} schoolName={brand.name} principal={notice.principal} />}
         {tab === 'rules' && <ReleaseRules ref_={ref_} rules={rules} />}
         {tab === 'settings' && <ResultsSettings ref_={ref_} grants={grants} notice={notice} />}
       </motion.div>

@@ -5,17 +5,18 @@ import { PageHeader } from '@/components/ui';
 import { getClasses, getCurrentTermId, getTerms } from '@/lib/data';
 import { classResults, listGrants, listRules, resultsOverview } from '@/lib/results/actions';
 import { getNoticeSettings, getSchoolBrand } from '@/lib/results/server';
+import { getCertImages, getCertSettings } from '@/lib/results/cert-server';
 import { ResultsAdmin, type RefData } from '@/components/results/results-admin';
 import type { Section } from '@/lib/results/shared';
 
 export const metadata: Metadata = { title: 'النتائج' };
 
-type Tab = 'board' | 'rules' | 'settings';
+type Tab = 'board' | 'certs' | 'rules' | 'settings';
 
 export default async function ResultsPage({ searchParams }: { searchParams: Promise<{ tab?: string; class?: string; term?: string }> }) {
   await requireUser(['admin']);
   const sp = await searchParams;
-  const tab: Tab = sp.tab === 'rules' || sp.tab === 'settings' ? sp.tab : 'board';
+  const tab: Tab = sp.tab === 'rules' || sp.tab === 'settings' || sp.tab === 'certs' ? sp.tab : 'board';
   const [classes, terms, current] = await Promise.all([getClasses(), getTerms(), getCurrentTermId()]);
   const termId = Number(sp.term) || current || terms[0]?.id || 0;
   const classId = Number(sp.class) || null;
@@ -34,6 +35,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
     getNoticeSettings(),
     getSchoolBrand(),
   ]);
+  const cert = tab === 'certs' ? await getCertSettings().then(async (settings) => ({ settings, brand: { logo: brand.logo, images: await getCertImages(settings) } })) : null;
 
   const ref: RefData = {
     terms: terms.map((t) => ({ id: t.id, name: t.name, year: t.year, is_current: t.is_current })),
@@ -63,6 +65,7 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
         grants={grants}
         notice={notice}
         brand={brand}
+        cert={cert}
       />
     </>
   );

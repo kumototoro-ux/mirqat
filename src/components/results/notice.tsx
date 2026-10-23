@@ -264,7 +264,7 @@ export function NoticeSheet({ data }: { data: NoticeData }) {
 }
 
 /* --------------------------------------------------------------------- */
-function dataUrlToBlob(url: string) {
+export function dataUrlToBlob(url: string) {
   const [head, b64] = url.split(',');
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
@@ -272,7 +272,7 @@ function dataUrlToBlob(url: string) {
   return new Blob([bytes], { type: head.slice(5).split(';')[0] });
 }
 
-function saveBlob(blob: Blob, name: string) {
+export function saveBlob(blob: Blob, name: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
