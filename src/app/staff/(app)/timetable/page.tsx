@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { PendingLink, PendingSwap } from '@/components/shell/pending-search';
+import { WeekGridSkeleton } from '@/components/skeletons';
 import { requireUser } from '@/lib/auth/session';
 import { getClasses } from '@/lib/data';
 import { getAllSlots, getSlotsFor } from '@/lib/schedule/view';
@@ -45,20 +47,22 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
       />
       <section className="rounded-[1.4rem] border border-line bg-surface p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <Link href="/staff/timetable" className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${!classSlots ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>جدولي</Link>
+          <PendingLink href="/staff/timetable" active={!classSlots} base="rounded-full px-4 py-2 text-sm font-semibold transition-colors" on="bg-board text-chalk" off="bg-paper hover:bg-board/10">جدولي</PendingLink>
           {myClasses.map(([id, label]) => (
-            <Link key={id} href={`/staff/timetable?class=${id}`} className={`rounded-full px-4 py-2 text-sm transition-colors ${classId === id && classSlots ? 'bg-board font-semibold text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+            <PendingLink key={id} href={`/staff/timetable?class=${id}`} active={!!(classId === id && classSlots)} base="rounded-full px-4 py-2 text-sm transition-colors" on="bg-board font-semibold text-chalk" off="bg-paper hover:bg-board/10">
               {label}
-            </Link>
+            </PendingLink>
           ))}
         </div>
-        {classSlots ? (
-          <WeekTimetable slots={classSlots} secondary="teacher" />
-        ) : mine.length ? (
-          <WeekTimetable slots={mine} secondary="class" />
-        ) : (
-          <p className="rounded-2xl border border-dashed border-line py-14 text-center text-muted">لا حصص مسندة إليك بعد</p>
-        )}
+        <PendingSwap fallback={<WeekGridSkeleton />}>
+          {classSlots ? (
+            <WeekTimetable slots={classSlots} secondary="teacher" />
+          ) : mine.length ? (
+            <WeekTimetable slots={mine} secondary="class" />
+          ) : (
+            <p className="rounded-2xl border border-dashed border-line py-14 text-center text-muted">لا حصص مسندة إليك بعد</p>
+          )}
+        </PendingSwap>
       </section>
     </div>
   );

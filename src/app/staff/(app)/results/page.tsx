@@ -28,10 +28,11 @@ export default async function ResultsPage({ searchParams }: { searchParams: Prom
     supabase.from('grades').select('id, name, stage_id').order('sort_order').order('id'),
     supabase.from('subjects').select('id, name, name_en').order('sort_order').order('name'),
     supabase.from('eval_types').select('id, name, name_en, report_section, category').order('sort_order').order('id'),
-    termId ? resultsOverview(termId) : Promise.resolve([]),
-    listRules(),
-    listGrants(),
-    classId && termId ? classResults(classId, termId).catch(() => null) : Promise.resolve(null),
+    // كل تبويب يجلب ما يحتاجه فقط — التنقل بين التبويبات أسرع
+    tab === 'board' && !classId && termId ? resultsOverview(termId) : Promise.resolve([]),
+    tab === 'rules' ? listRules() : Promise.resolve([]),
+    tab === 'settings' ? listGrants() : Promise.resolve([]),
+    tab === 'board' && classId && termId ? classResults(classId, termId).catch(() => null) : Promise.resolve(null),
     getNoticeSettings(),
     getSchoolBrand(),
   ]);

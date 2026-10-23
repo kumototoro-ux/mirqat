@@ -107,10 +107,10 @@ export function DetailSkeleton() {
 }
 
 /** شبكة بطاقات (الرصد، الاختبارات، المهام عند الطالب) */
-export function CardGridSkeleton({ hero = false, cols = 3 }: { hero?: boolean; cols?: 2 | 3 }) {
+export function CardGridSkeleton({ hero = false, cols = 3, header = true }: { hero?: boolean; cols?: 2 | 3; header?: boolean }) {
   return (
     <Shell>
-      <HeaderSkeleton />
+      {header && <HeaderSkeleton />}
       {hero && <Bar className="h-28 rounded-[1.75rem]" />}
       <div className="flex gap-2"><Bar className="h-10 w-64 rounded-2xl" /><Bar className="h-10 w-28 rounded-2xl" /></div>
       <div className={`grid gap-3 sm:grid-cols-2 ${cols === 3 ? 'xl:grid-cols-3' : ''}`}>
@@ -127,10 +127,10 @@ export function CardGridSkeleton({ hero = false, cols = 3 }: { hero?: boolean; c
 }
 
 /** الجداول الأسبوعية: بطاقة الحصة الحالية ثم شبكة الأيام × الحصص */
-export function TimetableSkeleton() {
+export function TimetableSkeleton({ header = true }: { header?: boolean }) {
   return (
     <Shell>
-      <HeaderSkeleton />
+      {header && <HeaderSkeleton />}
       <Bar className="h-28 rounded-[1.75rem]" />
       <div className="overflow-hidden rounded-[1.4rem] border border-line bg-surface p-4">
         <div className="mb-3 grid grid-cols-7 gap-2">{Array.from({ length: 7 }, (_, i) => <Bar key={i} className="h-8" />)}</div>
@@ -233,5 +233,69 @@ export function SplitSkeleton({ hero = false }: { hero?: boolean }) {
         <div className="overflow-hidden rounded-[1.4rem] border border-line bg-surface"><div className="p-4"><Bar className="h-10 w-full rounded-xl" /></div><Rows n={7} /></div>
       </div>
     </Shell>
+  );
+}
+
+/**
+ * جسم صفحة بلا عنوان — للانتقال داخل الصفحة نفسها (تبويب/فصل/فلتر):
+ * بطاقة رأس اختيارية، شريط إحصاءات، أدوات بحث، ثم صفوف
+ */
+export function PanelSkeleton({ hero = false, stats = true, tools = true, rows = 7, cards = false }: { hero?: boolean; stats?: boolean; tools?: boolean; rows?: number; cards?: boolean }) {
+  return (
+    <Shell>
+      {hero && <div className="h-32 rounded-[1.6rem] bg-board/85" />}
+      {stats && (
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-line bg-line lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="space-y-2.5 bg-surface px-5 py-4"><Bar className="h-3 w-20" /><Bar className="h-7 w-16" /></div>
+          ))}
+        </div>
+      )}
+      {tools && <div className="flex gap-2"><Bar className="h-11 flex-1 rounded-xl" /><Bar className="h-11 w-36 rounded-xl" /></div>}
+      {cards ? (
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="space-y-3 rounded-[1.4rem] border border-line bg-surface p-4" style={{ opacity: 1 - i * 0.08 }}>
+              <div className="flex justify-between"><Bar className="h-4 w-1/2" /><Bar className="h-6 w-16 rounded-full" /></div>
+              <Bar className="h-7 w-20" />
+              <Bar className="h-1.5 w-full rounded-full" />
+            </div>
+          ))}
+        </div>
+      ) : rows > 0 ? (
+        <div className="overflow-hidden rounded-[1.4rem] border border-line bg-surface [&>div:first-child]:border-t-0">
+          <Rows n={rows} />
+        </div>
+      ) : null}
+    </Shell>
+  );
+}
+
+/** بطاقات إعدادات متتالية بلا عنوان صفحة */
+export function SettingsBodySkeleton({ n = 3 }: { n?: number }) {
+  return (
+    <Shell>
+      {Array.from({ length: n }, (_, k) => (
+        <div key={k} className="space-y-4 rounded-[1.4rem] border border-line bg-surface p-5" style={{ opacity: 1 - k * 0.15 }}>
+          <Bar className="h-5 w-40" />
+          <Bar className="h-3 w-72 max-w-full" />
+          <div className="grid gap-3 sm:grid-cols-2">{Array.from({ length: 4 }, (_, i) => <Bar key={i} className="h-11 rounded-xl" />)}</div>
+        </div>
+      ))}
+    </Shell>
+  );
+}
+
+/** شبكة الجدول الأسبوعي فقط (للتبديل بين الفصول) */
+export function WeekGridSkeleton() {
+  return (
+    <div aria-busy="true" className="animate-fade-in">
+      <div className="mb-3 grid grid-cols-7 gap-2">{Array.from({ length: 7 }, (_, i) => <Bar key={i} className="h-8" />)}</div>
+      {Array.from({ length: 5 }, (_, r) => (
+        <div key={r} className="mb-2 grid grid-cols-7 gap-2" style={{ opacity: 1 - r * 0.12 }}>
+          {Array.from({ length: 7 }, (_, i) => <Bar key={i} className="h-14 rounded-xl" />)}
+        </div>
+      ))}
+    </div>
   );
 }
