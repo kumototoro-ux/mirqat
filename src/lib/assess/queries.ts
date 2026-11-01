@@ -184,6 +184,7 @@ export type TaskSubmission = {
   graded_at: string | null;
   feedback: string | null;
   files_purged_at: string | null;
+  links: string[];
   files: { id: number; name: string; mime: string; size_bytes: number; deleted_at: string | null; url: string | null }[];
 };
 export type GradeRow = { student_id: number; score: number; max_score: number; source: string; recorded_at: string; is_edited: boolean };
@@ -204,7 +205,7 @@ export async function getTaskDetail(id: number, user: CurrentUser): Promise<Task
     supabase.from('students').select('id, code, name_ar').eq('class_id', base.class_id).eq('status', 'active').order('name_ar'),
     supabase
       .from('task_submissions')
-      .select('id, student_id, body, is_late, submitted_at, updated_at, graded_at, feedback, files_purged_at, files:submission_files(id, name, mime, size_bytes, deleted_at, storage_path)')
+      .select('id, student_id, body, is_late, submitted_at, updated_at, graded_at, feedback, files_purged_at, links, files:submission_files(id, name, mime, size_bytes, deleted_at, storage_path)')
       .eq('assessment_id', id),
     supabase.from('grade_entries').select('student_id, score, max_score, source, recorded_at, is_edited').eq('assessment_id', id),
   ]);
@@ -226,6 +227,7 @@ export async function getTaskDetail(id: number, user: CurrentUser): Promise<Task
     roster: [...(roster.data ?? []), ...extraRows],
     submissions: rawSubs.map(({ files, ...s }) => ({
       ...s,
+      links: s.links ?? [],
       files: files.map(({ storage_path, ...f }) => ({ ...f, url: f.deleted_at ? null : (urls[storage_path] ?? null) })),
     })),
     grades: ((grades.data ?? []) as GradeRow[]).map((g) => ({ ...g, score: Number(g.score), max_score: Number(g.max_score) })),

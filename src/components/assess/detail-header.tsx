@@ -9,7 +9,7 @@ import { Icon } from '@/components/shell/icons';
 import { Badge } from '@/components/ui';
 import { useFeedback } from '@/components/feedback';
 import { Sheet } from '@/components/sheet';
-import { deleteAssessment, reopenForm, setFormStatus } from '@/lib/assess/actions';
+import { deleteAssessment, reopenForm, reopenTask, setFormStatus } from '@/lib/assess/actions';
 import type { AuthorContext } from '@/lib/assess/queries';
 import { STATUS_META, relTime, type ItemStatus } from '@/lib/assess/shared';
 import { CopySheet } from './hub';
@@ -77,7 +77,7 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
   const doReopen = async () => {
     if (!newClose) return toast('حدّد وقت الإغلاق الجديد', 'error');
     setBusy(true);
-    const res = await reopenForm(info.id, newClose);
+    const res = info.kind === 'form' ? await reopenForm(info.id, newClose) : await reopenTask(info.id, newClose);
     setBusy(false);
     if (!res.ok) return toast(res.error, 'error');
     toast(res.message);
@@ -119,7 +119,7 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
               {info.kind === 'form' && info.status === 'open' && (
                 <button type="button" onClick={() => status('closed')} className="btn-danger">إغلاق الآن</button>
               )}
-              {info.kind === 'form' && info.status === 'closed' && (
+              {info.status === 'closed' && (
                 <button type="button" onClick={() => setReopen(true)} className="btn-quiet"><Icon name="undo" className="size-4" /> إعادة فتح</button>
               )}
               {info.kind === 'form' && info.formStatus !== 'draft' && !info.hasAttempts && (
@@ -161,7 +161,7 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
       <Sheet
         open={reopen}
         onClose={() => setReopen(false)}
-        title="إعادة فتح النموذج"
+        title={info.kind === 'form' ? 'إعادة فتح النموذج' : 'إعادة فتح المهمة'}
         subtitle={info.title}
         footer={
           <button type="button" onClick={doReopen} disabled={busy} className="btn-primary w-full py-3">
@@ -170,9 +170,12 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
         }
       >
         <p className="mb-4 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-board">
-          تُحذف الأصفار التلقائية لمن لم يحل ليستطيع الحل حتى الموعد الجديد. درجات من سلّم تبقى كما هي.
+          {info.kind === 'form'
+            ? 'تُحذف الأصفار التلقائية لمن لم يحل ليستطيع الحل حتى الموعد الجديد. درجات من سلّم تبقى كما هي.'
+            : 'يستطيع من لم يسلّم التسليم حتى الموعد الجديد، والتسليمات السابقة ودرجاتها تبقى كما هي.'}
+          {' '}وتظهر للطلاب ضمن أسبوع الدراسة الحالي.
         </p>
-        <p className="label">يُغلق من جديد</p>
+        <p className="label">{info.kind === 'form' ? 'يُغلق من جديد' : 'آخر موعد للتسليم'}</p>
         <DateTime value={newClose} onChange={setNewClose} quick="due" />
       </Sheet>
     </div>
