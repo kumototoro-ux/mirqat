@@ -22,6 +22,7 @@ const SHEETS: { table: BackupTable; title: string }[] = [
   { table: 'students', title: 'الطلاب' },
   { table: 'employees', title: 'الموظفون' },
   { table: 'totals', title: 'مجاميع المواد' },
+  { table: 'improvements', title: 'تحسين الدرجات' },
   { table: 'grades', title: 'الدرجات' },
   { table: 'assessments', title: 'المهام والنماذج' },
   { table: 'questions', title: 'أسئلة النماذج' },
@@ -108,7 +109,7 @@ function Backup({ branches, school, last }: { branches: { id: number; name: stri
   };
 
   return (
-    <SettingsCard title="النسخة الاحتياطية" description="ملف Excel واحد مقروء (بالأسماء لا بالأرقام): الطلاب، الموظفون، مجاميع المواد، كل الدرجات، المهام والنماذج وأسئلتها، التحضير، السلوك، المحتوى، والإعدادات.">
+    <SettingsCard title="النسخة الاحتياطية" description="ملف Excel واحد مقروء (بالأسماء لا بالأرقام): الطلاب، الموظفون، مجاميع المواد، تحسين الدرجات، كل الدرجات، المهام والنماذج وأسئلتها، التحضير، السلوك، المحتوى، والإعدادات.">
       <div className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
           <Field label="النطاق" className="flex-1">

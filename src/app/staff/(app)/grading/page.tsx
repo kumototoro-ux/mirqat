@@ -8,7 +8,7 @@ import { getClasses, getSubjects } from '@/lib/data';
 
 export const metadata: Metadata = { title: 'الرصد اليومي' };
 
-const MODES = ['tasks', 'manual', 'single', 'records'] as const;
+const MODES = ['tasks', 'manual', 'single', 'improve', 'records'] as const;
 
 export default async function GradingPage({ searchParams }: { searchParams: Promise<{ mode?: string }> }) {
   const user = await requireUser(['admin', 'teacher']);

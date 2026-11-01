@@ -14,7 +14,7 @@ import { REF_TAG } from '@/lib/data';
 
 type Res<T = undefined> = { ok: true; data: T } | { ok: false; error: string };
 const ADMIN = ['admin'] as const;
-const TABLES = ['students', 'employees', 'totals', 'grades', 'assessments', 'questions', 'attendance', 'behavior', 'content', 'settings'] as const;
+const TABLES = ['students', 'employees', 'totals', 'improvements', 'grades', 'assessments', 'questions', 'attendance', 'behavior', 'content', 'settings'] as const;
 export type BackupTable = (typeof TABLES)[number];
 
 export async function backupContext(): Promise<Res<{ branches: { id: number; name: string }[]; terms: { id: number; name: string; year: string; is_current: boolean }[]; school: string; lastBackup: { at: string; branch: number | null } | null }>> {
@@ -46,6 +46,12 @@ export async function backupRows(table: BackupTable, branch: number | null, offs
   await requireUser(ADMIN);
   if (!TABLES.includes(table)) return { ok: false, error: 'جدول غير معروف' };
   const supabase = await createClient();
+  if (table === 'improvements') {
+    if (offset > 0) return { ok: true, data: [] };
+    const { data, error } = await supabase.rpc('backup_improvements', { p_branch: branch });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, data: (data ?? []) as Record<string, unknown>[] };
+  }
   const { data, error } = await supabase.rpc('backup_rows', { p_table: table, p_branch: branch, p_offset: offset, p_limit: 2000 });
   if (error) return { ok: false, error: error.message };
   return { ok: true, data: (data ?? []) as Record<string, unknown>[] };
