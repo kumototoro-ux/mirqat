@@ -10,7 +10,8 @@ import { Sheet } from '@/components/sheet';
 import { downloadCsv } from '@/components/registry/csv';
 import { gradeTask, returnSubmission } from '@/lib/assess/actions';
 import type { TaskDetail, TaskSubmission } from '@/lib/assess/queries';
-import { fmtBytes, relTime } from '@/lib/assess/shared';
+import { fmtBytes, isAudio, relTime } from '@/lib/assess/shared';
+import { AudioPlayer } from './audio-recorder';
 import { RichText } from './math';
 import { fmtFull } from './kit';
 
@@ -286,7 +287,12 @@ function SubmissionSheet({
               <ul className="grid gap-2">
                 {sub.files.map((f) => (
                   <li key={f.id}>
-                    {f.url && f.mime.startsWith('image/') ? (
+                    {f.url && isAudio(f.mime) ? (
+                      <div className="space-y-2 rounded-2xl border border-line p-3">
+                        <p className="flex items-center justify-between text-xs text-muted"><span className="font-semibold text-ink">تسجيل صوتي</span>{fmtBytes(f.size_bytes)}</p>
+                        <AudioPlayer src={f.url} />
+                      </div>
+                    ) : f.url && f.mime.startsWith('image/') ? (
                       <a href={f.url} target="_blank" rel="noopener noreferrer" className="block overflow-hidden rounded-2xl border border-line">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={f.url} alt={f.name} className="max-h-[28rem] w-full bg-paper object-contain" />
@@ -307,7 +313,21 @@ function SubmissionSheet({
               </ul>
             </div>
           )}
-          {!sub.body && !sub.files.length && <p className="rounded-xl bg-paper px-4 py-3 text-sm text-muted">التسليم بلا محتوى (حُذفت ملفاته بعد التصحيح).</p>}
+          {(sub.links ?? []).length > 0 && (
+            <div>
+              <p className="mb-1.5 text-xs font-semibold text-muted">الروابط</p>
+              <ul className="grid gap-2">
+                {sub.links.map((l) => (
+                  <li key={l}>
+                    <a href={l} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="flex items-center gap-2 rounded-2xl border border-line p-3 text-sm font-semibold text-board hover:border-board/40">
+                      <Icon name="link" className="size-4 shrink-0" /><span className="min-w-0 flex-1 truncate">{l}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {!sub.body && !sub.files.length && !(sub.links ?? []).length && <p className="rounded-xl bg-paper px-4 py-3 text-sm text-muted">التسليم بلا محتوى (حُذفت ملفاته بعد التصحيح).</p>}
           {sub.graded_at && (
             <button type="button" onClick={giveBack} className="inline-flex items-center gap-1.5 text-sm font-semibold text-brass hover:underline">
               <Icon name="undo" className="size-4" /> إعادة التسليم للطالب ليعدّله

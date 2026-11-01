@@ -7,12 +7,12 @@ import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
 import { RichText } from '@/components/assess/math';
 import { Attachments } from '@/components/assess/attachments';
+import { AudioPlayer } from '@/components/assess/audio-recorder';
 import { TaskSubmit } from '@/components/assess/task-submit';
 import { StartButton } from '@/components/assess/start-button';
 import { FormReview, type ReviewQuestion } from '@/components/assess/form-review';
-import { fmtFull } from '@/components/assess/kit';
 import { STATE_META, canRetry, studentState, type StudentItem } from '@/lib/assess/student';
-import { fmtBytes, relTime } from '@/lib/assess/shared';
+import { fmtBytes, fmtFull, isAudio, relTime } from '@/lib/assess/shared';
 import { publicUrl, signedUrls } from '@/lib/assess/storage';
 import type { Attachment } from '@/lib/assess/queries';
 
@@ -38,12 +38,12 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
   const [att, sub, review] = await Promise.all([
     supabase.from('assessment_attachments').select('kind, name, url, storage_path, mime, size_bytes').eq('assessment_id', id).order('position'),
     item.kind === 'task'
-      ? supabase.from('task_submissions').select('body, submitted_at, updated_at, graded_at, feedback, is_late, files:submission_files(id, name, mime, size_bytes, storage_path, deleted_at)').eq('assessment_id', id).maybeSingle()
+      ? supabase.from('task_submissions').select('body, submitted_at, updated_at, graded_at, feedback, is_late, links, files:submission_files(id, name, mime, size_bytes, storage_path, deleted_at)').eq('assessment_id', id).maybeSingle()
       : Promise.resolve({ data: null }),
     item.kind === 'form' && item.attempts > 0 ? supabase.rpc('get_form_review', { p_assessment_id: id }) : Promise.resolve({ data: null }),
   ]);
   const attachments: Attachment[] = ((att.data ?? []) as Omit<Attachment, 'href'>[]).map((a) => ({ ...a, href: a.kind === 'link' ? a.url! : publicUrl(a.storage_path!) }));
-  type SubRow = { body: string | null; submitted_at: string; updated_at: string; graded_at: string | null; feedback: string | null; is_late: boolean; files: { id: number; name: string; mime: string; size_bytes: number; storage_path: string; deleted_at: string | null }[] };
+  type SubRow = { body: string | null; submitted_at: string; updated_at: string; graded_at: string | null; feedback: string | null; is_late: boolean; links: string[] | null; files: { id: number; name: string; mime: string; size_bytes: number; storage_path: string; deleted_at: string | null }[] };
   const submission = sub.data as SubRow | null;
   const liveFiles = (submission?.files ?? []).filter((f) => !f.deleted_at);
   const urls = await signedUrls(liveFiles.map((f) => f.storage_path), 3600);
@@ -115,6 +115,7 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
               mode={item.submission_mode}
               initialBody={submission?.body ?? ''}
               initialFiles={liveFiles.map((f) => ({ path: f.storage_path, name: f.name, size: f.size_bytes, mime: f.mime, url: urls[f.storage_path] ?? null }))}
+              initialLinks={submission?.links ?? []}
               late={state === 'late_open' || (!!item.due_at && new Date(item.due_at).getTime() < Date.now())}
               resubmit={!!submission}
             />
@@ -124,12 +125,24 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
               {submission.body && <div className="whitespace-pre-wrap rounded-xl bg-paper/60 px-4 py-3 leading-relaxed">{submission.body}</div>}
               {(submission.files ?? []).length > 0 && (
                 <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                  {submission.files.map((f) => (
+                  {submission.files.map((f) => isAudio(f.mime) && urls[f.storage_path] ? (
+                    <li key={f.id} className="space-y-1.5 rounded-xl border border-line p-2.5 sm:col-span-2">
+                      <p className="text-xs font-semibold text-muted">تسجيلك الصوتي</p>
+                      <AudioPlayer src={urls[f.storage_path]} />
+                    </li>
+                  ) : (
                     <li key={f.id} className="flex items-center gap-3 rounded-xl border border-line p-2.5 text-sm">
                       <Icon name={f.mime.startsWith('image/') ? 'image' : 'clip'} className="size-5 text-board" />
                       {urls[f.storage_path] ? <a href={urls[f.storage_path]} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate font-semibold hover:underline">{f.name}</a> : <span className="min-w-0 flex-1 truncate text-muted">{f.name}</span>}
                       <span className="text-xs text-muted">{f.deleted_at ? 'حُذف بعد التصحيح' : fmtBytes(f.size_bytes)}</span>
                     </li>
+                  ))}
+                </ul>
+              )}
+              {(submission.links ?? []).length > 0 && (
+                <ul className="mt-3 grid gap-2">
+                  {submission.links!.map((l) => (
+                    <li key={l}><a href={l} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="flex items-center gap-2 rounded-xl border border-line p-2.5 text-sm font-semibold text-board hover:underline"><Icon name="link" className="size-4 shrink-0" /><span className="min-w-0 truncate">{l}</span></a></li>
                   ))}
                 </ul>
               )}

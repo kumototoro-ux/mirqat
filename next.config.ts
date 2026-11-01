@@ -23,6 +23,7 @@ const csp = [
   // شعار المدرسة رابط خارجي يحدده الإداري
   "img-src 'self' data: blob: https:",
   "font-src 'self' data:",
+  `media-src 'self' blob: ${supabaseOrigin}`.trim(),
   `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace('https://', 'wss://')}`.trim(),
   // الفيديوهات المضمّنة في المنصة (يوتيوب بلا تتبع، فيميو، قوقل درايف)
   "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://drive.google.com",
@@ -52,7 +53,7 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), payment=()' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(self), geolocation=(), payment=()' },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
         ],
       },

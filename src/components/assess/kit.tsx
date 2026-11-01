@@ -2,7 +2,7 @@
 
 import { motion } from 'motion/react';
 import { Icon, type IconName } from '@/components/shell/icons';
-import { fromLocalInput, relTime, toLocalInput } from '@/lib/assess/shared';
+import { fmtFull, fromLocalInput, relTime, toLocalInput } from '@/lib/assess/shared';
 
 /** قسم مرقّم في المحرر */
 export function Section({ n, title, lead, children, icon, aside }: { n: number; title: string; lead?: string; children: React.ReactNode; icon?: IconName; aside?: React.ReactNode }) {
@@ -129,8 +129,7 @@ export function DateTime({ value, onChange, quick = 'due', allowEmpty, emptyLabe
   );
 }
 
-const fullFmt = new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { timeZone: 'Asia/Riyadh', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
-export const fmtFull = (iso: string) => fullFmt.format(new Date(iso));
+export { fmtFull };
 
 /** ملخص المواعيد في بطاقة التأكيد قبل الحفظ */
 export function TimesSummary({ rows }: { rows: { label: string; value: string | null; empty?: string; warn?: boolean }[] }) {

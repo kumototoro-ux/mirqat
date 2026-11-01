@@ -143,6 +143,15 @@ export async function reopenForm(id: number, closesAt: string): Promise<Result> 
   return { ok: true, message: 'أُعيد فتح النموذج — حُذفت الأصفار التلقائية لمن لم يحل' };
 }
 
+export async function reopenTask(id: number, dueAt: string): Promise<Result> {
+  await requireUser(STAFF);
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('reopen_task', { p_assessment_id: id, p_due_at: dueAt });
+  if (error) return fail(error);
+  refresh(id);
+  return { ok: true, message: 'أُعيد فتح المهمة — تظهر للطلاب في أسبوع الدراسة الحالي' };
+}
+
 export async function duplicateAssessment(id: number, classIds: number[]): Promise<Result<{ ids: number[] }>> {
   await requireUser(STAFF);
   const supabase = await createClient();

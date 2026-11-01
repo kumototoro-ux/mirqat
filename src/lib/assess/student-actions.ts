@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { MAX_SUBMISSION_BYTES } from './shared';
+import { MAX_AUDIO_BYTES, MAX_SUBMISSION_BYTES, isAudio } from './shared';
 import { SUB_BUCKET, ensureBucket, removePaths, safeName, sniff } from './storage';
 
 /* =====================================================================
@@ -22,7 +22,7 @@ export async function uploadSubmissionFile(fd: FormData): Promise<Res<UploadedFi
   const assessmentId = Number(fd.get('assessment_id'));
   const file = fd.get('file');
   if (!assessmentId || !(file instanceof File) || !file.size) return fail('اختر ملفًا');
-  if (file.size > MAX_SUBMISSION_BYTES) return fail('حجم الملف أكبر من 1 ميقا حتى بعد الضغط. صغّر الملف ثم أعد المحاولة');
+  if (file.size > MAX_AUDIO_BYTES) return fail('حجم الملف أكبر من المسموح');
 
   // هل يستطيع هذا الطالب التسليم الآن؟ (بجلسته هو، تحت RLS)
   const supabase = await createClient();
@@ -30,11 +30,15 @@ export async function uploadSubmissionFile(fd: FormData): Promise<Res<UploadedFi
   if (canError) return fail(canError.message);
   const studentId = (can as { student_id: number }).student_id;
   if (!studentId || studentId !== user.studentId) return fail('لا تملك التسليم');
-  if ((can as { mode: string }).mode === 'text') return fail('هذه المهمة جوابها نصي فقط');
+  const mode = (can as { mode: string }).mode;
+  if (mode === 'text') return fail('هذه المهمة جوابها نصي فقط');
+  if (mode === 'link') return fail('هذه المهمة تُسلَّم برابط');
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const kind = sniff(bytes, file.name);
-  if (!kind) return fail('نوع الملف غير مدعوم: صورة (JPG/PNG/WEBP) أو PDF أو Word أو PowerPoint أو Excel');
+  if (!kind) return fail(mode === 'audio' ? 'صيغة الصوت غير مدعومة' : 'نوع الملف غير مدعوم: صورة (JPG/PNG/WEBP) أو PDF أو Word أو PowerPoint أو Excel');
+  if ((mode === 'audio') !== isAudio(kind.mime)) return fail(mode === 'audio' ? 'هذه المهمة تقبل تسجيلًا صوتيًا فقط' : 'هذه المهمة لا تقبل التسجيلات الصوتية');
+  if (!isAudio(kind.mime) && bytes.length > MAX_SUBMISSION_BYTES) return fail('حجم الملف أكبر من 1 ميقا حتى بعد الضغط. صغّر الملف ثم أعد المحاولة');
 
   await ensureBucket(SUB_BUCKET);
   const admin = createAdminClient();
@@ -57,10 +61,10 @@ export async function uploadSubmissionFile(fd: FormData): Promise<Res<UploadedFi
   return { ok: true, message: 'رُفع الملف', data: { path, name, mime: kind.mime, size: bytes.length } };
 }
 
-export async function submitTask(assessmentId: number, body: string, paths: string[]): Promise<Res<{ late: boolean }>> {
+export async function submitTask(assessmentId: number, body: string, paths: string[], links: string[] = []): Promise<Res<{ late: boolean }>> {
   await requireUser(['student']);
   const supabase = await createClient();
-  const { data, error } = await supabase.rpc('submit_task', { p_assessment_id: assessmentId, p_body: body, p_files: paths });
+  const { data, error } = await supabase.rpc('submit_task', { p_assessment_id: assessmentId, p_body: body, p_files: paths, p_links: links.map((l) => l.trim()).filter(Boolean).slice(0, 3) });
   if (error) return fail(error.message);
   const res = data as { removed_paths: string[]; late: boolean };
   await removePaths(res.removed_paths ?? []);

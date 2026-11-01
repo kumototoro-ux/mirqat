@@ -2,7 +2,7 @@
 
 export type Kind = 'task' | 'form';
 export type QType = 'mcq' | 'tf' | 'short' | 'long' | 'match' | 'fill';
-export type SubmissionMode = 'none' | 'text' | 'file' | 'any';
+export type SubmissionMode = 'none' | 'text' | 'file' | 'any' | 'link' | 'audio';
 export type ItemStatus = 'draft' | 'scheduled' | 'open' | 'closed';
 export type ShowResults = 'after_submit' | 'after_close' | 'never';
 
@@ -26,7 +26,9 @@ export const QTYPE_LABEL = Object.fromEntries(QTYPES.map((q) => [q.value, q.labe
 export const SUBMISSION_MODES: { value: SubmissionMode; label: string; hint: string }[] = [
   { value: 'text', label: 'جواب نصي', hint: 'يكتب الطالب إجابته' },
   { value: 'file', label: 'ملف أو صورة', hint: 'صورة أو PDF أو Word' },
-  { value: 'any', label: 'نص أو ملف', hint: 'أيهما أو كلاهما' },
+  { value: 'any', label: 'نص أو ملف أو رابط', hint: 'أي منها أو أكثر' },
+  { value: 'link', label: 'رابط', hint: 'رابط عمل الطالب (مستند، عرض، مشروع…)' },
+  { value: 'audio', label: 'تسجيل صوتي', hint: 'تسميع أو إلقاء — يسجّله الطالب من جواله' },
   { value: 'none', label: 'بلا تسليم', hint: 'رصد درجة فقط (عمل صفّي)' },
 ];
 
@@ -39,7 +41,12 @@ export const SHOW_RESULTS: { value: ShowResults; label: string }[] = [
 /** حدود الملفات */
 export const MAX_SUBMISSION_BYTES = 1024 * 1024; // ملف الطالب: 1 ميقا بعد الضغط
 export const MAX_ATTACHMENT_BYTES = 3 * 1024 * 1024; // مرفق المعلم
-export const MAX_SUBMISSION_FILES = 5;
+export const MAX_SUBMISSION_FILES = 3;
+export const MAX_SUBMISSION_LINKS = 3;
+export const MAX_AUDIO_BYTES = 6 * 1024 * 1024; // ≈ 5 دقائق
+export const MAX_AUDIO_SECONDS = 5 * 60;
+export const AUDIO_MIME: Record<string, string> = { 'audio/webm': 'webm', 'audio/mp4': 'm4a', 'audio/ogg': 'ogg', 'audio/wav': 'wav', 'audio/mpeg': 'mp3', 'audio/amr': 'amr' };
+export const isAudio = (mime: string) => mime.startsWith('audio/');
 export const SUBMISSION_MIME: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -124,3 +131,7 @@ export function assetUrl(v: string | null | undefined): string | null {
   if (!v.startsWith('storage:')) return v;
   return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/task-files/${v.slice(8)}`;
 }
+
+/** تاريخ ووقت كامل بتوقيت الرياض — يعمل في الخادم والمتصفح */
+const fullFmt = new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { timeZone: 'Asia/Riyadh', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
+export const fmtFull = (iso: string) => fullFmt.format(new Date(iso));
