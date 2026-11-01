@@ -128,6 +128,9 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
               {info.status !== 'draft' && (
                 <Link href={`/staff/grading/${info.id}`} className="btn-primary"><Icon name="edit" className="size-4" /> مكتب التصحيح</Link>
               )}
+              {info.kind === 'form' && (
+                <Link href={`/staff/print/${info.id}`} className="btn-quiet"><Icon name="download" className="size-4" /> طباعة</Link>
+              )}
               <button type="button" onClick={() => setCopy(true)} className="btn-quiet"><Icon name="copy" className="size-4" /> نسخ</button>
               <button type="button" onClick={remove} className="btn-quiet px-3 text-danger hover:border-danger/40" aria-label="حذف"><Icon name="trash" className="size-4" /></button>
             </div>
