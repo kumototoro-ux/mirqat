@@ -13,6 +13,9 @@ import { CardGridSkeleton } from '@/components/skeletons';
 import { StudentCertificate } from '@/components/results/student-certificate';
 import { getCertImages, getCertSettings } from '@/lib/results/cert-server';
 import { buildYear, type YearInput } from '@/lib/results/certificate';
+import { getAppreciationBrand } from '@/lib/certs/brand';
+import type { AppreciationView } from '@/lib/certs/appreciation';
+import { StudentAppreciation } from '@/components/certs/student-appreciation';
 
 export const metadata: Metadata = { title: 'نتائجي' };
 
@@ -25,11 +28,14 @@ export default async function StudentResultsPage({ searchParams }: { searchParam
   const [{ data: termsData }, current] = await Promise.all([supabase.rpc('my_result_terms'), getCurrentTermId()]);
   const terms = (termsData as TermRow[] | null) ?? [];
   const termId = Number(sp.term) || (terms.some((t) => t.id === current) ? current : terms[0]?.id) || null;
-  const [{ data: cardData }, brand, settings] = await Promise.all([
+  const [{ data: cardData }, brand, settings, { data: certsData }] = await Promise.all([
     termId ? supabase.rpc('my_report_card', { p_term_id: termId }) : Promise.resolve({ data: null }),
     getSchoolBrand(),
     getNoticeSettings(),
+    supabase.rpc('my_appreciation_certs'),
   ]);
+  const thanks = (certsData as AppreciationView[] | null) ?? [];
+  const thanksBrand = thanks.length ? await getAppreciationBrand() : null;
   const card = cardData as StudentCard | null;
 
   // شهادة نهاية العام: حين تتيحها الإدارة وتكون نتائج كل فصول العام الحالي ظاهرة للطالب
@@ -58,6 +64,7 @@ export default async function StudentResultsPage({ searchParams }: { searchParam
     <>
       <PageHeader title="نتائجي" lead="درجاتك في كل مادة مقسّمة على أعمال الترم والاختبارات، مع إشعار الدرجات للتنزيل." />
       {cert && <StudentCertificate {...cert} />}
+      {thanksBrand && <StudentAppreciation certs={thanks} brand={thanksBrand} />}
       {terms.length > 1 && (
         <nav className="mb-5 flex gap-2 overflow-x-auto pb-1" aria-label="الفصول الدراسية">
           {terms.map((t) => {
