@@ -1,5 +1,6 @@
 'use client';
 
+import { ImproveMode } from './improve-mode';
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -30,7 +31,7 @@ import {
 import { ManualRoster } from './manual-roster';
 import { DateTime, Section, fmtFull } from './kit';
 
-type Mode = 'tasks' | 'manual' | 'single' | 'records';
+type Mode = 'tasks' | 'manual' | 'single' | 'improve' | 'records';
 
 export function GradingHub({
   initialMode,
@@ -97,6 +98,7 @@ export function GradingHub({
         {(
           [
             ['single', 'رصد لطالب واحد', 'user'],
+            ['improve', 'تحسين درجة الطالب', 'sparkle'],
             ['records', 'سجلات الرصد', 'audit'],
           ] as const
         ).map(([k, label, icon]) => (
@@ -116,6 +118,7 @@ export function GradingHub({
           {mode === 'tasks' && <TasksMode ctx={ctx} pending={pending} classNames={classNames} subjectNames={subjectNames} />}
           {mode === 'manual' && <ManualMode ctx={ctx} />}
           {mode === 'single' && <SingleMode ctx={ctx} />}
+          {mode === 'improve' && <ImproveMode ctx={ctx} />}
           {mode === 'records' && <RecordsMode ctx={ctx} classNames={classNames} subjectNames={subjectNames} />}
         </motion.div>
       </AnimatePresence>
