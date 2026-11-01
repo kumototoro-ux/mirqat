@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
     // ذاكرة المسارات في المتصفح: الرجوع لصفحة زرتها قبل أقل من 30 ثانية لا يطلبها من الخادم مجددًا
     staleTimes: { dynamic: 30, static: 300 },
     // رفع شعار المدرسة (حتى 2 ميجابايت) عبر Server Action
-    serverActions: { bodySizeLimit: '3mb' },
+    serverActions: { bodySizeLimit: '8mb' },
   },
   async headers() {
     return [

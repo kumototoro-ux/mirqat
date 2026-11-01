@@ -9,6 +9,8 @@ import type { RefTable } from '@/lib/settings/actions';
 import { CalendarEditor, ExamsEditor, TimetableEditor } from './schedule-editors';
 import { PurgeSettings } from '@/components/assess/purge-settings';
 import { CertSettingsForm } from '@/components/results/cert-settings';
+import { ImportPanel } from '@/components/transfer/import-panel';
+import { DataPanel } from '@/components/transfer/data-panel';
 import { normalizeCert } from '@/lib/results/certificate';
 
 export type SettingsData = {
@@ -77,6 +79,8 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
         schoolLogo={typeof v.school_logo_url === 'string' && v.school_logo_url ? v.school_logo_url : null}
       />
     );
+  else if (active === 'import') content = <ImportPanel />;
+  else if (active === 'data') content = <DataPanel />;
   else if (active === 'calendar') content = <CalendarEditor />;
   else if (active === 'timetable') content = <TimetableEditor />;
   else if (active === 'exams') content = <ExamsEditor />;
