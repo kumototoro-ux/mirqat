@@ -399,3 +399,51 @@ export async function getManualDetail(id: number, user: CurrentUser): Promise<Ma
     grades: g,
   };
 }
+
+/* ---------------------------------------------------------------------
+   الطباعة: ورقة الأسئلة وأوراق الإجابة (الفقاعات) لنموذج إلكتروني
+--------------------------------------------------------------------- */
+export type PrintQuestion = ServerQuestion & { section_instructions: string | null };
+export type PrintData = {
+  form: AssessmentBase & { branch: string; grade: string; section: string; term: string | null; closes_at: string | null; opens_at: string | null; time_limit: number | null };
+  questions: PrintQuestion[];
+  roster: RosterStudent[];
+};
+
+export async function getPrintData(id: number, user: CurrentUser): Promise<PrintData | null> {
+  const loaded = await loadBase(id, user);
+  if (!loaded || loaded.base.kind !== 'form') return null;
+  const { supabase, base } = loaded;
+  const [qs, roster, cls, term, det] = await Promise.all([
+    supabase
+      .from('form_questions')
+      .select('id, qtype, body, image_url, points, section_title, section_instructions, explanation, config, options:question_options(id, body, is_correct, position)')
+      .eq('assessment_id', id)
+      .order('position'),
+    supabase.from('students').select('id, code, name_ar').eq('class_id', base.class_id).eq('status', 'active').order('name_ar'),
+    supabase.from('classes').select(CLASS_SELECT).eq('id', base.class_id).maybeSingle<NonNullable<ClassRef>>(),
+    supabase.from('terms').select('name').eq('id', base.term_id).maybeSingle(),
+    supabase.from('form_details').select('opens_at, closes_at, time_limit_minutes').eq('assessment_id', id).maybeSingle(),
+  ]);
+  type Raw = Omit<PrintQuestion, 'options' | 'points'> & { points: number; options: { id: number; body: string; is_correct: boolean; position: number }[] };
+  const c = cls.data;
+  return {
+    form: {
+      ...base,
+      branch: c?.branch?.name ?? '',
+      grade: c?.grade ? `${c.grade.name}${c.grade.stage ? ' ' + c.grade.stage.name : ''}` : '',
+      section: c?.section?.name ?? '',
+      term: term.data?.name ?? null,
+      opens_at: det.data?.opens_at ?? null,
+      closes_at: det.data?.closes_at ?? null,
+      time_limit: det.data?.time_limit_minutes ?? null,
+    },
+    questions: ((qs.data ?? []) as Raw[]).map((q) => ({
+      ...q,
+      points: Number(q.points),
+      config: q.config ?? {},
+      options: [...(q.options ?? [])].sort((a, b) => a.position - b.position).map(({ id: oid, body, is_correct }) => ({ id: oid, body, is_correct })),
+    })),
+    roster: (roster.data ?? []) as RosterStudent[],
+  };
+}
