@@ -20,7 +20,7 @@ with findings as (
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
    where n.nspname = 'public' and p.prosecdef
      and has_function_privilege('anon', p.oid, 'execute')
-     and p.proname <> 'get_public_settings'
+     and p.proname not in ('get_public_settings', 'rls_auto_enable')  -- الثانية من Supabase (event trigger لا يُستدعى)
   union all
   -- 4) دوال الخادم وحده: يجب ألا يستطيع المستخدم المسجّل تنفيذها
   select '4 دالة داخلية مفتوحة للمستخدمين', p.proname
@@ -35,7 +35,9 @@ with findings as (
   select '5 صلاحية تلقائية للعناصر الجديدة', d.defaclrole::regrole::text || ' → ' || d.defaclobjtype::text || ' ' || d.defaclacl::text
     from pg_default_acl d
    where d.defaclnamespace = 'public'::regnamespace
-     and (d.defaclacl::text like '%anon=%' or d.defaclacl::text like '%=X/%')
+     -- هجراتنا تُنشأ بالدور postgres. أما supabase_admin فعناصره داخلية تخص Supabase نفسها
+     and d.defaclrole = 'postgres'::regrole
+     and (d.defaclacl::text like '%anon=%' or d.defaclacl::text like '%authenticated=%')
   union all
   -- 6) مخازن الملفات العامة (المتوقع: task-files و school-assets فقط)
   select '6 مخزن ملفات عام', b.id::text
