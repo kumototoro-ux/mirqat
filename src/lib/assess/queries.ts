@@ -259,6 +259,7 @@ export type AttemptRow = {
   pending_review: number;
   duration_seconds: number | null;
   focus_events: number;
+  source: 'online' | 'paper';
   answers: { question_id: number; option_id: number | null; response: unknown; points: number; status: 'auto' | 'pending' | 'manual'; feedback: string | null }[];
 };
 export type FormDetail = AssessmentBase & {
@@ -290,7 +291,7 @@ export async function getFormDetail(id: number, user: CurrentUser): Promise<Form
     supabase.from('students').select('id, code, name_ar').eq('class_id', base.class_id).eq('status', 'active').order('name_ar'),
     supabase
       .from('form_attempts')
-      .select('id, student_id, attempt_no, is_auto_absent, score, max_score, submitted_at, pending_review, duration_seconds, focus_events, answers:attempt_answers(question_id, option_id, response, points, status, feedback)')
+      .select('id, student_id, attempt_no, is_auto_absent, score, max_score, submitted_at, pending_review, duration_seconds, focus_events, source, answers:attempt_answers(question_id, option_id, response, points, status, feedback)')
       .eq('assessment_id', id)
       .order('attempt_no'),
     supabase.from('form_sessions').select('id, student_id, started_at, deadline_at, saved_at, submitted_at, focus_events, answers').eq('assessment_id', id),

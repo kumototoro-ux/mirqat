@@ -20,8 +20,18 @@ export const OMR = {
   maxQ: 100,
 };
 
-/** رمز QR: MQ2|رقم النموذج|رقم الطالب (0 = ورقة بلا اسم) */
-export const omrQrText = (assessmentId: number, studentId: number | null) => `MQ2|${assessmentId}|${studentId ?? 0}`;
+/** رمز QR: MQ2|رقم النموذج|رقم الطالب (0 = ورقة بلا اسم)|اتجاه الحروف R/L|عدد أسئلة الاختيار
+ *  الحقلان الأخيران يتيحان للقارئ رسم نفس المواضع، واكتشاف تعديل الأسئلة بعد الطباعة */
+export const omrQrText = (assessmentId: number, studentId: number | null, rtl = true, count?: number) =>
+  `MQ2|${assessmentId}|${studentId ?? 0}|${rtl ? 'R' : 'L'}${count != null ? `|${count}` : ''}`;
+
+export type OmrQr = { assessmentId: number; studentId: number | null; rtl: boolean; count: number | null };
+export function parseOmrQr(text: string): OmrQr | null {
+  const m = /^MQ2\|(\d{1,18})\|(\d{1,18})(?:\|([RL]))?(?:\|(\d{1,4}))?$/.exec(text.trim());
+  if (!m) return null;
+  const sid = Number(m[2]);
+  return { assessmentId: Number(m[1]), studentId: sid > 0 ? sid : null, rtl: m[3] !== 'L', count: m[4] != null ? Number(m[4]) : null };
+}
 
 export type OmrItem = { n: number; opts: number };
 
