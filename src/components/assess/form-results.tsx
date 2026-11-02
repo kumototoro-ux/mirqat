@@ -133,7 +133,9 @@ export function FormResults({ form }: { form: FormDetail }) {
                       <bdi>{st.code}</bdi>
                       {s.kind === 'done' && (
                         <>
-                          · سلّم {relTime(s.attempt.submitted_at)} · {fmtDur(s.attempt.duration_seconds)}
+                          {s.attempt.source === 'paper'
+                            ? <>· ورقة مصحَّحة بالكاميرا {relTime(s.attempt.submitted_at)}</>
+                            : <>· سلّم {relTime(s.attempt.submitted_at)} · {fmtDur(s.attempt.duration_seconds)}</>}
                           {s.count > 1 && ` · ${s.count} محاولات`}
                         </>
                       )}
@@ -198,7 +200,7 @@ function AttemptSheet({ form, student, attempt, onClose }: { form: FormDetail; s
       open
       onClose={onClose}
       title={student.name_ar}
-      subtitle={`المحاولة ${attempt.attempt_no} · ${fmtFull(attempt.submitted_at)} · ${fmtDur(attempt.duration_seconds)}`}
+      subtitle={attempt.source === 'paper' ? `ورقة إجابة مصحَّحة بالكاميرا · ${fmtFull(attempt.submitted_at)}` : `المحاولة ${attempt.attempt_no} · ${fmtFull(attempt.submitted_at)} · ${fmtDur(attempt.duration_seconds)}`}
       footer={
         <div className="flex items-center gap-2">
           <span className="flex-1 text-sm">
@@ -230,6 +232,7 @@ function AttemptSheet({ form, student, attempt, onClose }: { form: FormDetail; s
             q={q}
             n={i + 1}
             a={ans.get(q.id)}
+            paper={attempt.source === 'paper'}
             onGrade={async (pts, fb) => {
               const res = await gradeFormAnswer(attempt.id, q.id, pts, fb, form.id);
               if (!res.ok) {
@@ -248,7 +251,7 @@ function AttemptSheet({ form, student, attempt, onClose }: { form: FormDetail; s
   );
 }
 
-function AnswerReview({ q, n, a, onGrade }: { q: ServerQuestion; n: number; a: AttemptRow['answers'][number] | undefined; onGrade: (pts: number, fb: string | null) => Promise<boolean> }) {
+function AnswerReview({ q, n, a, paper = false, onGrade }: { q: ServerQuestion; n: number; a: AttemptRow['answers'][number] | undefined; paper?: boolean; onGrade: (pts: number, fb: string | null) => Promise<boolean> }) {
   const [edit, setEdit] = useState(a?.status === 'pending');
   const [pts, setPts] = useState(a ? String(a.points) : '0');
   const [fb, setFb] = useState(a?.feedback ?? '');
@@ -270,6 +273,9 @@ function AnswerReview({ q, n, a, onGrade }: { q: ServerQuestion; n: number; a: A
       <p className="text-sm font-semibold leading-relaxed"><RichText text={q.qtype === 'fill' ? q.body.replace(/\[\[(\d+)\]\]/g, '(…$1)') : q.body} /></p>
 
       <div className="mt-2.5 text-sm">
+        {paper && q.qtype !== 'mcq' && q.qtype !== 'tf' ? (
+          <p className="rounded-xl bg-paper px-3 py-2 text-muted">الإجابة مكتوبة في ورقة الأسئلة — صحّحها منها وأدخل الدرجة هنا.</p>
+        ) : (<>
         {!a && <p className="text-muted">— لم يُجب —</p>}
         {a && (q.qtype === 'mcq' || q.qtype === 'tf') && (
           <ul className="space-y-1">
@@ -316,6 +322,7 @@ function AnswerReview({ q, n, a, onGrade }: { q: ServerQuestion; n: number; a: A
             })}
           </ul>
         )}
+        </>)}
       </div>
 
       {a?.feedback && !edit && <p className="mt-2 rounded-lg bg-board/[0.06] px-2.5 py-1.5 text-xs text-board">ملاحظتك: {a.feedback}</p>}

@@ -84,11 +84,11 @@ export function PrintStudio({ data, brand }: { data: PrintData; brand: Appreciat
     if (doc !== 'bubbles' && doc !== 'key') return;
     let off = false;
     const ids = doc === 'key' ? [0] : sheets.map((s) => (s.id > 0 ? s.id : 0));
-    Promise.all([...new Set(ids)].map(async (sid) => [String(sid), await QRCode.toString(omrQrText(form.id, sid || null), { type: 'svg', margin: 0, errorCorrectionLevel: 'M' })] as const))
+    Promise.all([...new Set(ids)].map(async (sid) => [String(sid), await QRCode.toString(omrQrText(form.id, sid || null, rtl, items.length), { type: 'svg', margin: 0, errorCorrectionLevel: 'M' })] as const))
       .then((pairs) => { if (!off) setQr(Object.fromEntries(pairs)); })
       .catch(() => null);
     return () => { off = true; };
-  }, [doc, sheets, form.id]);
+  }, [doc, sheets, form.id, rtl, items.length]);
 
   const total = r2(questions.reduce((a, q) => a + q.points, 0));
   const head = { time, date, label, summary, big, rtl };

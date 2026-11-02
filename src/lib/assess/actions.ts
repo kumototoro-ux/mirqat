@@ -297,3 +297,33 @@ export async function purgeGradedNow(): Promise<Result<{ files: number; bytes: n
   revalidatePath('/staff/settings');
   return { ok: true, message: res.files ? `حُذف ${res.files} ملف مصحّح` : 'لا ملفات مصحّحة للحذف', data: res };
 }
+
+/* ---------------------------------------------------------------------
+   تصحيح الأوراق بالكاميرا: القراءة في المتصفح، والحفظ هنا بعد مراجعة المعلم (هجرة 30)
+--------------------------------------------------------------------- */
+export type PaperStatusRow = { student_id: number; attempt_id: number; source: 'online' | 'paper'; score: number; max_score: number; pending_review: number; at: string };
+
+export async function savePaperAttempt(
+  assessmentId: number,
+  studentId: number,
+  choices: Record<string, number | null>,
+  points: Record<string, number>,
+  meta: Record<string, unknown> | null,
+): Promise<Result<{ attempt_id: number; score: number; max_score: number; pending_review: number; replaced: boolean }>> {
+  await requireUser(STAFF);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('save_paper_attempt', {
+    p_assessment_id: assessmentId, p_student_id: studentId, p_choices: choices, p_points: points, p_meta: meta,
+  });
+  if (error) return fail(error);
+  refresh(assessmentId);
+  const d = data as { attempt_id: number; score: number; max_score: number; pending_review: number; replaced: boolean };
+  return { ok: true, message: d.replaced ? 'استُبدلت الورقة السابقة ورُصدت الدرجة' : 'حُفظت الورقة ورُصدت الدرجة', data: d };
+}
+
+export async function paperStatus(assessmentId: number): Promise<PaperStatusRow[]> {
+  await requireUser(STAFF);
+  const supabase = await createClient();
+  const { data } = await supabase.rpc('paper_status', { p_assessment_id: assessmentId });
+  return ((data as PaperStatusRow[] | null) ?? []).map((r) => ({ ...r, score: Number(r.score), max_score: Number(r.max_score) }));
+}
