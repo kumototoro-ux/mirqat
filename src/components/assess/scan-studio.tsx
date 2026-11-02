@@ -392,7 +392,7 @@ function SheetImage({ rev, choice }: { rev: Review; choice: { q: PrintQuestion }
     <section className="rounded-2xl border border-line bg-surface">
       <button type="button" onClick={() => setOpen(!open)} className="flex w-full items-center justify-between px-4 py-3 text-sm font-bold">
         الصورة وما قرأتُه منها
-        <Icon name="chevron" className={`size-4 transition ${open ? '-rotate-90' : 'rotate-90'}`} />
+        <Icon name="chevron" className={`size-4 transition ${open ? 'rotate-90' : '-rotate-90'}`} />
       </button>
       {open && <div className="px-3 pb-3"><canvas ref={ref} className="w-full rounded-xl" /></div>}
     </section>
@@ -406,7 +406,7 @@ function RosterStatus({ roster, byStudent }: { roster: PrintData['roster']; bySt
     <section className="rounded-2xl border border-line bg-surface">
       <button type="button" onClick={() => setShow(!show)} className="flex w-full items-center justify-between px-4 py-3 text-sm font-bold">
         <span>الطلاب — بقي {left.length} من {roster.length}</span>
-        <Icon name="chevron" className={`size-4 transition ${show ? '-rotate-90' : 'rotate-90'}`} />
+        <Icon name="chevron" className={`size-4 transition ${show ? 'rotate-90' : '-rotate-90'}`} />
       </button>
       {show && (
         <ul className="divide-y divide-line border-t border-line">

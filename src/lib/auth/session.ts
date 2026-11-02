@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { homeFor, type AccountStatus, type AppRole } from '@/lib/auth/roles';
+import { track } from '@/lib/track/server';
 
 export type CurrentUser = {
   id: string;
@@ -70,6 +71,10 @@ export async function requireUser(roles: readonly AppRole[]): Promise<CurrentUse
   if (!user) redirect(`/auth/signout?reason=session&portal=${portal}`);
   if (user.status !== 'active') redirect('/auth/signout?reason=disabled');
   if (user.mustChangePassword) redirect('/change-password');
-  if (!roles.includes(user.role)) redirect(homeFor(user.role));
+  if (!roles.includes(user.role)) {
+    // صفحة ليست من صلاحيته (مثل معلم يفتح صفحة إدارية): تنبيه في مركز التتبع ثم إعادته لصفحته
+    await track({ action: 'page.forbidden', severity: 'security', actor_id: user.id, actor_name: user.displayName });
+    redirect(homeFor(user.role));
+  }
   return user;
 }

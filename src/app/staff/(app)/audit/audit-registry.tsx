@@ -12,23 +12,13 @@ import { Icon } from '@/components/shell/icons';
 import { Sheet } from '@/components/sheet';
 import { fmtDateTime } from '@/lib/format';
 import { getAuditEntry, listAudit, type AuditRow } from './actions';
+import { TABLES } from '@/lib/track/labels';
 
 export type ActivityReport = {
   totals: { all: number; today: number; week: number; prev_week: number; logins_week: number; deletes_week: number; actors_week: number };
   by_table: { name: string; count: number }[];
 };
 
-export const TABLES: Record<string, string> = {
-  students: 'الطلاب', employees: 'الموظفون', profiles: 'الحسابات', assessments: 'المهام والنماذج',
-  grade_entries: 'الرصد', appreciation_certs: 'شهادات الشكر', attendance_records: 'التحضير', behavior_records: 'السلوك', staff_scope: 'نطاقات المعلمين',
-  timetable_slots: 'جدول الحصص', exam_schedule: 'الاختبارات', calendar_entries: 'التقويم', app_settings: 'الإعدادات',
-  form_details: 'النماذج', form_questions: 'أسئلة النماذج', content_items: 'المحتوى', period_links: 'ربط الحصص',
-  question_options: 'خيارات الأسئلة', form_attempts: 'محاولات النماذج', grade_visibility: 'ظهور الدرجات',
-  grade_improvements: 'تحسين الدرجات', grade_weights: 'أوزان الدرجات', task_submissions: 'تسليمات المهام', assessment_attachments: 'مرفقات المهام',
-  attendance_grants: 'صلاحيات التحضير', result_release_rules: 'قواعد إعلان النتائج', subject_matrix: 'خطة المواد',
-  academic_years: 'الأعوام الدراسية', terms: 'الفصول الدراسية', branches: 'الفروع', stages: 'المراحل', grades: 'الصفوف', sections: 'الشعب',
-  classes: 'الفصول', subjects: 'المواد', eval_types: 'أنواع التقييم', attendance_statuses: 'حالات التحضير', behavior_statuses: 'حالات السلوك',
-};
 const OPS: Record<string, { label: string; tone: 'ok' | 'gold' | 'danger' | 'board' }> = {
   INSERT: { label: 'إضافة', tone: 'ok' },
   UPDATE: { label: 'تعديل', tone: 'gold' },

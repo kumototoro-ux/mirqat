@@ -4,11 +4,14 @@ import Link from 'next/link';
 import { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '@/components/shell/icons';
+import { reportBoundary } from '@/components/track/tracker';
 
 /** واجهة خطأ موحّدة: رسالة مفهومة، إعادة المحاولة، والعودة للرئيسية — بلا تفاصيل تقنية للمستخدم */
 export function ErrorState({ error, reset, home }: { error: Error & { digest?: string }; reset: () => void; home: string }) {
   useEffect(() => {
     console.error(error);
+    // خطأ في المتصفح نفسه (بلا digest) يُسجَّل في مركز التتبع؛ أخطاء الخادم سُجّلت هناك برمزها
+    if (!error.digest) reportBoundary(error);
   }, [error]);
   const offline = typeof navigator !== 'undefined' && !navigator.onLine;
   const session = /JWT|AUTH_REQUIRED|session/i.test(error.message);

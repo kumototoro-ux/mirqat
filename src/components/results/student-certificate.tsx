@@ -24,7 +24,7 @@ export function StudentCertificate({ cert, settings, brand }: { cert: YearCert; 
             {r ? ` · ${r.ar}` : ''} — اعرضها ونزّلها PDF
           </span>
         </span>
-        <Icon name="chevron" className={`relative size-5 shrink-0 transition-transform ${open ? '-rotate-90' : 'rotate-90'}`} />
+        <Icon name="chevron" className={`relative size-5 shrink-0 transition-transform ${open ? 'rotate-90' : '-rotate-90'}`} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
