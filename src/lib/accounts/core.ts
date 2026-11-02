@@ -92,6 +92,9 @@ export async function resetPassword(admin: SupabaseClient, userId: string): Prom
   if (error) throw new Error(`تعذّر تعيين كلمة المرور: ${error.message}`);
   const { error: dbError } = await admin.from('profiles').update({ must_change_password: true }).eq('id', userId);
   if (dbError) throw new Error(`تعيّنت كلمة المرور، لكن تعذّر تسجيل التغيير الإلزامي: ${dbError.message}`);
+  // من يملك جلسة مفتوحة على الحساب (ربما سارقه) يخرج من كل الأجهزة — لا يُفشل العملية إن تعذّر
+  const { error: revokeError } = await admin.rpc('admin_revoke_sessions', { p_user_id: userId });
+  if (revokeError) console.error('admin_revoke_sessions', revokeError.message);
   return password;
 }
 

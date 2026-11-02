@@ -34,7 +34,8 @@ export async function requestMeta(): Promise<{ path: string | null; ip: string |
     }
     return {
       path,
-      ip: h.get('x-forwarded-for')?.split(',')[0]?.trim() ?? h.get('x-real-ip') ?? null,
+      // Vercel يضع x-vercel-forwarded-for ولا يقبله من المتصفح — نفس مصدر قفل الدخول
+      ip: (h.get('x-vercel-forwarded-for') ?? h.get('x-real-ip') ?? h.get('x-forwarded-for'))?.split(',')[0]?.trim() || null,
       user_agent: h.get('user-agent')?.slice(0, 300) ?? null,
     };
   } catch {

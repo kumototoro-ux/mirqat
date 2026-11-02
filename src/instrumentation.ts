@@ -34,7 +34,7 @@ export async function onRequestError(err: unknown, request: Req, context: Ctx) {
 
     const { track } = await import('@/lib/track/server');
     const ua = request.headers['user-agent'];
-    const fwd = request.headers['x-forwarded-for'];
+    const fwd = request.headers['x-vercel-forwarded-for'] ?? request.headers['x-forwarded-for'];
     await track({
       action: 'server.error',
       severity: 'error',

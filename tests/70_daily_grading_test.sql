@@ -40,7 +40,7 @@ select test.ok(not exists (select 1 from assessments where id = (select v from g
 select test.logout();
 select test.login('00000000-0000-0000-0000-000000000061');
 select test.ok(exists (select 1 from assessments where id = (select v from g where k='s')), 'صاحب الرصد يراه');
-select test.ok((select note from grade_entries where assessment_id = (select v from g where k='s')) = 'أجاب عن سؤال صعب', 'والطالب يرى ملاحظة المعلم');
+select test.ok(position('أجاب عن سؤال صعب' in student_home()::text) > 0, 'والطالب يرى ملاحظة المعلم (في رئيسيته)');
 select test.fails(format($$select save_manual(%s, '{"title":"x","subject_id":1,"term_id":1,"eval_type_id":1,"max_score":5}', null, null, null)$$, (select v from g where k='m')),
                   'لا تملك|FORBIDDEN', 'الطالب لا يعدّل رصدًا');
 select test.logout();
