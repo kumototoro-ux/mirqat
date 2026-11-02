@@ -6,7 +6,8 @@ import { runPurge } from '@/lib/assess/purge';
  * المهمة اليومية (Vercel Cron — انظر vercel.json):
  *  1) تُسلِّم جلسات النماذج المنتهية وتسوّي غياب النماذج المغلقة (صفر لمن لم يحل)
  *  2) تحذف ملفات التسليم المصحّحة بعد المدة المحددة في الإعدادات، والرفعات التي لم تُسلَّم
- *  3) نبض يومي للقاعدة: قراءات وكتابة خفيفة تبقي مشروع Supabase المجاني نشطًا حتى في الإجازات
+ *  3) تنظيف مركز التتبع: الأحداث العادية بعد 30 يومًا والمشاكل بعد 180 يومًا
+ *  4) نبض يومي للقاعدة: قراءات وكتابة خفيفة تبقي مشروع Supabase المجاني نشطًا حتى في الإجازات
  *     (يتجمد بعد أسبوع بلا نشاط كافٍ — و Vercel Hobby يسمح بمهمة يومية واحدة، وهذا يكفي)
  * محمية بـ CRON_SECRET: Vercel يرسله تلقائيًا، ولا يستطيع غيره تشغيلها.
  */
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
   const admin = createAdminClient();
   const settled = await admin.rpc('settle_due_forms');
   const purged = await runPurge(false);
+  const tracked = await admin.rpc('track_purge');
   // النبض: عدة طلبات حقيقية للقاعدة (قراءة جداول مختلفة + تسجيل آخر نبض)
   const [students, terms] = await Promise.all([
     admin.from('students').select('id', { count: 'exact', head: true }),
@@ -27,5 +29,5 @@ export async function GET(request: Request) {
     admin.from('app_settings').select('key').limit(1),
   ]);
   await admin.from('app_settings').upsert({ key: 'heartbeat', value: { at: new Date().toISOString(), students: students.count ?? 0 }, is_public: false, updated_at: new Date().toISOString() });
-  return NextResponse.json({ ok: true, settled: settled.data ?? 0, purged, heartbeat: !terms.error });
+  return NextResponse.json({ ok: true, settled: settled.data ?? 0, purged, events_purged: tracked.data ?? 0, heartbeat: !terms.error });
 }

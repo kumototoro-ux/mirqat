@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import { Tracker } from '@/components/track/tracker';
 
 export const metadata: Metadata = {
   title: { default: 'مِرقاة', template: '%s · مِرقاة' },
@@ -16,7 +17,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ar" dir="rtl" data-scroll-behavior="smooth">
-      <body className="min-h-dvh">{children}</body>
+      <body className="min-h-dvh">
+        {children}
+        <Tracker />
+      </body>
     </html>
   );
 }

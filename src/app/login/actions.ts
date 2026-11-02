@@ -5,6 +5,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { homeFor, readSessionMeta } from '@/lib/auth/roles';
 import { cleanLoginInput, type Portal } from '@/lib/auth/portal';
+import { track } from '@/lib/track/server';
 
 export type LoginState = {
   error: string | null;
@@ -65,18 +66,24 @@ async function login(portal: Portal, formData: FormData): Promise<LoginState> {
   });
   if (gateError) {
     console.error('auth_login_gate', gateError);
+    await track({ action: 'db.error', code: gateError.code, message: gateError.message, details: { op: 'rpc:auth_login_gate', username } });
     return fail('تعذّر الاتصال بالخادم. حاول بعد قليل');
   }
   const gate = (gateRows as GateRow[] | null)?.[0];
 
+  const lost = (action: string, actor?: string | null) =>
+    track({ action, severity: action === 'auth.login_failed' || action === 'auth.login_disabled' ? 'warning' : 'security', actor_id: actor ?? null, details: { username, portal } });
   if (gate?.ip_locked) {
+    await lost('auth.ip_locked', gate.user_id);
     return fail('محاولات خاطئة كثيرة من هذا الجهاز. تم إيقاف الدخول منه مؤقتًا، حاول بعد 15 دقيقة');
   }
   if (gate?.locked) {
+    await lost('auth.login_locked', gate.user_id);
     return fail('تم إيقاف محاولات الدخول مؤقتًا لهذا الحساب بسبب محاولات فاشلة متكررة، حاول بعد 15 دقيقة');
   }
   if (!gate?.user_id || !gate.email) {
     await record(false);
+    await lost('auth.login_failed');
     return fail(WRONG);
   }
 
@@ -93,6 +100,7 @@ async function login(portal: Portal, formData: FormData): Promise<LoginState> {
 
   if (error || !data.user) {
     await record(false);
+    await lost(error?.code === 'user_banned' ? 'auth.login_disabled' : 'auth.login_failed', gate.user_id);
     if (error?.code === 'user_banned') return fail(DISABLED[portal]);
     if (error && error.code !== 'invalid_credentials') console.error('signIn', error.code, error.message);
     return fail(WRONG);
@@ -100,6 +108,7 @@ async function login(portal: Portal, formData: FormData): Promise<LoginState> {
 
   if (gate.status !== 'active') {
     await supabase.auth.signOut();
+    await lost('auth.login_disabled', gate.user_id);
     return fail(DISABLED[portal]);
   }
 

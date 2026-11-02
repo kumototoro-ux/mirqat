@@ -287,7 +287,7 @@ function CertPreview({ settings, images, schoolLogo, stage, grade }: { settings:
           <span className="block font-bold">معاينة حية</span>
           <span className="block text-xs text-muted">تتغير مع كل تعديل قبل الحفظ — ببيانات نموذجية</span>
         </span>
-        <Icon name="chevron" className={`size-4 text-muted transition-transform ${open ? '-rotate-90' : 'rotate-90'}`} />
+        <Icon name="chevron" className={`size-4 text-muted transition-transform ${open ? 'rotate-90' : '-rotate-90'}`} />
       </button>
       {open && (
         <div className="border-t border-line bg-paper/60 p-3 sm:p-4">
