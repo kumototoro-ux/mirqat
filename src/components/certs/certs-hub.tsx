@@ -189,7 +189,7 @@ function RankRow({ r, type, busy, onOpen }: { r: TopRow; type: AppreciationType;
       </span>
       <span className="text-lg font-bold tabular-nums text-board" dir="ltr">{r.pct}%</span>
       {r.issued && <Badge tone="ok">صدرت</Badge>}
-      <button type="button" onClick={onOpen} disabled={busy} className="btn-quiet px-3">{busy ? <span className="spinner" /> : <Icon name="eye" className="size-4" />}<span className="hidden sm:inline">{r.issued ? 'عرض وتحديث' : 'معاينة'}</span></button>
+      <button type="button" onClick={onOpen} disabled={busy} className="btn-quiet px-3" aria-label={r.issued ? 'عرض وتحديث' : 'معاينة'}>{busy ? <span className="spinner" /> : <Icon name="eye" className="size-4" />}<span className="hidden sm:inline">{r.issued ? 'عرض وتحديث' : 'معاينة'}</span></button>
     </li>
   );
 }

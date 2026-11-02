@@ -447,7 +447,7 @@ function Activity({ r }: { r: ActivityReport }) {
               {r.top_actors.map((a) => (
                 <tr key={a.name}>
                   <td className="px-3 py-2.5 font-semibold">{a.name}</td>
-                  <td className="px-3 py-2.5 text-muted">{a.role ?? '—'}</td>
+                  <td className="px-3 py-2.5 text-muted">{a.role ? ({ student: 'طالب', teacher: 'معلم', admin: 'إداري' } as Record<string, string>)[a.role] ?? a.role : 'النظام'}</td>
                   <td className={td}>{a.count}</td>
                   <td className="w-44 px-3 py-2.5"><ShareBar value={a.count} total={t.week} /></td>
                 </tr>

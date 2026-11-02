@@ -24,6 +24,10 @@ export const TABLES: Record<string, string> = {
   timetable_slots: 'جدول الحصص', exam_schedule: 'الاختبارات', calendar_entries: 'التقويم', app_settings: 'الإعدادات',
   form_details: 'النماذج', form_questions: 'أسئلة النماذج', content_items: 'المحتوى', period_links: 'ربط الحصص',
   question_options: 'خيارات الأسئلة', form_attempts: 'محاولات النماذج', grade_visibility: 'ظهور الدرجات',
+  grade_improvements: 'تحسين الدرجات', grade_weights: 'أوزان الدرجات', task_submissions: 'تسليمات المهام', assessment_attachments: 'مرفقات المهام',
+  attendance_grants: 'صلاحيات التحضير', result_release_rules: 'قواعد إعلان النتائج', subject_matrix: 'خطة المواد',
+  academic_years: 'الأعوام الدراسية', terms: 'الفصول الدراسية', branches: 'الفروع', stages: 'المراحل', grades: 'الصفوف', sections: 'الشعب',
+  classes: 'الفصول', subjects: 'المواد', eval_types: 'أنواع التقييم', attendance_statuses: 'حالات التحضير', behavior_statuses: 'حالات السلوك',
 };
 const OPS: Record<string, { label: string; tone: 'ok' | 'gold' | 'danger' | 'board' }> = {
   INSERT: { label: 'إضافة', tone: 'ok' },
