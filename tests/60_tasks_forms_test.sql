@@ -284,7 +284,7 @@ update form_sessions set deadline_at = now() - interval '5 minutes' where id = (
 select test.login('00000000-0000-0000-0000-000000000062');
 select test.fails(format($$select save_form_answers(%s, '{}')$$, (select p ->> 'session_id' from s2)), 'انتهى الوقت', 'لا حفظ بعد انتهاء الوقت');
 select test.ok((start_form_session((select v from ids where k = 'timed')) ->> 'status') = 'submitted', 'فتح النموذج بعد انتهاء الوقت يسلّم المحفوظ تلقائيًا');
-select test.ok((select score from grade_entries where assessment_id = (select v from ids where k = 'timed')) = 1, 'الإجابة المحفوظة صُحّحت');
+select test.ok(test.peek(format('select score from grade_entries where assessment_id = %s', (select v from ids where k = 'timed')))::numeric = 1, 'الإجابة المحفوظة صُحّحت');
 select test.logout();
 
 -- =====================================================================

@@ -39,6 +39,22 @@ begin
 end $$;
 grant execute on all functions in schema test to authenticated, anon;
 
+-- منذ هجرة 33 لا يكتب المستخدم في جداول التقييم والرصد إلا عبر الدوال المحمية.
+-- سياسات RLS عليها باقية دفاعًا ثانيًا، ولاختبارها تُفتح الكتابة المباشرة مؤقتًا ثم تُغلق.
+-- قراءة قيمة بصلاحية مالك القاعدة (للتحقق من نتيجة عملية نفّذها طالب، دون الخروج من جلسته)
+create function test.peek(q text) returns text language plpgsql security definer as $$
+declare v text;
+begin execute q into v; return v; end $$;
+
+create function test.direct_writes(p_on boolean) returns void language plpgsql security definer as $$
+begin
+  if p_on then
+    execute 'grant insert, update, delete on public.grade_entries, public.form_questions, public.question_options, public.assessments, public.form_details, public.form_attempts, public.attendance_records, public.behavior_records, public.content_items, public.period_links, public.student_views to authenticated';
+  else
+    execute 'revoke insert, update, delete on public.grade_entries, public.form_questions, public.question_options, public.assessments, public.form_details, public.form_attempts, public.attendance_records, public.behavior_records, public.content_items, public.period_links, public.student_views from authenticated';
+  end if;
+end $$;
+
 -- ---------------------------------------------------------------------
 -- بيانات تجريبية
 -- ---------------------------------------------------------------------
@@ -112,11 +128,11 @@ select test.login('00000000-0000-0000-0000-0000000000e1');
 select test.ok((select count(*) from students) = 3, 'المعلم E1 يرى طلاب الشعبة أ فقط (3)');
 select test.ok(not exists (select 1 from students where code = 'S3'), 'المعلم E1 لا يرى طالب الشعبة ب');
 select test.fails($$insert into assessments (kind, class_id, subject_id, term_id, teacher_id, title, max_score)
-                    values ('task', 2, 1, 1, 2, 'خارج النطاق', 10)$$, 'row-level security', 'المعلم لا ينشئ تكليفًا خارج نطاقه');
+                    values ('task', 2, 1, 1, 2, 'خارج النطاق', 10)$$, 'row-level security|permission denied', 'المعلم لا ينشئ تكليفًا خارج نطاقه');
 select test.fails($$insert into assessments (kind, class_id, subject_id, term_id, teacher_id, title, max_score)
-                    values ('task', 1, 2, 1, 2, 'مادة ليست له', 10)$$, 'row-level security', 'المعلم لا ينشئ تكليفًا لمادة ليست له');
+                    values ('task', 1, 2, 1, 2, 'مادة ليست له', 10)$$, 'row-level security|permission denied', 'المعلم لا ينشئ تكليفًا لمادة ليست له');
 select test.fails($$insert into assessments (kind, class_id, subject_id, term_id, teacher_id, title, max_score)
-                    values ('task', 1, 1, 1, 3, 'باسم معلم آخر', 10)$$, 'row-level security', 'المعلم لا ينشئ تكليفًا باسم معلم آخر');
+                    values ('task', 1, 1, 1, 3, 'باسم معلم آخر', 10)$$, 'row-level security|permission denied', 'المعلم لا ينشئ تكليفًا باسم معلم آخر');
 select test.ok((select count(*) from employees) = 1, 'المعلم يرى سجله الوظيفي فقط');
 select test.ok((select count(*) from staff_directory) = 3, 'دليل الأسماء متاح بلا بيانات شخصية');
 select test.logout();
@@ -145,15 +161,19 @@ select test.fails($$select submit_form_attempt(2, '{"1": 1, "2": 4, "99": 1}')$$
 -- تسليم صحيح: س1 صح (2) + س2 خطأ (0) = 2 من 5
 select test.ok((submit_form_attempt(2, '{"1": 1, "2": 3}') ->> 'score')::numeric = 2, 'التصحيح الآلي = 2 من 5');
 select test.fails($$select submit_form_attempt(2, '{"1": 1, "2": 4}')$$, 'استنفدت', 'لا محاولة ثانية بعد استنفاد المسموح');
-select test.ok((select score from grade_entries where assessment_id = 2) = 2, 'التسليم أنشأ رصدًا تلقائيًا');
+select test.ok((select count(*) from grade_entries) = 0, 'الطالب لا يقرأ جدول الرصد مباشرة (هجرة 33)');
 select test.ok((get_my_attempt_review(2) -> 'questions' -> 1 ->> 'chosen_option_id')::bigint = 3, 'مراجعة الطالب لإجاباته تعرض اختياره');
 select test.fails($$insert into form_attempts (assessment_id, student_id, attempt_no) values (2, 1, 5)$$,
-                  'row-level security', 'الطالب لا يكتب محاولة مباشرة متجاوزًا الدالة');
+                  'row-level security|permission denied', 'الطالب لا يكتب محاولة مباشرة متجاوزًا الدالة');
 select test.logout();
+
+select test.ok((select score from grade_entries where assessment_id = 2) = 2, 'التسليم أنشأ رصدًا تلقائيًا');
 
 select test.login('00000000-0000-0000-0000-000000000053');
 select test.fails($$select get_form_for_student(2)$$, 'FORBIDDEN', 'طالب صف آخر لا يفتح النموذج');
 select test.logout();
+
+select test.direct_writes(true);
 
 -- =====================================================================
 -- 4) حماية نموذج له إجابات
@@ -219,7 +239,7 @@ select test.logout();
 delete from grade_visibility;
 
 select test.login('00000000-0000-0000-0000-000000000052');
-select test.ok((select count(*) from grade_entries) = 1 and (select student_id from grade_entries) = 2, 'الطالب يرى درجاته فقط');
+select test.ok((select count(*) from grade_entries) = 0, 'الطالب لا يقرأ الرصد الخام مباشرة (يراه عبر دوال صفحاته — هجرة 33)');
 select test.logout();
 
 -- =====================================================================
@@ -248,7 +268,7 @@ select test.logout();
 -- =====================================================================
 select test.login('00000000-0000-0000-0000-000000000051');
 select test.ok(test.affected($$insert into student_views (student_id, assessment_id) values (1, 1)$$) = 1, 'الطالب يسجّل مشاهدته');
-select test.fails($$insert into student_views (student_id, assessment_id) values (2, 1)$$, 'row-level security', 'الطالب لا يسجّل مشاهدة باسم غيره');
+select test.fails($$insert into student_views (student_id, assessment_id) values (2, 1)$$, 'row-level security|permission denied', 'الطالب لا يسجّل مشاهدة باسم غيره');
 select test.logout();
 
 update profiles set status = 'disabled' where username = 's3';
@@ -299,3 +319,6 @@ insert into timetable_slots (class_id, subject_id, teacher_id, day_of_week, peri
 select test.ok((select count(*) from timetable_slots where class_id = 1 and day_of_week = 0) = 3, 'حصتان لنفس المادة في اليوم، ومادتان في نفس الحصة');
 select test.fails($$insert into timetable_slots (class_id, subject_id, day_of_week, period_no) values (1, 1, 0, 1)$$,
                   'duplicate key', 'نفس المادة لا تتكرر في نفس الحصة لنفس الفصل');
+
+-- إعادة الصلاحيات كما في الإنتاج لبقية ملفات الاختبار
+select test.direct_writes(false);

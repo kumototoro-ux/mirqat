@@ -29,7 +29,7 @@ function trackForbidden(event: NextFetchEvent, request: NextRequest, sub: string
   const p = {
     action: 'page.forbidden', severity: 'security', kind: dg.kind, needs_action: dg.needsAction, fingerprint: dg.fingerprint,
     actor_id: sub, actor_role: role, path,
-    ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null, user_agent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
+    ip: (request.headers.get('x-vercel-forwarded-for') ?? request.headers.get('x-forwarded-for'))?.split(',')[0]?.trim() || null, user_agent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
   };
   event.waitUntil(
     fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/rpc/track_log`, {
