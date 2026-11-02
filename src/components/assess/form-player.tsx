@@ -286,7 +286,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
           {left != null && (
             <div className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-bold tabular-nums transition-colors ${left <= 60000 ? 'animate-pulse bg-danger text-chalk' : lowTime ? 'bg-danger-soft text-danger' : 'bg-board/10 text-board'}`} dir="ltr" aria-live="polite">
               <Icon name="clock" className="size-4" />
-              {fmtLeft(left)}
+              {left >= 86400000 ? <span dir="rtl">{fmtLeft(left)}</span> : fmtLeft(left)}
             </div>
           )}
         </div>
@@ -358,7 +358,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
             <Icon name="timetable" className="size-4 text-muted lg:hidden" />
           </button>
           {view === 'single' && idx < qs.length - 1 ? (
-            <button type="button" onClick={() => go(idx + 1)} className="btn-primary px-4">
+            <button type="button" onClick={() => go(idx + 1)} className="btn-primary px-4" aria-label="التالي">
               <span className="hidden sm:inline">التالي</span>
               <Icon name="chevron" className="size-5" />
             </button>
@@ -419,6 +419,8 @@ function fmtLeft(ms: number) {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = s % 60;
+  // أكثر من يوم (نموذج بلا مدة حل يُغلق بعد أيام): أيام وساعات بدل عدّاد ثوانٍ طويل
+  if (h >= 24) { const d = Math.floor(h / 24); return `${d} ${d >= 3 && d <= 10 ? 'أيام' : 'يوم'} و${h % 24} ساعة`; }
   return h ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}` : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 }
 

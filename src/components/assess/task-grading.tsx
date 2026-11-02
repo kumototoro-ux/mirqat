@@ -143,7 +143,7 @@ export function TaskGrading({ task }: { task: TaskDetail }) {
                       {st.name_ar.trim().charAt(0)}
                     </span>
                     <span className="min-w-0">
-                      <span className="block truncate font-semibold">{st.name_ar}</span>
+                      <span className="line-clamp-2 block font-semibold leading-snug sm:line-clamp-1">{st.name_ar}</span>
                       <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
                         <bdi>{st.code}</bdi>
                         {!noSubmit &&
@@ -170,11 +170,11 @@ export function TaskGrading({ task }: { task: TaskDetail }) {
                       step={0.25}
                       value={v}
                       onChange={(e) => setDraft((d) => ({ ...d, [st.id]: e.target.value }))}
-                      className={`h-10 w-20 rounded-xl border bg-surface text-center text-base font-bold tabular-nums focus:outline-none focus:ring-4 ${bad ? 'border-danger text-danger focus:ring-danger/15' : draft[st.id] != null && draft[st.id] !== (g ? String(g.score) : '') ? 'border-gold bg-brass-soft/40 focus:ring-gold/20' : 'border-line focus:border-board focus:ring-gold/20'}`}
+                      className={`h-10 w-16 rounded-xl border bg-surface text-center sm:w-20 text-base font-bold tabular-nums focus:outline-none focus:ring-4 ${bad ? 'border-danger text-danger focus:ring-danger/15' : draft[st.id] != null && draft[st.id] !== (g ? String(g.score) : '') ? 'border-gold bg-brass-soft/40 focus:ring-gold/20' : 'border-line focus:border-board focus:ring-gold/20'}`}
                       dir="ltr"
                       aria-label={`درجة ${st.name_ar}`}
                     />
-                    <span className="w-10 text-sm text-muted tabular-nums">/ {max}</span>
+                    <span className="text-sm text-muted tabular-nums sm:w-10">/ {max}</span>
                     {!noSubmit && (
                       <button type="button" onClick={() => setOpenId(st.id)} className="grid size-10 place-items-center rounded-xl text-muted hover:bg-board/10 hover:text-board" title="فتح التسليم">
                         <Icon name="eye" className="size-[1.15rem]" />

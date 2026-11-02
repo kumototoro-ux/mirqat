@@ -191,7 +191,7 @@ export function BrandingEditor({ name, logo }: { name: string; logo: string }) {
     >
       <SettingRow title="اسم المدرسة" description="الاسم الكامل كما يظهر للطلاب وأولياء الأمور.">
         <div className="flex gap-2">
-          <input value={n} onChange={(e) => setN(e.target.value)} className="field flex-1" maxLength={120} />
+          <input value={n} onChange={(e) => setN(e.target.value)} className="field flex-1" maxLength={120} aria-label="اسم المدرسة" />
           <VisibilityLock isPublic />
         </div>
       </SettingRow>

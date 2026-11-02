@@ -106,7 +106,7 @@ export function relTime(iso: string | null | undefined, now = Date.now()): strin
   const abs = Math.abs(diff);
   const m = Math.round(abs / 60000);
   const h = Math.round(abs / 3600000);
-  const d = Math.round(abs / 86400000);
+  const d = Math.max(1, Math.floor(abs / 86400000)); // «بعد 3 أيام» لا تصير 4 بتقريب الكسور
   const span =
     m < 1 ? 'لحظات' : m < 60 ? (m === 1 ? 'دقيقة' : m === 2 ? 'دقيقتين' : m <= 10 ? `${m} دقائق` : `${m} دقيقة`)
     : h < 24 ? (h === 1 ? 'ساعة' : h === 2 ? 'ساعتين' : h <= 10 ? `${h} ساعات` : `${h} ساعة`)

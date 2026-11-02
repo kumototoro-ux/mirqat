@@ -128,7 +128,7 @@ export function FormResults({ form }: { form: FormDetail }) {
                     {s.kind === 'live' ? <span className="size-2.5 animate-pulse rounded-full bg-board" /> : st.name_ar.trim().charAt(0)}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate font-semibold">{st.name_ar}</span>
+                    <span className="line-clamp-2 block font-semibold leading-snug sm:line-clamp-1">{st.name_ar}</span>
                     <span className="flex flex-wrap items-center gap-1.5 text-xs text-muted">
                       <bdi>{st.code}</bdi>
                       {s.kind === 'done' && (

@@ -81,7 +81,7 @@ function TakeTab({ ctx, statuses, initialPeriods, session, setSession, className
             <button type="button" onClick={() => setDate(addDays(date, -1))} disabled={date <= minDate} className="grid size-9 place-items-center rounded-xl border border-line hover:border-board/40 disabled:opacity-30" aria-label="اليوم السابق">
               <Icon name="chevron" className="size-4 rotate-180" />
             </button>
-            <input type="date" value={date} min={minDate} max={today} onChange={(e) => e.target.value && setDate(e.target.value)} className="field min-w-0 flex-1 py-1.5 tabular-nums sm:w-auto sm:flex-none" dir="ltr" />
+            <input type="date" value={date} min={minDate} max={today} onChange={(e) => e.target.value && setDate(e.target.value)} className="field min-w-0 flex-1 py-1.5 tabular-nums sm:w-auto sm:flex-none" dir="ltr" aria-label="تاريخ التحضير" />
             <button type="button" onClick={() => setDate(addDays(date, 1))} disabled={date >= today} className="grid size-9 place-items-center rounded-xl border border-line hover:border-board/40 disabled:opacity-30" aria-label="اليوم التالي">
               <Icon name="chevron" className="size-4" />
             </button>
