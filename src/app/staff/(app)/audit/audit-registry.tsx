@@ -30,6 +30,7 @@ const FIELD: Record<string, string> = {
   fee_status: 'الرسوم', gender: 'الجنس', nationality: 'الجنسية', birth_date: 'الميلاد', is_active: 'نشط', user_type: 'النوع',
   job_role: 'المسمى', role: 'الدور', username: 'اسم المستخدم', must_change_password: 'كلمة مؤقتة', title: 'العنوان',
   score: 'الدرجة', max_score: 'الدرجة العظمى', value: 'القيمة', key: 'المفتاح', due_at: 'التسليم', is_edited: 'تم التعديل',
+  is_public: 'ظاهر للجميع', updated_by: 'آخر من عدّل', created_by: 'أنشأه', last_login_at: 'آخر دخول', employee_id: 'الموظف', student_id: 'الطالب',
 };
 const HIDDEN = new Set(['created_at', 'updated_at', 'id', 'source_row', 'source_sheet', 'legacy_password_hash']);
 

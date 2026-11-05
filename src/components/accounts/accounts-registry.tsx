@@ -55,6 +55,35 @@ function PasswordCard({ name, username, password }: { name: string; username: st
 }
 
 
+/** اختيار كلمة المرور: تلقائية (تظهر مرة واحدة) أو يكتبها الإداري */
+function PasswordChoice({ manual, setManual, pwd, setPwd }: { manual: boolean; setManual: (v: boolean) => void; pwd: string; setPwd: (v: string) => void }) {
+  return (
+    <div className="mt-4 space-y-3">
+      <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label="طريقة كلمة المرور">
+        {[{ v: false, t: 'تلقائية', d: 'يولّدها الموقع وتظهر لك مرة واحدة' }, { v: true, t: 'يدوية', d: 'تكتبها أنت (8 خانات فأكثر)' }].map((o) => (
+          <button
+            key={o.t}
+            type="button"
+            role="radio"
+            aria-checked={manual === o.v}
+            onClick={() => setManual(o.v)}
+            className={`rounded-xl border px-3 py-2.5 text-start transition ${manual === o.v ? 'border-board bg-board/10' : 'border-line bg-surface'}`}
+          >
+            <span className="block text-sm font-semibold">{o.t}</span>
+            <span className="block text-xs text-muted">{o.d}</span>
+          </button>
+        ))}
+      </div>
+      {manual && (
+        <Field label="كلمة المرور" required hint="8 خانات على الأقل، بلا مسافات.">
+          <input value={pwd} onChange={(e) => setPwd(e.target.value)} dir="ltr" className="field text-start" autoComplete="off" spellCheck={false} />
+        </Field>
+      )}
+      <p className="rounded-xl bg-paper px-3.5 py-3 text-sm text-muted">كلمة المرور مؤقتة في الحالتين: يُلزم صاحب الحساب بتغييرها عند أول دخول.</p>
+    </div>
+  );
+}
+
 export function AccountsRegistry({
   kind,
   initial,
@@ -73,6 +102,9 @@ export function AccountsRegistry({
   const { toast, confirm } = useFeedback();
   const [creating, setCreating] = useState<AccountRow | null>(null);
   const [username, setUsername] = useState('');
+  const [manual, setManual] = useState(false);
+  const [pwd, setPwd] = useState('');
+  const [resetting, setResetting] = useState<AccountRow | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const student = kind === 'student';
   const who = student ? 'طالب' : 'موظف';
@@ -88,7 +120,7 @@ export function AccountsRegistry({
   const create = async () => {
     if (!creating) return;
     setBusy('create');
-    const res = await createAccountFor(kind, creating.recordId, username);
+    const res = await createAccountFor(kind, creating.recordId, username, manual ? pwd : undefined);
     setBusy(null);
     if (!res.ok) return toast(res.error, 'error');
     setCreating(null);
@@ -97,20 +129,16 @@ export function AccountsRegistry({
     await showPassword(creating.name, res.code!, res.password!, 'أُنشئ الحساب');
   };
 
-  const reset = async (r: AccountRow) => {
-    if (!r.account) return;
-    const ok = await confirm({
-      title: 'إصدار كلمة مؤقتة جديدة؟',
-      body: <>تتوقف كلمة <b className="text-ink">{r.name}</b> الحالية فورًا، ويُطلب منه تغيير الجديدة عند دخوله.</>,
-      confirmLabel: 'إصدار',
-    });
-    if (!ok) return;
+  const doReset = async () => {
+    const r = resetting;
+    if (!r?.account) return;
     setBusy(r.account.id);
-    const res = await resetAccountPassword(kind, r.account.id);
+    const res = await resetAccountPassword(kind, r.account.id, manual ? pwd : undefined);
     setBusy(null);
     if (!res.ok) return toast(res.error, 'error');
+    setResetting(null);
     refresh();
-    await showPassword(r.name, r.account.username, res.password!, 'كلمة مؤقتة جديدة');
+    await showPassword(r.name, r.account.username, res.password!, manual ? 'عُيّنت كلمة المرور' : 'كلمة مؤقتة جديدة');
   };
 
   const toggle = async (r: AccountRow) => {
@@ -196,6 +224,8 @@ export function AccountsRegistry({
         onClick={() => {
           setCreating(r);
           setUsername(r.code);
+          setManual(false);
+          setPwd('');
         }}
         className="btn h-9 bg-board/10 px-3 text-board hover:bg-board hover:text-chalk"
       >
@@ -206,7 +236,7 @@ export function AccountsRegistry({
       <span className="grid size-9 place-items-center"><span className="spinner text-board" /></span>
     ) : (
       <>
-        <RowButton icon="key" label="كلمة مؤقتة جديدة" onClick={() => reset(r)} />
+        <RowButton icon="key" label="كلمة مؤقتة جديدة" onClick={() => { setManual(false); setPwd(''); setResetting(r); }} />
         <RowButton icon={r.account.status === 'active' ? 'close' : 'tasks'} label={r.account.status === 'active' ? 'إيقاف' : 'تفعيل'} tone={r.account.status === 'active' ? 'danger' : 'plain'} onClick={() => toggle(r)} />
       </>
     );
@@ -323,9 +353,27 @@ export function AccountsRegistry({
         <Field label="اسم المستخدم" required hint="الافتراضي هو الرقم، ويمكن تغييره. بلا مسافات.">
           <input value={username} onChange={(e) => setUsername(e.target.value)} dir="ltr" className="field text-start" autoComplete="off" spellCheck={false} />
         </Field>
-        <p className="mt-4 rounded-xl bg-paper px-3.5 py-3 text-sm text-muted">
-          تُولَّد كلمة مرور مؤقتة وتظهر لك مرة واحدة بعد الإنشاء، ويُلزم صاحب الحساب بتغييرها عند أول دخول.
+        <PasswordChoice manual={manual} setManual={setManual} pwd={pwd} setPwd={setPwd} />
+      </Sheet>
+
+      <Sheet
+        open={resetting !== null}
+        onClose={() => setResetting(null)}
+        title="كلمة مرور جديدة"
+        subtitle={resetting ? `${resetting.name} · ${resetting.account?.username ?? ''}` : undefined}
+        footer={
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={() => setResetting(null)} className="btn-quiet">إلغاء</button>
+            <button type="button" onClick={doReset} disabled={busy !== null && busy === resetting?.account?.id} className="btn-primary min-w-32">
+              {busy !== null && busy === resetting?.account?.id ? (<><span className="spinner" />جارٍ…</>) : 'تعيين'}
+            </button>
+          </div>
+        }
+      >
+        <p className="mb-4 rounded-xl bg-paper px-3.5 py-3 text-sm text-muted">
+          تتوقف كلمة المرور الحالية فورًا وتنتهي كل جلسات هذا الحساب المفتوحة، ويُطلب من صاحبه تغييرها عند الدخول.
         </p>
+        <PasswordChoice manual={manual} setManual={setManual} pwd={pwd} setPwd={setPwd} />
       </Sheet>
     </>
   );

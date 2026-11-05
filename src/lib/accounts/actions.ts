@@ -90,7 +90,7 @@ function paths(kind: AccountKind) {
 }
 
 /** إنشاء حساب لسجل واحد: اسم المستخدم الافتراضي = رقمه (كالنظام القديم) */
-export async function createAccountFor(kind: AccountKind, recordId: number, username: string): Promise<ActionResult> {
+export async function createAccountFor(kind: AccountKind, recordId: number, username: string, customPassword?: string): Promise<ActionResult> {
   await requireUser(['admin']);
   const name = username.trim();
   if (!name) return { ok: false, error: 'اسم المستخدم مطلوب' };
@@ -108,13 +108,14 @@ export async function createAccountFor(kind: AccountKind, recordId: number, user
       role,
       studentId: kind === 'student' ? recordId : null,
       employeeId: kind === 'employee' ? recordId : null,
-    });
+    }, customPassword || undefined);
     paths(kind);
     return { ok: true, message: `أُنشئ الحساب ${made.username}`, password: made.password, code: made.username };
   } catch (e) {
     const msg = (e as Error).message;
     if (msg.includes('مستخدم من قبل')) return { ok: false, error: `اسم المستخدم "${name}" مستخدم من قبل، اختر غيره` };
     if (msg.includes('_id_key')) return { ok: false, error: 'لهذا السجل حساب من قبل' };
+    if (msg.startsWith('كلمة المرور')) return { ok: false, error: msg };
     return { ok: false, error: msg };
   }
 }
@@ -149,12 +150,12 @@ export async function createMissingAccounts(kind: AccountKind): Promise<BulkResu
   return { ok: true, created, failed };
 }
 
-export async function resetAccountPassword(kind: AccountKind, userId: string): Promise<ActionResult> {
+export async function resetAccountPassword(kind: AccountKind, userId: string, customPassword?: string): Promise<ActionResult> {
   await requireUser(['admin']);
   try {
-    const password = await resetPassword(createAdminClient(), userId);
+    const password = await resetPassword(createAdminClient(), userId, customPassword || undefined);
     paths(kind);
-    return { ok: true, message: 'صدرت كلمة مؤقتة جديدة', password };
+    return { ok: true, message: customPassword ? 'عُيّنت كلمة المرور' : 'صدرت كلمة مؤقتة جديدة', password };
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
