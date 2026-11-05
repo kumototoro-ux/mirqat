@@ -16,7 +16,12 @@ export type LoginState = {
   nonce: number;
 };
 
-const WRONG = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+const WRONG_BASE = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+// تلميح ثابت لا يكشف وجود حساب: الطالب كثيرًا ما يدخل من بوابة الموظفين، والمعلم من بوابة الطالب
+const WRONG_HINT: Record<Portal, string> = {
+  staff: `${WRONG_BASE}. هل أنت طالب؟ ادخل من بوابة الطالب`,
+  student: `${WRONG_BASE}. هل أنت معلم أو إداري؟ ادخل من بوابة الموظفين`,
+};
 const DISABLED: Record<Portal, string> = {
   staff: 'الحساب غير مُفعّل، راجع الإدارة',
   student: 'الحساب غير مُفعّل، راجع إدارة المدرسة',
@@ -52,6 +57,7 @@ async function login(portal: Portal, formData: FormData): Promise<LoginState> {
   const username = cleanLoginInput(formData.get('username')).slice(0, MAX_USERNAME);
   const rawPassword = String(formData.get('password') ?? '');
   const fail = (error: string): LoginState => ({ error, username, nonce });
+  const WRONG = WRONG_HINT[portal];
   if (!username || !rawPassword) return fail('أدخل اسم المستخدم وكلمة المرور');
   if (rawPassword.length > MAX_PASSWORD) return fail(WRONG);
 

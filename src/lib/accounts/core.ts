@@ -35,6 +35,14 @@ export function internalEmail(domain = 'accounts.mirqat.invalid'): string {
   return `u-${randomUUID().replace(/-/g, '').slice(0, 20)}@${domain}`;
 }
 
+/** كلمة مرور يكتبها الإداري بنفسه: 8 خانات على الأقل وبلا مسافات. يعيد سبب الرفض أو null */
+export function passwordProblem(p: string): string | null {
+  if (p.length < MIN_PASSWORD_LENGTH) return `كلمة المرور ${MIN_PASSWORD_LENGTH} خانات على الأقل`;
+  if (p.length > 72) return 'كلمة المرور أطول من 72 خانة';
+  if (/\s/.test(p)) return 'كلمة المرور لا تقبل مسافات';
+  return null;
+}
+
 export type NewAccount = {
   username: string;
   role: Role;
@@ -52,10 +60,14 @@ export type CreatedAccount = { userId: string; username: string; password: strin
  *  2) ربطه بسجله في profiles عبر admin_attach_profile (ذرية في القاعدة)
  *  إن فشلت (2) يُحذف مستخدم (1)، فلا يبقى حساب دخول بلا سجل.
  */
-export async function createAccount(admin: SupabaseClient, input: NewAccount): Promise<CreatedAccount> {
+export async function createAccount(admin: SupabaseClient, input: NewAccount, customPassword?: string): Promise<CreatedAccount> {
   const username = input.username.trim();
   const status: Status = input.status ?? 'active';
-  const password = generatePassword();
+  if (customPassword) {
+    const bad = passwordProblem(customPassword);
+    if (bad) throw new Error(bad);
+  }
+  const password = customPassword || generatePassword();
 
   const { data, error } = await admin.auth.admin.createUser({
     email: internalEmail(),
@@ -86,8 +98,12 @@ export async function createAccount(admin: SupabaseClient, input: NewAccount): P
 }
 
 /** كلمة مرور جديدة يصدرها الإداري — تعود معها إلزامية التغيير عند الدخول التالي */
-export async function resetPassword(admin: SupabaseClient, userId: string): Promise<string> {
-  const password = generatePassword();
+export async function resetPassword(admin: SupabaseClient, userId: string, customPassword?: string): Promise<string> {
+  if (customPassword) {
+    const bad = passwordProblem(customPassword);
+    if (bad) throw new Error(bad);
+  }
+  const password = customPassword || generatePassword();
   const { error } = await admin.auth.admin.updateUserById(userId, { password });
   if (error) throw new Error(`تعذّر تعيين كلمة المرور: ${error.message}`);
   const { error: dbError } = await admin.from('profiles').update({ must_change_password: true }).eq('id', userId);
