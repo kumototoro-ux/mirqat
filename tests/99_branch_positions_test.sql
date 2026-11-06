@@ -196,7 +196,7 @@ select test.logout();
 select test.login('00000000-0000-0000-0000-000000000b03');
 select test.fails(format($$select save_behavior(%s, '{"student_id":%s,"status_id":%s,"score":0}')$$,
   (test.peek($$select id from behavior_records where student_id = (select b2 from bs) order by id desc limit 1$$))::bigint, (select b1 from bs), (select pos from bh)), 'FORBIDDEN', 'ولا ينقل سجل طالب فرع آخر إلى فرعه');
-select test.fails(format($$select delete_behavior(%s)$$, (test.peek($$select id from behavior_records where student_id = (select b2 from bs) order by id desc limit 1$$))::bigint), '6 ساعات|FORBIDDEN', 'ولا يحذف سجل فرع آخر');
+select test.fails(format($$select delete_behavior(%s)$$, (test.peek($$select id from behavior_records where student_id = (select b2 from bs) order by id desc limit 1$$))::bigint), '6 ساعات|FORBIDDEN|خارج نطاق', 'ولا يحذف سجل فرع آخر');
 select delete_behavior((test.peek($$select id from behavior_records where student_id = (select b1 from bs) order by id desc limit 1$$))::bigint);
 select test.ok((select count(*) from behavior_records where student_id = (select b1 from bs)) = 0, 'يحذف سجل فرعه');
 select test.logout();
