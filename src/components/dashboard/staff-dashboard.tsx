@@ -1,5 +1,6 @@
 'use client';
 
+import { usePerm } from '@/components/perms/perms-context';
 import Link from 'next/link';
 import { motion } from 'motion/react';
 import { Icon, type IconName } from '@/components/shell/icons';
@@ -60,11 +61,12 @@ export function StaffDashboard({ role, name, greet, date, data, periods, classNa
         { label: 'مشاهدات الأسبوع', value: data.content.week_views, icon: 'play', href: '/staff/content', hint: `${data.content.items} فيديو وإثراء` },
       ];
 
+  const canCreateForm = usePerm('create_exams');
   const actions: { href: string; label: string; icon: IconName }[] = [
     { href: '/staff/attendance', label: 'تحضير حصة', icon: 'attendance' },
     { href: '/staff/grading', label: 'رصد درجات', icon: 'edit' },
     { href: '/staff/tasks/new', label: 'مهمة جديدة', icon: 'tasks' },
-    { href: '/staff/tasks/new?kind=form', label: 'نموذج جديد', icon: 'forms' },
+    ...(canCreateForm ? ([{ href: '/staff/tasks/new?kind=form', label: 'نموذج جديد', icon: 'forms' }] as { href: string; label: string; icon: IconName }[]) : []),
     { href: '/staff/content', label: 'فيديو وإثراء', icon: 'play' },
     { href: '/staff/behavior', label: 'تسجيل سلوك', icon: 'behavior' },
     ...(admin

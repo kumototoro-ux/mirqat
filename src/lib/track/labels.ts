@@ -2,7 +2,7 @@
 
 export const TABLES: Record<string, string> = {
   students: 'الطلاب', employees: 'الموظفون', profiles: 'الحسابات', assessments: 'المهام والنماذج',
-  grade_entries: 'الرصد', appreciation_certs: 'شهادات الشكر', attendance_records: 'التحضير', behavior_records: 'السلوك', staff_scope: 'نطاقات المعلمين',
+  grade_entries: 'الرصد', appreciation_certs: 'شهادات الشكر', attendance_records: 'التحضير', behavior_records: 'السلوك', staff_scope: 'نطاقات المعلمين', user_permissions: 'مفاتيح المعلمين',
   timetable_slots: 'جدول الحصص', exam_schedule: 'الاختبارات', calendar_entries: 'التقويم', app_settings: 'الإعدادات',
   form_details: 'النماذج', form_questions: 'أسئلة النماذج', content_items: 'المحتوى', period_links: 'ربط الحصص',
   question_options: 'خيارات الأسئلة', form_attempts: 'محاولات النماذج', grade_visibility: 'ظهور الدرجات',

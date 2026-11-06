@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { requirePerm } from '@/lib/perms/server';
 import { requireUser } from '@/lib/auth/session';
 import { PageHeader } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
@@ -13,6 +14,7 @@ export default async function NewAssessment({ searchParams }: { searchParams: Pr
   const user = await requireUser(['admin', 'teacher']);
   const { kind } = await searchParams;
   const isForm = kind === 'form';
+  if (isForm) await requirePerm('create_exams', '/staff/tasks');
   const ctx = await getAuthorContext(user);
   return (
     <>

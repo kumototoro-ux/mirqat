@@ -49,6 +49,14 @@ with findings as (
     from pg_policies pol
    where pol.schemaname = 'storage' and pol.tablename = 'objects'
   union all
+  -- 9) مفاتيح الصلاحيات (هجرة 35): المستخدم يقرأ فقط، والكتابة عبر admin_set_permission وحدها
+  select '9 كتابة مباشرة على المفاتيح', table_name || ' (' || string_agg(privilege_type, ',') || ')'
+    from information_schema.role_table_grants
+   where grantee = 'authenticated' and table_schema = 'public'
+     and table_name in ('user_permissions', 'permission_keys')
+     and privilege_type in ('INSERT', 'UPDATE', 'DELETE', 'TRUNCATE')
+   group by table_name
+  union all
   -- 8) حسابات دخول بلا سجل في profiles (قد تعني أن التسجيل الذاتي مفتوح)
   select '8 حساب دخول بلا سجل', count(*)::text
     from auth.users u

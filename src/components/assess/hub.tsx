@@ -11,6 +11,7 @@ import { Icon, type IconName } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import { Sheet, ChipSelect } from '@/components/sheet';
 import { subjectColor } from '@/components/timetable-grid';
+import { usePerm } from '@/components/perms/perms-context';
 import { deleteAssessment, duplicateAssessment, listAssessments, type HubRow, type HubStats } from '@/lib/assess/actions';
 import { STATUS_META, relTime } from '@/lib/assess/shared';
 import type { AuthorContext } from '@/lib/assess/queries';
@@ -33,6 +34,8 @@ export function AssessHub({
   subjectNames: Record<number, string>;
 }) {
   const router = useRouter();
+  const canCreateForm = usePerm('create_exams');
+  const canCopy = usePerm('copy_assessment');
   const registry = useRef<RegistryHandle>(null);
   const { toast, confirm } = useFeedback();
   const [tab, setTab] = useState<Tab>((initialParams.filters.kind as Tab) ?? '');
@@ -75,7 +78,7 @@ export function AssessHub({
   return (
     <>
       {/* الإنشاء: بابان واضحان */}
-      <div className="mb-5 grid gap-3 sm:grid-cols-2">
+      <div className={`mb-5 grid gap-3 ${canCreateForm ? 'sm:grid-cols-2' : ''}`}>
         <CreateCard
           href="/staff/tasks/new?kind=task"
           icon="tasks"
@@ -84,14 +87,14 @@ export function AssessHub({
           tone="board"
           delay={0}
         />
-        <CreateCard
+        {canCreateForm && <CreateCard
           href="/staff/tasks/new?kind=form"
           icon="forms"
           title="إنشاء نموذج"
           lead="اختبار إلكتروني بستة أنواع أسئلة ورياضيات وتصحيح آلي"
           tone="gold"
           delay={0.06}
-        />
+        />}
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -181,7 +184,7 @@ export function AssessHub({
         ]}
         rowActions={(r) => (
           <>
-            <RowButton icon="copy" label="نسخ" onClick={() => setCopying(r)} />
+            {canCopy && <RowButton icon="copy" label="نسخ" onClick={() => setCopying(r)} />}
             <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />
           </>
         )}
