@@ -2,6 +2,7 @@ import 'server-only';
 import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { selectAll } from '@/lib/supabase/all';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getClasses, getCurrentTermId, getSubjects, getTerms, REF_TAG } from '@/lib/data';
 import type { CurrentUser } from '@/lib/auth/session';
@@ -59,7 +60,7 @@ export const getAuthorContext = cache(async (user: CurrentUser): Promise<AuthorC
     isAdmin || !user.employeeId
       ? Promise.resolve({ data: [] as ScopeRow[] })
       : supabase.from('staff_scope').select('branch_id, stage_id, grade_id, section_id, subject_id').eq('employee_id', user.employeeId).returns<ScopeRow[]>(),
-    createAdminClient().from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').limit(5000),
+    selectAll<{ branch_id: number; grade_id: number; section_id: number | null; subject_id: number }>((a, b) => createAdminClient().from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').order('id').range(a, b)),
     isAdmin ? supabase.from('staff_directory').select('id, name_ar').order('name_ar') : Promise.resolve({ data: [] as { id: number; name_ar: string }[] }),
     cachedClassDims(),
   ]);
@@ -298,7 +299,7 @@ export async function getFormDetail(id: number, user: CurrentUser): Promise<Form
   ]);
   const sessionIds = (sessions.data ?? []).map((s) => s.id);
   const events = sessionIds.length
-    ? await supabase.from('form_events').select('session_id, kind, at').in('session_id', sessionIds).order('at').limit(3000)
+    ? await selectAll<{ session_id: number; kind: string; at: string }>((a, b) => supabase.from('form_events').select('session_id, kind, at').in('session_id', sessionIds).order('at').order('id').range(a, b))
     : { data: [] };
   const atts = (attempts.data ?? []) as AttemptRow[];
   const rosterIds = new Set((roster.data ?? []).map((r) => r.id));

@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import { CLASS_SELECT, classLabel, type ClassRef } from '@/lib/format';
 import { getTerms } from '@/lib/data';
+import { selectAll } from '@/lib/supabase/all';
 
 /* =====================================================================
    بيانات صفحات العرض (التقويم، الحصص، الاختبارات) لكل دور.
@@ -91,7 +92,7 @@ const toSlot = (r: RawSlot): ViewSlot => ({
 /** كل الحصص (للإداري: تُحمَّل مرة ويُبدَّل بين الفصول والمعلمين في المتصفح بلا طلبات) */
 export async function getAllSlots(): Promise<ViewSlot[]> {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('timetable_slots').select(SLOT_SELECT).limit(8000).returns<RawSlot[]>();
+  const { data, error } = await selectAll<RawSlot>((a, b) => supabase.from('timetable_slots').select(SLOT_SELECT).order('id').range(a, b).returns<RawSlot[]>());
   if (error) throw new Error(error.message);
   return (await withTeachers(data ?? [])).map(toSlot);
 }
@@ -113,15 +114,17 @@ type RawExam = {
 
 export async function getExamsFor(filter: { classIds?: number[]; teacherId?: number } = {}): Promise<ViewExam[]> {
   const supabase = await createClient();
-  let q = supabase
-    .from('exam_schedule')
-    .select(`id, exam_date, starts_at, exam_period, class_id, teacher_id, subject:subjects(name), class:classes(${CLASS_SELECT})`)
-    .order('exam_date')
-    .order('starts_at')
-    .limit(3000);
-  if (filter.classIds && filter.teacherId) q = q.or(`class_id.in.(${filter.classIds.join(',') || -1}),teacher_id.eq.${filter.teacherId}`);
-  else if (filter.classIds) q = q.in('class_id', filter.classIds.length ? filter.classIds : [-1]);
-  const { data, error } = await q.returns<RawExam[]>();
+  const { data, error } = await selectAll<RawExam>((from, to) => {
+    let q = supabase
+      .from('exam_schedule')
+      .select(`id, exam_date, starts_at, exam_period, class_id, teacher_id, subject:subjects(name), class:classes(${CLASS_SELECT})`)
+      .order('exam_date')
+      .order('starts_at')
+      .order('id');
+    if (filter.classIds && filter.teacherId) q = q.or(`class_id.in.(${filter.classIds.join(',') || -1}),teacher_id.eq.${filter.teacherId}`);
+    else if (filter.classIds) q = q.in('class_id', filter.classIds.length ? filter.classIds : [-1]);
+    return q.range(from, to).returns<RawExam[]>();
+  });
   if (error) throw new Error(error.message);
   return (await withTeachers(data ?? [])).map((r) => ({
     id: r.id, date: r.exam_date, startsAt: r.starts_at, period: r.exam_period, subject: r.subject?.name ?? '—',
@@ -133,7 +136,7 @@ export async function getExamsFor(filter: { classIds?: number[]; teacherId?: num
 export async function getCalendarFor(isAdmin: boolean) {
   const supabase = await createClient();
   const [{ data, error }, terms, vis] = await Promise.all([
-    supabase.from('calendar_entries').select('id, term_id, period_label, week_label, starts_on, ends_on, event, color').order('starts_on').limit(2000),
+    selectAll<{ id: number; term_id: number; period_label: string | null; week_label: string | null; starts_on: string; ends_on: string; event: string | null; color: string | null }>((a, b) => supabase.from('calendar_entries').select('id, term_id, period_label, week_label, starts_on, ends_on, event, color').order('starts_on').order('id').range(a, b)),
     getTerms(),
     getVisibility(),
   ]);

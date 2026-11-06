@@ -3,37 +3,9 @@ import type { NextConfig } from 'next';
 /**
  * رؤوس أمان لكل الصفحات:
  * - لا يُعرض الموقع داخل إطار موقع آخر (حماية من خداع النقر)
- * - السكربتات والاتصالات من الموقع نفسه وSupabase فقط
+ * - سياسة المحتوى (CSP) بـ nonce لكل طلب تُضاف في src/proxy.ts (انظر src/lib/csp.ts)
  * - HTTPS إلزامي، ولا يُرسل عنوان الصفحة لمواقع أخرى
  */
-const supabaseOrigin = (() => {
-  try {
-    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? '').origin;
-  } catch {
-    return '';
-  }
-})();
-
-const csp = [
-  "default-src 'self'",
-  // Next.js يحتاج سكربتات مضمّنة للتحميل الأولي
-  // eval في التطوير فقط (أدوات React لتتبع الأخطاء) — لا يُرسل أبدًا في الإنتاج
-  `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''}`,
-  "style-src 'self' 'unsafe-inline'",
-  // شعار المدرسة رابط خارجي يحدده الإداري
-  "img-src 'self' data: blob: https:",
-  "font-src 'self' data:",
-  `media-src 'self' blob: ${supabaseOrigin}`.trim(),
-  `connect-src 'self' ${supabaseOrigin} ${supabaseOrigin.replace('https://', 'wss://')}`.trim(),
-  // الفيديوهات المضمّنة في المنصة (يوتيوب بلا تتبع، فيميو، قوقل درايف)
-  "frame-src https://www.youtube-nocookie.com https://www.youtube.com https://player.vimeo.com https://drive.google.com",
-  "frame-ancestors 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "object-src 'none'",
-  'upgrade-insecure-requests',
-].join('; ');
-
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
@@ -48,7 +20,6 @@ const nextConfig: NextConfig = {
       {
         source: '/:path*',
         headers: [
-          { key: 'Content-Security-Policy', value: csp },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
