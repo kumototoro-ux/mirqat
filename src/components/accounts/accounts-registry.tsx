@@ -89,12 +89,18 @@ export function AccountsRegistry({
   initial,
   initialParams,
   stats,
+  level,
+  isAdmin,
   classes,
 }: {
   kind: AccountKind;
   initial: PageResult<AccountRow>;
   initialParams: PageParams;
-  stats: { total: number; withAccount: number; temp: number; disabled: number; activated: number; login7: number };
+  /** إحصاءات كل الفروع: للإداري وحده */
+  stats: { total: number; withAccount: number; temp: number; disabled: number; activated: number; login7: number } | null;
+  /** 1 عرض، 2 إدارة الحسابات */
+  level: number;
+  isAdmin: boolean;
   classes?: { value: string; label: string }[];
 }) {
   const registry = useRef<RegistryHandle>(null);
@@ -160,7 +166,7 @@ export function AccountsRegistry({
   };
 
   const bulk = async () => {
-    const missing = stats.total - stats.withAccount;
+    const missing = stats ? stats.total - stats.withAccount : 0;
     const ok = await confirm({
       title: `إنشاء حسابات لـ ${missing} ${who} بلا حساب؟`,
       body: 'اسم المستخدم لكل واحد هو رقمه، وكلمات المرور مؤقتة تظهر مرة واحدة في ملف Excel تنزّله بعد الإنشاء.',
@@ -218,7 +224,7 @@ export function AccountsRegistry({
     !r.account ? <Badge>بلا حساب</Badge> : r.account.status !== 'active' ? <Badge tone="danger">موقوف</Badge> : r.account.temp ? <Badge tone="gold">لم يدخل بعد</Badge> : <Badge tone="ok">مفعّل</Badge>;
 
   const actions = (r: AccountRow) =>
-    !r.account ? (
+    level < 2 || (!isAdmin && r.isAdmin) ? null : !r.account ? (
       <button
         type="button"
         onClick={() => {
@@ -243,7 +249,7 @@ export function AccountsRegistry({
 
   return (
     <>
-      <Insights
+      {stats && <Insights
         stats={[
           { label: student ? 'حسابات الطلاب' : 'حسابات الموظفين', value: stats.withAccount, icon: 'accounts', hint: `من ${stats.total} ${who} نشط` },
           { label: 'دخلوا آخر 7 أيام', value: stats.login7, icon: 'logout', hint: stats.withAccount ? `${Math.round((stats.login7 / stats.withAccount) * 100)}% من الحسابات` : undefined },
@@ -261,7 +267,7 @@ export function AccountsRegistry({
             { name: 'موقوف', value: stats.disabled },
           ].filter((x) => x.value > 0),
         }}
-      />
+      />}
       <Registry<AccountRow>
         ref={registry}
         queryKey={student ? 'student-accounts' : 'employee-accounts'}
@@ -281,11 +287,13 @@ export function AccountsRegistry({
         filters={filters}
         toolbar={
           <>
-            <Link href="/staff/reports/accounts" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
-              <Icon name="results" className="size-4" />
-              التقرير
-            </Link>
-            {stats.total - stats.withAccount > 0 && (
+            {isAdmin && (
+              <Link href="/staff/reports/accounts" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+                <Icon name="results" className="size-4" />
+                التقرير
+              </Link>
+            )}
+            {isAdmin && stats && stats.total - stats.withAccount > 0 && (
               <button type="button" onClick={bulk} disabled={busy === 'bulk'} className="btn-primary h-11 rounded-xl px-4">
                 {busy === 'bulk' ? <span className="spinner" /> : <Icon name="plus" className="size-4" />}
                 إنشاء الناقصة ({stats.total - stats.withAccount})
@@ -298,8 +306,8 @@ export function AccountsRegistry({
             <BulkButton onClick={() => downloadCsv(student ? 'حسابات-طلاب' : 'حسابات-موظفين', ['الرقم', 'الاسم', 'اسم المستخدم', 'الحالة', 'آخر دخول'], rows.map((r) => [r.code, r.name, r.account?.username ?? '', !r.account ? 'بلا حساب' : r.account.status === 'disabled' ? 'موقوف' : r.account.temp ? 'لم يدخل' : 'مفعّل', r.account?.lastLogin ? fmtDateTime(r.account.lastLogin) : '']))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
-            <BulkButton tone="danger" busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'disabled', clear)}>إيقاف</BulkButton>
-            <BulkButton busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'active', clear)}>تفعيل</BulkButton>
+            {isAdmin && <BulkButton tone="danger" busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'disabled', clear)}>إيقاف</BulkButton>}
+            {isAdmin && <BulkButton busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'active', clear)}>تفعيل</BulkButton>}
           </>
         )}
         columns={[

@@ -36,9 +36,9 @@ export const STAFF_NAV: NavGroup[] = [
     title: 'المستخدمون',
     items: [
       { href: '/staff/students', label: 'تسجيل الطلاب', icon: 'students', roles: ['admin'], area: 'students' },
-      { href: '/staff/employees', label: 'تسجيل الموظفين', icon: 'employees', roles: ['admin'] },
-      { href: '/staff/student-accounts', label: 'حسابات الطلاب', icon: 'accounts', roles: ['admin'] },
-      { href: '/staff/employee-accounts', label: 'حسابات الموظفين', icon: 'key', roles: ['admin'] },
+      { href: '/staff/employees', label: 'تسجيل الموظفين', icon: 'employees', roles: ['admin'], area: 'employees' },
+      { href: '/staff/student-accounts', label: 'حسابات الطلاب', icon: 'accounts', roles: ['admin'], area: 'student_accounts' },
+      { href: '/staff/employee-accounts', label: 'حسابات الموظفين', icon: 'key', roles: ['admin'], area: 'employee_accounts' },
       { href: '/staff/permissions', label: 'صلاحيات المعلمين', icon: 'settings', roles: ['admin'] },
       { href: '/staff/positions', label: 'مناصب الفروع', icon: 'employees', roles: ['admin'] },
     ],
