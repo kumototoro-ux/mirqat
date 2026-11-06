@@ -21,35 +21,45 @@ export const STAFF_NAV: NavGroup[] = [
     ],
   },
   {
-    title: 'الطلاب',
+    title: 'العمل اليومي',
     items: [
       { href: '/staff/attendance', label: 'التحضير', icon: 'attendance' },
       { href: '/staff/tasks', label: 'المهام والنماذج', icon: 'tasks' },
       { href: '/staff/grading', label: 'الرصد اليومي', icon: 'edit' },
-      { href: '/staff/content', label: 'الفيديوهات والإثراءات', icon: 'content' },
       { href: '/staff/behavior', label: 'السلوك', icon: 'behavior' },
-      { href: '/staff/certificates', label: 'شهادات الشكر', icon: 'award' },
-      { href: '/staff/results', label: 'النتائج', icon: 'results', roles: ['admin'], area: 'results' },
+      { href: '/staff/content', label: 'الفيديوهات والإثراءات', icon: 'content' },
     ],
   },
   {
-    title: 'المتابعة',
-    items: [{ href: '/staff/performance', label: 'تقارير الأداء', icon: 'flag', roles: ['admin'], area: 'performance', min: 2 }],
+    title: 'النتائج والتقدير',
+    items: [
+      { href: '/staff/results', label: 'النتائج', icon: 'results', roles: ['admin'], area: 'results' },
+      { href: '/staff/certificates', label: 'شهادات الشكر', icon: 'award' },
+    ],
   },
   {
-    title: 'المستخدمون',
+    title: 'المتابعة والتقارير',
+    items: [
+      { href: '/staff/reports', label: 'التقارير', icon: 'audit', roles: ['admin'], area: 'reports' },
+      { href: '/staff/followup', label: 'متابعة المهام والرصد', icon: 'eye', roles: ['admin'], area: 'tasks' },
+      { href: '/staff/branch-activity', label: 'نشاط الفرع', icon: 'clock', area: 'audit' },
+      { href: '/staff/performance', label: 'تقارير الأداء', icon: 'flag', roles: ['admin'], area: 'performance', min: 2 },
+    ],
+  },
+  {
+    title: 'شؤون المستخدمين',
     items: [
       { href: '/staff/students', label: 'تسجيل الطلاب', icon: 'students', roles: ['admin'], area: 'students' },
       { href: '/staff/employees', label: 'تسجيل الموظفين', icon: 'employees', roles: ['admin'], area: 'employees' },
       { href: '/staff/student-accounts', label: 'حسابات الطلاب', icon: 'accounts', roles: ['admin'], area: 'student_accounts' },
       { href: '/staff/employee-accounts', label: 'حسابات الموظفين', icon: 'key', roles: ['admin'], area: 'employee_accounts' },
-      { href: '/staff/permissions', label: 'صلاحيات المعلمين', icon: 'settings', roles: ['admin'] },
-      { href: '/staff/positions', label: 'مناصب الفروع', icon: 'employees', roles: ['admin'] },
     ],
   },
   {
-    title: 'الإعدادات',
+    title: 'الإدارة',
     items: [
+      { href: '/staff/positions', label: 'مناصب الفروع', icon: 'employees', roles: ['admin'] },
+      { href: '/staff/permissions', label: 'صلاحيات المعلمين', icon: 'settings', roles: ['admin'] },
       { href: '/staff/settings', label: 'الإعدادات العامة', icon: 'settings', roles: ['admin'] },
       { href: '/staff/audit', label: 'سجل النشاط', icon: 'audit', roles: ['admin'] },
     ],

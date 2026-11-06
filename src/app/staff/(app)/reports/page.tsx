@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { requireUser } from '@/lib/auth/session';
+import { requireAccess } from '@/lib/access/server';
 import { PageHeader } from '@/components/ui';
 import { Icon, type IconName } from '@/components/shell/icons';
 
 export const metadata: Metadata = { title: 'التقارير' };
+
+const BRANCH_REPORT = { href: '/staff/reports/branch', title: 'تقرير الفرع', lead: 'الطلاب والمعلمون والحسابات في فرعك: الأعداد والتوزيع والنواقص، جاهز للطباعة.', icon: 'students' as IconName, tone: 'bg-board text-chalk' };
 
 const REPORTS: { href: string; title: string; lead: string; icon: IconName; tone: string }[] = [
   { href: '/staff/reports/students', title: 'تقرير الطلاب', lead: 'التوزيع على الفروع والفصول، والحركة خلال ستة أشهر، والمنتظمون والمنسحبون.', icon: 'students', tone: 'bg-board text-chalk' },
@@ -16,12 +18,13 @@ const REPORTS: { href: string; title: string; lead: string; icon: IconName; tone
 ];
 
 export default async function ReportsIndex() {
-  await requireUser(['admin']);
+  const access = await requireAccess('reports', 1);
+  const list = access.admin ? [BRANCH_REPORT, ...REPORTS] : [BRANCH_REPORT];
   return (
     <>
       <PageHeader title="التقارير" lead="تقارير جاهزة للطباعة وحفظها PDF، محسوبة لحظيًا من بيانات المنصة." />
       <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {REPORTS.map((r, i) => (
+        {list.map((r, i) => (
           <li key={r.href} className="animate-fade-up" style={{ animationDelay: `${i * 50}ms` }}>
             <Link href={r.href} className="group flex h-full flex-col rounded-[1.5rem] border border-line bg-surface p-5 transition-all hover:-translate-y-0.5 hover:border-board/30 hover:shadow-[0_18px_40px_-28px_rgb(53_104_84/0.8)]">
               <span className={`grid size-12 place-items-center rounded-2xl ${r.tone} transition-transform duration-300 group-hover:scale-105`}>

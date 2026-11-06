@@ -1,7 +1,7 @@
 /** مجالات صلاحيات المناصب — تطابق جدول cap_areas (هجرة 36). المنع الحقيقي في القاعدة؛ هذا للعرض. */
 export const AREAS = [
   'students', 'student_accounts', 'employees', 'employee_accounts', 'schedule', 'attendance',
-  'behavior', 'tasks', 'grading', 'results', 'certificates', 'reports', 'performance',
+  'behavior', 'tasks', 'grading', 'results', 'certificates', 'reports', 'performance', 'audit',
 ] as const;
 export type Area = (typeof AREAS)[number];
 

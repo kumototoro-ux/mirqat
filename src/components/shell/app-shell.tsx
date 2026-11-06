@@ -34,11 +34,12 @@ function isActive(path: string, href: string, home: string) {
 }
 // صفحات خارج القائمة لها عنوان أيضًا في الشريط العلوي
 const EXTRA: { prefix: string; label: string; group?: string }[] = [
+  { prefix: '/staff/reports/branch', label: 'تقرير الفرع', group: 'التقارير' },
   { prefix: '/staff/reports/students', label: 'تقرير الطلاب', group: 'التقارير' },
   { prefix: '/staff/reports/employees', label: 'تقرير الموظفين', group: 'التقارير' },
   { prefix: '/staff/reports/accounts', label: 'تقرير الحسابات', group: 'التقارير' },
   { prefix: '/staff/reports/activity', label: 'تقرير النشاط', group: 'التقارير' },
-  { prefix: '/staff/reports', label: 'التقارير', group: 'الإدارة' },
+  { prefix: '/staff/reports', label: 'التقارير', group: 'المتابعة والتقارير' },
   { prefix: '/staff/password', label: 'تغيير كلمة المرور', group: 'حسابي' },
   { prefix: '/student/password', label: 'تغيير كلمة المرور', group: 'حسابي' },
 ];

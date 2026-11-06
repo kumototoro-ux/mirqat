@@ -33,7 +33,7 @@ grant select on bs to public;
 -- القائمة والجداول
 -- ---------------------------------------------------------------------
 select test.ok((select count(*) from positions) = 7, 'سبعة مناصب (خمسة للفرع + مدير الفروع + مراقب الأداء)');
-select test.ok((select count(*) from cap_areas) = 13, 'ثلاثة عشر مجالًا');
+select test.ok((select count(*) from cap_areas) = 14, 'أربعة عشر مجالًا');
 select test.ok((select level from position_caps where position = 'admissions' and area = 'students') = 3, 'القبول: تسجيل الطلاب كامل');
 select test.ok(not exists (select 1 from position_caps where position = 'admissions' and area in ('attendance', 'behavior', 'grading', 'results')),
   'القبول لا يملك التحضير ولا السلوك ولا الدرجات');
