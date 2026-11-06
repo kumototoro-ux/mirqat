@@ -61,7 +61,7 @@ export const getAuthorContext = cache(async (user: CurrentUser): Promise<AuthorC
       ? Promise.resolve({ data: [] as ScopeRow[] })
       : supabase.from('staff_scope').select('branch_id, stage_id, grade_id, section_id, subject_id').eq('employee_id', user.employeeId).returns<ScopeRow[]>(),
     selectAll<{ branch_id: number; grade_id: number; section_id: number | null; subject_id: number }>((a, b) => createAdminClient().from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').order('id').range(a, b)),
-    isAdmin ? supabase.from('staff_directory').select('id, name_ar').order('name_ar') : Promise.resolve({ data: [] as { id: number; name_ar: string }[] }),
+    isAdmin ? selectAll<{ id: number; name_ar: string }>((a, b) => supabase.from('staff_directory').select('id, name_ar').order('name_ar').order('id').range(a, b)) : Promise.resolve({ data: [] as { id: number; name_ar: string }[] }),
     cachedClassDims(),
   ]);
   const dims = new Map(dimsList.map((d) => [d.id, d]));

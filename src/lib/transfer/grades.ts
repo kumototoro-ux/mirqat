@@ -1,6 +1,7 @@
 'use server';
 
 import ExcelJS from 'exceljs';
+import { selectAll } from '@/lib/supabase/all';
 import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
@@ -49,9 +50,11 @@ export async function gradesTemplate(termId: number, branchId: number | null): P
     const usedTypes = ref.types.filter((t) => [...ref.weights.keys()].some((k) => k.endsWith(`:${t.id}`)));
     // طلاب الفرع مع مواد فصولهم (من توزيع المواد) — صف لكل طالب ومادة، جاهز للتعبئة
     const { data: rows } = await ref.supabase.rpc('backup_rows', { p_table: 'students', p_branch: branchId, p_offset: 0, p_limit: 5000 });
-    const { data: matrix } = await ref.supabase
+    const { data: matrix } = await selectAll((a, b) => ref.supabase
       .from('subject_matrix')
-      .select('branch:branches(name), grade:grades(name), section:sections(name), subject:subjects(name)');
+      .select('branch:branches(name), grade:grades(name), section:sections(name), subject:subjects(name)')
+      .order('id')
+      .range(a, b));
     const subjFor = (b: string, g: string, s: string) =>
       [...new Set(((matrix ?? []) as unknown as { branch: { name: string } | null; grade: { name: string } | null; section: { name: string } | null; subject: { name: string } | null }[])
         .filter((m) => m.branch?.name === b && m.grade?.name === g && (!m.section || m.section.name === s))
