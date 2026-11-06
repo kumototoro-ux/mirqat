@@ -43,6 +43,7 @@ const href = (p: { tab?: Tab; term?: number; class?: number | null }) => {
 
 export function ResultsAdmin({
   tab,
+  allowedTabs,
   termId,
   classId,
   ref_,
@@ -55,6 +56,7 @@ export function ResultsAdmin({
   cert,
 }: {
   tab: Tab;
+  allowedTabs: Tab[];
   termId: number;
   classId: number | null;
   ref_: RefData;
@@ -75,7 +77,7 @@ export function ResultsAdmin({
     <>
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <div className="flex w-full rounded-2xl border border-line bg-surface p-1 sm:inline-flex sm:w-auto" role="tablist">
-          {([['board', 'الكشوف', 'results'], ['certs', 'الشهادات', 'award'], ['rules', 'الإتاحة', 'eye'], ['settings', 'الإعدادات', 'settings']] as const).map(([k, l, ic]) => (
+          {([['board', 'الكشوف', 'results'], ['certs', 'الشهادات', 'award'], ['rules', 'الإتاحة', 'eye'], ['settings', 'الإعدادات', 'settings']] as const).filter(([k]) => allowedTabs.includes(k)).map(([k, l, ic]) => (
             <Link key={k} href={href({ tab: k, term: termId })} role="tab" aria-selected={shownTab === k} className={`relative flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl px-2 py-2 text-[0.82rem] font-semibold transition-colors sm:flex-none sm:px-4 sm:text-sm ${shownTab === k ? 'text-chalk' : 'text-muted hover:text-ink'}`}>
               {shownTab === k && <motion.span layoutId="res-tab" className="absolute inset-0 rounded-xl bg-board" transition={{ type: 'spring', stiffness: 500, damping: 38 }} />}
               <Icon name={ic} className="relative hidden size-4 sm:block" />

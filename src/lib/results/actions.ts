@@ -2,6 +2,8 @@
 
 import { revalidatePath, updateTag } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
+import { getMyAccess } from '@/lib/access/server';
+import { levelOf } from '@/lib/access/areas';
 import { createClient } from '@/lib/supabase/server';
 import { REF_TAG } from '@/lib/data';
 import type { ClassReport, NoticeSettings, ReleaseRule, Section, StudentCard } from './shared';
@@ -16,8 +18,15 @@ const friendly = (m: string) =>
   /row-level security|FORBIDDEN|42501|permission denied|للإدارة/.test(m) ? 'هذه العملية للإدارة فقط' : /JWT|AUTH_REQUIRED/.test(m) ? 'انتهت الجلسة. سجّل الدخول من جديد' : m.replace(/^ERROR:\s*/, '');
 const ADMIN = ['admin'] as const;
 
+/** الإداري، أو صاحب منصب بمستوى في مجال النتائج (1 عرض، 2 إتاحة/حجب). النطاق (الفرع) تفرضه القاعدة. */
+async function needResults(min: number): Promise<void> {
+  const user = await requireUser(['admin', 'teacher']);
+  if (user.role === 'admin') return;
+  if (levelOf(await getMyAccess(), 'results') < min) throw new Error('هذه العملية للإدارة فقط أو لصاحب الصلاحية');
+}
+
 export async function classResults(classId: number, termId: number): Promise<ClassReport | null> {
-  await requireUser(ADMIN);
+  await needResults(1);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('class_results', { p_class_id: classId, p_term_id: termId });
   if (error) throw new Error(friendly(error.message));
@@ -25,7 +34,7 @@ export async function classResults(classId: number, termId: number): Promise<Cla
 }
 
 export async function studentCard(studentId: number, termId: number): Promise<StudentCard> {
-  await requireUser(ADMIN);
+  await needResults(1);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('student_report_card', { p_student_id: studentId, p_term_id: termId });
   if (error) throw new Error(friendly(error.message));
@@ -34,7 +43,7 @@ export async function studentCard(studentId: number, termId: number): Promise<St
 
 export type OverviewRow = { class_id: number; students: number; graded: number; average: number | null; progress: number | null; visible: number };
 export async function resultsOverview(termId: number): Promise<OverviewRow[]> {
-  await requireUser(ADMIN);
+  await needResults(1);
   const supabase = await createClient();
   const { data } = await supabase.rpc('results_overview', { p_term_id: termId });
   return (data as OverviewRow[]) ?? [];
@@ -44,21 +53,21 @@ export async function resultsOverview(termId: number): Promise<OverviewRow[]> {
 export type RuleInput = Omit<ReleaseRule, 'id' | 'updated_at' | 'is_active'> & { is_active?: boolean };
 
 export async function listRules(): Promise<ReleaseRule[]> {
-  await requireUser(ADMIN);
+  await needResults(2);
   const supabase = await createClient();
   const { data } = await supabase.from('result_release_rules').select('*').order('is_active', { ascending: false }).order('updated_at', { ascending: false });
   return (data as ReleaseRule[]) ?? [];
 }
 
 export async function ruleReach(input: Pick<RuleInput, 'branch_ids' | 'stage_ids' | 'grade_ids' | 'class_ids' | 'student_ids'>): Promise<number> {
-  await requireUser(ADMIN);
+  await needResults(2);
   const supabase = await createClient();
   const { data } = await supabase.rpc('release_rule_reach', { p: input });
   return Number(data ?? 0);
 }
 
 export async function saveRule(id: number | null, input: RuleInput): Promise<Res<{ id: number }>> {
-  await requireUser(ADMIN);
+  await needResults(2);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('save_release_rule', { p_id: id, p: input });
   if (error) return { ok: false, error: friendly(error.message) };
@@ -68,7 +77,7 @@ export async function saveRule(id: number | null, input: RuleInput): Promise<Res
 }
 
 export async function setRuleActive(id: number, active: boolean): Promise<Res> {
-  await requireUser(ADMIN);
+  await needResults(2);
   const supabase = await createClient();
   const { error } = await supabase.rpc('set_release_rule_active', { p_id: id, p_active: active });
   if (error) return { ok: false, error: friendly(error.message) };
@@ -77,7 +86,7 @@ export async function setRuleActive(id: number, active: boolean): Promise<Res> {
 }
 
 export async function deleteRule(id: number): Promise<Res> {
-  await requireUser(ADMIN);
+  await needResults(2);
   const supabase = await createClient();
   const { error } = await supabase.rpc('delete_release_rule', { p_id: id });
   if (error) return { ok: false, error: friendly(error.message) };
@@ -120,7 +129,7 @@ export async function deleteGrant(id: number): Promise<Res> {
 /** بحث طالب بالاسم أو الرقم أو الهوية (لقواعد الإتاحة ومنح المواظبة) */
 export type StudentHit = { id: number; code: string; name_ar: string; class_id: number | null };
 export async function findStudents(q: string): Promise<StudentHit[]> {
-  await requireUser(ADMIN);
+  await needResults(2);
   const term = q.trim().replace(/[%,()]/g, ' ').slice(0, 40);
   if (term.length < 2) return [];
   const supabase = await createClient();
@@ -135,7 +144,7 @@ export async function findStudents(q: string): Promise<StudentHit[]> {
 }
 
 export async function studentsByIds(ids: number[]): Promise<StudentHit[]> {
-  await requireUser(ADMIN);
+  await needResults(2);
   if (!ids.length) return [];
   const supabase = await createClient();
   const { data } = await supabase.from('students').select('id, code, name_ar, class_id').in('id', ids.slice(0, 500));

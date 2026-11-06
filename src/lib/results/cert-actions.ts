@@ -2,6 +2,8 @@
 
 import { revalidatePath, updateTag } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
+import { getMyAccess } from '@/lib/access/server';
+import { levelOf } from '@/lib/access/areas';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { CERT_BUCKET, CERT_TAG } from './cert-server';
@@ -101,7 +103,8 @@ export async function removeCertImage(kind: string): Promise<Res> {
 
 /** كشوف الفصل لكل فصول العام الدراسي (لبناء الشهادات) */
 export async function classYear(classId: number, terms: TermInfo[]): Promise<{ term: TermInfo; report: ClassReport | null }[]> {
-  await requireUser(ADMIN);
+  const u = await requireUser(['admin', 'teacher']);
+  if (u.role !== 'admin' && levelOf(await getMyAccess(), 'results') < 1) throw new Error('هذه العملية للإدارة فقط أو لصاحب الصلاحية');
   const supabase = await createClient();
   return Promise.all(
     terms.slice(0, 4).map(async (term) => {
