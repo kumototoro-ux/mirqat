@@ -15,7 +15,7 @@ export type PositionEmployee = {
 export type PositionBoard = {
   positions: PositionInfo[];
   areas: { area: string; name: string }[];
-  branches: { id: number; name: string }[];
+  branches: { id: number; name: string; hasBuilding: boolean }[];
   employees: PositionEmployee[];
 };
 
@@ -27,7 +27,7 @@ export async function getPositionBoard(): Promise<PositionBoard> {
     supabase.from('positions').select('code, name_ar, name_f').order('sort'),
     supabase.from('position_caps').select('position, area, level'),
     supabase.from('cap_areas').select('area, name_ar').order('sort'),
-    supabase.from('branches').select('id, name').order('id'),
+    supabase.from('branches').select('id, name, has_building').order('id'),
     supabase.from('employees').select('id, code, name_ar').eq('is_active', true).neq('user_type', 'admin').order('name_ar').limit(2000),
     supabase.from('employee_positions').select('employee_id, position, branch_id').limit(20000),
   ]);
@@ -47,7 +47,7 @@ export async function getPositionBoard(): Promise<PositionBoard> {
       caps: (caps.data ?? []).filter((c) => c.position === p.code).map((c) => ({ area: c.area as string, level: c.level as number })),
     })),
     areas: (areas.data ?? []).map((a) => ({ area: a.area as string, name: a.name_ar as string })),
-    branches: (branches.data ?? []).map((b) => ({ id: b.id as number, name: b.name as string })),
+    branches: (branches.data ?? []).map((b) => ({ id: b.id as number, name: b.name as string, hasBuilding: b.has_building as boolean })),
     employees: (emps.data ?? []).map((e) => ({ id: e.id as number, code: e.code as string, name: e.name_ar as string, assigned: by.get(e.id as number) ?? [] })),
   };
 }

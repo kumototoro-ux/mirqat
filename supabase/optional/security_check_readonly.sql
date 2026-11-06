@@ -53,7 +53,8 @@ with findings as (
   select '9 كتابة مباشرة على المفاتيح', table_name || ' (' || string_agg(privilege_type, ',') || ')'
     from information_schema.role_table_grants
    where grantee = 'authenticated' and table_schema = 'public'
-     and table_name in ('user_permissions', 'permission_keys', 'employee_positions', 'positions', 'position_caps', 'cap_areas')
+     and table_name in ('user_permissions', 'permission_keys', 'employee_positions', 'positions', 'position_caps', 'cap_areas',
+                       'perf_reports', 'perf_scores', 'perf_attachments', 'perf_reads', 'perf_sections', 'perf_items')
      and privilege_type in ('INSERT', 'UPDATE', 'DELETE', 'TRUNCATE')
    group by table_name
   union all

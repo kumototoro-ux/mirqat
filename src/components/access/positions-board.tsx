@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Badge, Card } from '@/components/ui';
 import { useFeedback } from '@/components/feedback';
 import { setPosition, type PositionBoard, type PositionEmployee } from '@/lib/access/actions';
+import { setBranchBuilding } from '@/lib/perf/actions';
 
 const LEVEL = ['', 'عرض', 'تعديل', 'كامل'];
 
@@ -13,6 +14,14 @@ export function PositionsBoardView({ initial }: { initial: PositionBoard }) {
   const [q, setQ] = useState('');
   const [onlyAssigned, setOnlyAssigned] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
+  const [buildings, setBuildings] = useState<Record<number, boolean>>(Object.fromEntries(initial.branches.map((b) => [b.id, b.hasBuilding])));
+  const toggleBuilding = async (id: number) => {
+    const next = !buildings[id];
+    const res = await setBranchBuilding(id, next);
+    if (!res.ok) return toast(res.error, 'error');
+    setBuildings((m) => ({ ...m, [id]: next }));
+    toast(res.message);
+  };
   const [draft, setDraft] = useState<Record<number, { position: string; branch: string }>>({});
 
   const posName = (c: string) => initial.positions.find((p) => p.code === c)?.name ?? c;
@@ -74,6 +83,18 @@ export function PositionsBoardView({ initial }: { initial: PositionBoard }) {
           </table>
         </div>
         <p className="mt-3 text-xs text-muted">صاحب المنصب يعمل داخل فرعه فقط. وتبقى مفاتيح المعلم (إنشاء الاختبارات وغيرها) في صفحة صلاحيات المعلمين.</p>
+      </Card>
+
+      <Card title="الفروع التي لها مبنى دراسي">
+        <p className="mb-3 text-xs text-muted">تظهر بنود «المبنى والبيئة المدرسية» في تقرير الأداء للفروع التي لها مبنى فقط.</p>
+        <div className="flex flex-wrap gap-2">
+          {initial.branches.map((b) => (
+            <button key={b.id} type="button" role="switch" aria-checked={buildings[b.id]} onClick={() => toggleBuilding(b.id)}
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 ring-inset transition ${buildings[b.id] ? 'bg-board text-chalk ring-board' : 'bg-surface text-muted ring-line hover:ring-board/40'}`}>
+              {b.name}{buildings[b.id] ? ' · له مبنى' : ''}
+            </button>
+          ))}
+        </div>
       </Card>
 
       <div className="flex flex-wrap items-center gap-3">
