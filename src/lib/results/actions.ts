@@ -1,6 +1,7 @@
 'use server';
 
 import { revalidatePath, updateTag } from 'next/cache';
+import { selectAll } from '@/lib/supabase/all';
 import { requireUser } from '@/lib/auth/session';
 import { getMyAccess } from '@/lib/access/server';
 import { levelOf } from '@/lib/access/areas';
@@ -100,12 +101,14 @@ export type Grant = { id: number; student_id: number; term_id: number | null; sc
 export async function listGrants(): Promise<Grant[]> {
   await requireUser(ADMIN);
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data } = await selectAll<Grant>((a, b) => supabase
     .from('attendance_grants')
     .select('id, student_id, term_id, score, note, granted_at, student:students(code, name_ar)')
     .order('granted_at', { ascending: false })
-    .returns<Grant[]>();
-  return data ?? [];
+    .order('id')
+    .range(a, b)
+    .returns<Grant[]>());
+  return data;
 }
 
 export async function saveGrant(studentId: number, termId: number | null, score: number, note: string | null): Promise<Res> {

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { Badge, Empty } from '@/components/ui';
+import { selectAll } from '@/lib/supabase/all';
 import { fmtHijri, fmtShortDate, todayISO } from '@/lib/format';
 import { getTerms } from '@/lib/data';
 
@@ -21,11 +22,13 @@ type Entry = {
 export async function CalendarView() {
   const supabase = await createClient();
   const [{ data, error }, terms] = await Promise.all([
-    supabase
+    selectAll<Entry>((a, b) => supabase
       .from('calendar_entries')
       .select('id, term_id, period_label, week_label, starts_on, ends_on, event, color')
       .order('starts_on')
-      .returns<Entry[]>(),
+      .order('id')
+      .range(a, b)
+      .returns<Entry[]>()),
     getTerms(),
   ]);
   if (error) return <p className="text-danger">تعذّر تحميل التقويم: {error.message}</p>;
