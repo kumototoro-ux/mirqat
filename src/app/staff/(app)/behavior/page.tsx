@@ -3,7 +3,8 @@ import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
 import { PageHeader } from '@/components/ui';
 import { BehaviorApp } from '@/components/conduct/behavior-app';
-import { getAuthorContext } from '@/lib/assess/queries';
+import { getAuthorContext, widenForBranches } from '@/lib/assess/queries';
+import { getMyAccess, branchesFor } from '@/lib/access/server';
 import { behaviorBoard, recentBehavior } from '@/lib/conduct/actions';
 
 export const metadata: Metadata = { title: 'السلوك' };
@@ -11,7 +12,9 @@ export const metadata: Metadata = { title: 'السلوك' };
 export default async function BehaviorPage() {
   const user = await requireUser(['admin', 'teacher']);
   const supabase = await createClient();
-  const ctx = await getAuthorContext(user);
+  const [baseCtx, access] = await Promise.all([getAuthorContext(user), getMyAccess()]);
+  const wide = user.role === 'admin' ? null : branchesFor(access, 'behavior', 2);
+  const ctx = wide?.length ? await widenForBranches(baseCtx, wide) : baseCtx;
   const [statuses, board, recent] = await Promise.all([
     supabase.from('behavior_statuses').select('id, name').order('sort_order').order('id'),
     behaviorBoard(ctx.currentTerm),

@@ -1,7 +1,8 @@
 import type { AppRole } from '@/lib/auth/roles';
 import type { IconName } from './icons';
+import { levelOf, type Area, type MyAccess } from '@/lib/access/areas';
 
-export type NavLink = { href: string; label: string; icon: IconName; roles?: AppRole[]; soon?: boolean };
+export type NavLink = { href: string; label: string; icon: IconName; roles?: AppRole[]; soon?: boolean; /** يظهر أيضًا لصاحب منصب بهذا المستوى في المجال */ area?: Area; min?: number };
 export type NavGroup = { title?: string; items: NavLink[] };
 
 /**
@@ -34,11 +35,12 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: 'المستخدمون',
     items: [
-      { href: '/staff/students', label: 'تسجيل الطلاب', icon: 'students', roles: ['admin'] },
+      { href: '/staff/students', label: 'تسجيل الطلاب', icon: 'students', roles: ['admin'], area: 'students' },
       { href: '/staff/employees', label: 'تسجيل الموظفين', icon: 'employees', roles: ['admin'] },
       { href: '/staff/student-accounts', label: 'حسابات الطلاب', icon: 'accounts', roles: ['admin'] },
       { href: '/staff/employee-accounts', label: 'حسابات الموظفين', icon: 'key', roles: ['admin'] },
       { href: '/staff/permissions', label: 'صلاحيات المعلمين', icon: 'settings', roles: ['admin'] },
+      { href: '/staff/positions', label: 'مناصب الفروع', icon: 'employees', roles: ['admin'] },
     ],
   },
   {
@@ -64,9 +66,10 @@ export const STUDENT_NAV: NavGroup[] = [
   },
 ];
 
-export function navFor(groups: NavGroup[], role: AppRole): NavGroup[] {
+export function navFor(groups: NavGroup[], role: AppRole, access?: MyAccess): NavGroup[] {
+  const show = (i: NavLink) => !i.roles || i.roles.includes(role) || (!!access && !!i.area && levelOf(access, i.area) >= (i.min ?? 1));
   return groups
-    .map((g) => ({ ...g, items: g.items.filter((i) => !i.roles || i.roles.includes(role)) }))
+    .map((g) => ({ ...g, items: g.items.filter(show) }))
     .filter((g) => g.items.length > 0);
 }
 
