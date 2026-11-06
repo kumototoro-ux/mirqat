@@ -28,12 +28,18 @@ export function StudentsRegistry({
   initial,
   initialParams,
   report,
+  level,
+  isAdmin,
   classes,
   lookups,
 }: {
   initial: PageResult<StudentRow>;
   initialParams: PageParams;
-  report: StudentsReport;
+  /** التقرير المجمّع للإداري وحده */
+  report: StudentsReport | null;
+  /** مستوى الحساب في مجال الطلاب: 1 عرض، 2 تعديل، 3 كامل */
+  level: number;
+  isAdmin: boolean;
   classes: { value: string; label: string }[];
   lookups: Lookups;
 }) {
@@ -43,7 +49,7 @@ export function StudentsRegistry({
   const [editing, setEditing] = useState<StudentForm | 'new' | null>(null);
   const [opening, setOpening] = useState<number | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
-  const t = report.totals;
+  const t = report?.totals;
 
   const bulkStatus = async (rows: StudentRow[], status: 'active' | 'withdrawn', clear: () => void) => {
     const ok = await confirm({
@@ -103,7 +109,7 @@ export function StudentsRegistry({
 
   return (
     <>
-      <Insights
+      {report && t && <Insights
         stats={[
           { label: 'الطلاب المنتظمون', value: t.active, icon: 'students', hint: `من ${t.all} سجل` },
           { label: 'سُجّلوا هذا الشهر', value: t.new_this_month, icon: 'plus', delta: { now: t.new_this_month, before: t.new_last_month } },
@@ -116,7 +122,7 @@ export function StudentsRegistry({
           unit: 'طالب',
           items: report.by_branch.map((b) => ({ name: b.name, value: b.active })).filter((b) => b.value > 0).sort((a, b) => b.value - a.value),
         }}
-      />
+      />}
 
       <Registry<StudentRow>
         ref={registry}
@@ -143,14 +149,18 @@ export function StudentsRegistry({
         ]}
         toolbar={
           <>
-            <Link href="/staff/reports/students" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
-              <Icon name="results" className="size-4" />
-              التقرير
-            </Link>
-            <button type="button" onClick={() => setEditing('new')} className="btn-primary h-11 rounded-xl px-4">
-              <Icon name="plus" className="size-4" />
-              تسجيل طالب
-            </button>
+            {isAdmin && (
+              <Link href="/staff/reports/students" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+                <Icon name="results" className="size-4" />
+                التقرير
+              </Link>
+            )}
+            {level >= 3 && (
+              <button type="button" onClick={() => setEditing('new')} className="btn-primary h-11 rounded-xl px-4">
+                <Icon name="plus" className="size-4" />
+                تسجيل طالب
+              </button>
+            )}
           </>
         }
         bulkActions={(rows, clear) => (
@@ -158,10 +168,10 @@ export function StudentsRegistry({
             <BulkButton onClick={() => downloadCsv('طلاب', ['الرقم', 'الاسم', 'الهوية', 'الفصل', 'الجنس', 'الجنسية', 'الرسوم', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.national_id, r.class_label, r.gender, r.nationality, r.fee_status, STATUS[r.status].label]))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
-            {rows.some((r) => r.status === 'active') && (
+            {isAdmin && rows.some((r) => r.status === 'active') && (
               <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkStatus(rows, 'withdrawn', clear)}>منسحب</BulkButton>
             )}
-            {rows.some((r) => r.status !== 'active') && (
+            {isAdmin && rows.some((r) => r.status !== 'active') && (
               <BulkButton busy={bulkBusy} onClick={() => bulkStatus(rows, 'active', clear)}>منتظم</BulkButton>
             )}
           </>
@@ -188,8 +198,8 @@ export function StudentsRegistry({
         ]}
         rowActions={(r) => (
           <>
-            <RowButton icon="edit" label="تعديل" onClick={() => open(r.id)} />
-            <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />
+            <RowButton icon="edit" label={level >= 2 ? 'تعديل' : 'عرض'} onClick={() => open(r.id)} />
+            {level >= 3 && <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />}
           </>
         )}
         mobileCard={(r) => (
@@ -220,7 +230,7 @@ export function StudentsRegistry({
         lookups={lookups}
         onClose={() => setEditing(null)}
         onSaved={saved}
-        onDelete={editing && editing !== 'new' ? () => remove({ id: editing.id!, code: editing.code ?? '', name_ar: editing.name_ar } as StudentRow) : undefined}
+        onDelete={level >= 3 && editing && editing !== 'new' ? () => remove({ id: editing.id!, code: editing.code ?? '', name_ar: editing.name_ar } as StudentRow) : undefined}
       />
     </>
   );

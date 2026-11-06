@@ -448,3 +448,37 @@ export async function getPrintData(id: number, user: CurrentUser): Promise<Print
     roster: (roster.data ?? []) as RosterStudent[],
   };
 }
+
+/**
+ * صاحب منصب بتعديل في التحضير أو السلوك يعمل على كل فصول فرعه لا على نطاق تدريسه.
+ * العرض فقط: القاعدة هي التي تحكم (save_attendance / save_behavior)؛ هنا نوسّع القوائم وسقف التواريخ كالإداري.
+ */
+export async function widenForBranches(ctx: AuthorContext, branchIds: number[]): Promise<AuthorContext> {
+  if (!branchIds.length) return ctx;
+  const [classes, subjects, dimsList] = await Promise.all([getClasses(), getSubjects(), cachedClassDims()]);
+  const dims = new Map(dimsList.map((d) => [d.id, d]));
+  const mine = classes.filter((c) => {
+    const d = dims.get(c.id);
+    return d && branchIds.includes(d.branch_id);
+  });
+  const have = new Set(ctx.classes.map((c) => c.value));
+  const extra = mine.filter((c) => !have.has(c.id));
+  const all = [
+    ...ctx.classes,
+    ...extra.map((c) => {
+      const d = dims.get(c.id)!;
+      return { value: c.id, label: c.label, branch: c.branch, branch_id: d.branch_id, grade_id: d.grade_id, section_id: d.section_id };
+    }),
+  ];
+  const multi = new Set(all.map((c) => c.branch)).size > 1;
+  const subjectIds = subjects.map((s) => s.id);
+  const subjectsByClass = { ...ctx.subjectsByClass };
+  for (const c of extra) subjectsByClass[c.id] = subjectIds;
+  return {
+    ...ctx,
+    classes: all.map((c) => ({ ...c, label: multi && !c.label.includes('·') ? `${c.label} · ${c.branch}` : c.label })),
+    subjects: subjects.map((s) => ({ value: s.id, label: s.name })),
+    subjectsByClass,
+    isAdmin: true, // فك سقف التواريخ في الواجهة؛ القاعدة تفرض الحدود الفعلية حسب الفرع
+  };
+}

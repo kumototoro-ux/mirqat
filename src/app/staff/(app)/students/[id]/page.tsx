@@ -3,7 +3,7 @@ import { PendingSwap } from '@/components/shell/pending-search';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { requireUser } from '@/lib/auth/session';
+import { requireAccess } from '@/lib/access/server';
 import { createClient } from '@/lib/supabase/server';
 import { Badge, Card, Empty, PageHeader, StatGrid } from '@/components/ui';
 import { CLASS_SELECT, classLabel, fmtDate, fmtDateTime, fmtNum, scoreTone, type ClassRef } from '@/lib/format';
@@ -46,7 +46,7 @@ export default async function StudentProfile({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ term?: string }>;
 }) {
-  await requireUser(['admin']);
+  await requireAccess('students', 1);
   const { id } = await params;
   const sp = await searchParams;
   const studentId = Number(id);

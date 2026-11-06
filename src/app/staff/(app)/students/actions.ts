@@ -3,6 +3,8 @@
 import { revalidatePath, updateTag } from 'next/cache';
 import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
+import { getMyAccess } from '@/lib/access/server';
+import { levelOf } from '@/lib/access/areas';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { CLASS_SELECT, classLabel, type ClassRef } from '@/lib/format';
@@ -39,8 +41,15 @@ const clean = (q: string) => q.replace(/[,()*%\\"]/g, ' ').trim().slice(0, 60);
 // علاقة واحد-لواحد (profiles.student_id/employee_id فريد): PostgREST يعيد كائنًا أو null لا قائمة
 const hasRow = (v: unknown) => (Array.isArray(v) ? v.length > 0 : v != null);
 
+/** الإداري أو صاحب منصب بمستوى في مجال الطلاب؛ النطاق (الفرع) تفرضه القاعدة بسياسات RLS */
+async function needStudents(min: number): Promise<void> {
+  const user = await requireUser(['admin', 'teacher']);
+  if (user.role === 'admin') return;
+  if (levelOf(await getMyAccess(), 'students') < min) throw new Error('هذه العملية للإدارة فقط أو لصاحب الصلاحية');
+}
+
 export async function listStudents(p: PageParams): Promise<PageResult<StudentRow>> {
-  await requireUser(['admin']);
+  await needStudents(1);
   const supabase = await createClient();
   const page = Math.max(1, Math.floor(p.page) || 1);
   const sort = SORTS[p.sort] ?? SORTS.name;
@@ -85,7 +94,7 @@ export type StudentForm = {
 
 /** بيانات طالب كاملة لنموذج التعديل */
 export async function getStudent(id: number): Promise<StudentForm | null> {
-  await requireUser(['admin']);
+  await needStudents(1);
   const supabase = await createClient();
   const { data } = await supabase
     .from('students')
@@ -117,7 +126,7 @@ export async function getStudent(id: number): Promise<StudentForm | null> {
 
 
 export async function saveStudent(form: StudentForm): Promise<ActionResult> {
-  await requireUser(['admin']);
+  await needStudents(2);
   const supabase = await createClient();
   const payload = {
     national_id: form.national_id,
@@ -141,7 +150,7 @@ export async function saveStudent(form: StudentForm): Promise<ActionResult> {
 }
 
 export async function deleteStudent(id: number): Promise<ActionResult> {
-  await requireUser(['admin']);
+  await needStudents(3);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('delete_student', { p_id: id });
   if (error) return { ok: false, error: error.message };

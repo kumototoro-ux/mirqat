@@ -49,11 +49,11 @@ with findings as (
     from pg_policies pol
    where pol.schemaname = 'storage' and pol.tablename = 'objects'
   union all
-  -- 9) مفاتيح الصلاحيات (هجرة 35): المستخدم يقرأ فقط، والكتابة عبر admin_set_permission وحدها
+  -- 9) مفاتيح الصلاحيات ومناصب الفروع (هجرة 35، 36): المستخدم يقرأ فقط، والكتابة عبر الدوال المحمية وحدها
   select '9 كتابة مباشرة على المفاتيح', table_name || ' (' || string_agg(privilege_type, ',') || ')'
     from information_schema.role_table_grants
    where grantee = 'authenticated' and table_schema = 'public'
-     and table_name in ('user_permissions', 'permission_keys')
+     and table_name in ('user_permissions', 'permission_keys', 'employee_positions', 'positions', 'position_caps', 'cap_areas')
      and privilege_type in ('INSERT', 'UPDATE', 'DELETE', 'TRUNCATE')
    group by table_name
   union all
