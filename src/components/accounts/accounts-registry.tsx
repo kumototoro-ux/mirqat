@@ -306,8 +306,8 @@ export function AccountsRegistry({
             <BulkButton onClick={() => downloadCsv(student ? 'حسابات-طلاب' : 'حسابات-موظفين', ['الرقم', 'الاسم', 'اسم المستخدم', 'الحالة', 'آخر دخول'], rows.map((r) => [r.code, r.name, r.account?.username ?? '', !r.account ? 'بلا حساب' : r.account.status === 'disabled' ? 'موقوف' : r.account.temp ? 'لم يدخل' : 'مفعّل', r.account?.lastLogin ? fmtDateTime(r.account.lastLogin) : '']))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
-            {isAdmin && <BulkButton tone="danger" busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'disabled', clear)}>إيقاف</BulkButton>}
-            {isAdmin && <BulkButton busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'active', clear)}>تفعيل</BulkButton>}
+            {level >= 2 && <BulkButton tone="danger" busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'disabled', clear)}>إيقاف</BulkButton>}
+            {level >= 2 && <BulkButton busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'active', clear)}>تفعيل</BulkButton>}
           </>
         )}
         columns={[

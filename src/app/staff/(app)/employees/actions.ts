@@ -177,12 +177,12 @@ export async function deleteEmployee(id: number): Promise<ActionResult> {
 
 /** تفعيل أو إيقاف عدة موظفين دفعة واحدة */
 export async function setEmployeesActive(ids: number[], active: boolean): Promise<ActionResult> {
-  const me = await requireUser(['admin']);
-  ids = ids.filter((id) => id !== me.employeeId); // لا يوقف الإداري سجله بنفسه
+  const me = await requireUser(['admin', 'teacher']);   // النطاق والرتبة تفرضهما القاعدة
+  ids = ids.filter((id) => id !== me.employeeId); // لا يوقف سجله بنفسه
   if (!ids.length || ids.length > 100) return { ok: false, error: 'حدد بين 1 و100 موظف' };
   const supabase = await createClient();
-  const { error, count } = await supabase.from('employees').update({ is_active: active, is_edited: true }, { count: 'exact' }).in('id', ids);
-  if (error) return { ok: false, error: error.message };
+  const { data, error } = await supabase.rpc('set_employees_active', { p_ids: ids, p_active: active });
+  if (error) return { ok: false, error: error.message.replace(/^FORBIDDEN:\s*/, '') };
   revalidatePath('/staff/employees');
-  return { ok: true, message: `${active ? 'تم تفعيل' : 'تم إيقاف'} ${count ?? ids.length} موظف` };
+  return { ok: true, message: `${active ? 'تم تفعيل' : 'تم إيقاف'} ${data ?? ids.length} موظف` };
 }

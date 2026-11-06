@@ -165,12 +165,12 @@ export async function deleteStudent(id: number): Promise<ActionResult> {
 
 /** تغيير حالة عدة طلاب دفعة واحدة (منتظم/منسحب/متخرج) — كل تغيير يُسجَّل في سجل النشاط */
 export async function setStudentsStatus(ids: number[], status: 'active' | 'withdrawn' | 'graduated'): Promise<ActionResult> {
-  await requireUser(['admin']);
+  await requireUser(['admin', 'teacher']);   // النطاق والصلاحية تفرضهما القاعدة
   if (!ids.length || ids.length > 100) return { ok: false, error: 'حدد بين 1 و100 طالب' };
   const supabase = await createClient();
-  const { error, count } = await supabase.from('students').update({ status, is_edited: true }, { count: 'exact' }).in('id', ids);
-  if (error) return { ok: false, error: error.message };
+  const { data, error } = await supabase.rpc('set_students_status', { p_ids: ids, p_status: status });
+  if (error) return { ok: false, error: error.message.replace(/^FORBIDDEN:\s*/, '') };
   revalidatePath('/staff/students');
   const label = { active: 'منتظم', withdrawn: 'منسحب', graduated: 'متخرج' }[status];
-  return { ok: true, message: `تغيّرت حالة ${count ?? ids.length} طالب إلى "${label}"` };
+  return { ok: true, message: `تغيّرت حالة ${data ?? ids.length} طالب إلى "${label}"` };
 }

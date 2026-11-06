@@ -31,6 +31,7 @@ export function EmployeeFormSheet({
   open,
   initial,
   lookups,
+  canAdmin = true,
   onClose,
   onSaved,
   onDelete,
@@ -38,6 +39,8 @@ export function EmployeeFormSheet({
   open: boolean;
   initial: EmployeeForm | null;
   lookups: Lookups;
+  /** غير الإداري لا يُنشئ إداريًا (القاعدة ترفض أيضًا) */
+  canAdmin?: boolean;
   onClose: () => void;
   onSaved: (message: string) => void;
   onDelete?: () => void;
@@ -182,10 +185,10 @@ export function EmployeeFormSheet({
 
         <fieldset className="space-y-4">
           <legend className="mb-3 text-xs font-bold text-board">النوع والصلاحية</legend>
-          <div className="grid grid-cols-2 gap-2">
+          <div className={`grid gap-2 ${canAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {([
               ['teacher', 'معلم', 'يرى فصوله ومواده فقط'],
-              ['admin', 'إداري', 'يرى كل شيء ويدير النظام'],
+              ...(canAdmin ? [['admin', 'إداري', 'يرى كل شيء ويدير النظام'] as const] : []),
             ] as const).map(([v, l, h]) => (
               <button key={v} type="button" onClick={() => set('user_type', v)} aria-pressed={f.user_type === v}
                 className={`rounded-xl border p-3 text-start transition-all ${f.user_type === v ? 'border-board bg-board/[0.07] ring-2 ring-board/20' : 'border-line hover:border-muted'}`}>
