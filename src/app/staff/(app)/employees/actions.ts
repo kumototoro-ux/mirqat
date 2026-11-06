@@ -3,6 +3,8 @@
 import { revalidatePath, updateTag } from 'next/cache';
 import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
+import { getMyAccess } from '@/lib/access/server';
+import { levelOf } from '@/lib/access/areas';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { pageSize, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
@@ -38,8 +40,15 @@ const clean = (q: string) => q.replace(/[,()*%\\"]/g, ' ').trim().slice(0, 60);
 // علاقة واحد-لواحد (profiles.student_id/employee_id فريد): PostgREST يعيد كائنًا أو null لا قائمة
 const hasRow = (v: unknown) => (Array.isArray(v) ? v.length > 0 : v != null);
 
+/** الإداري أو صاحب منصب بمستوى في مجال الموظفين؛ الفرع تفرضه القاعدة (RLS + save_employee) */
+async function needEmployees(min: number): Promise<void> {
+  const user = await requireUser(['admin', 'teacher']);
+  if (user.role === 'admin') return;
+  if (levelOf(await getMyAccess(), 'employees') < min) throw new Error('هذه العملية للإدارة فقط أو لصاحب الصلاحية');
+}
+
 export async function listEmployees(p: PageParams): Promise<PageResult<EmployeeRow>> {
-  await requireUser(['admin']);
+  await needEmployees(1);
   const supabase = await createClient();
   const page = Math.max(1, Math.floor(p.page) || 1);
   const sort = SORTS[p.sort] ?? SORTS.name;
@@ -85,7 +94,7 @@ export type EmployeeForm = {
 };
 
 export async function getEmployee(id: number): Promise<EmployeeForm | null> {
-  await requireUser(['admin']);
+  await needEmployees(1);
   const supabase = await createClient();
   const { data } = await supabase
     .from('employees')
@@ -120,7 +129,7 @@ export async function getEmployee(id: number): Promise<EmployeeForm | null> {
 }
 
 export async function saveEmployee(form: EmployeeForm): Promise<ActionResult> {
-  await requireUser(['admin']);
+  await needEmployees(2);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('save_employee', {
     p_id: form.id,

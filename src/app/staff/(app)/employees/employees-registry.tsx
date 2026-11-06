@@ -19,11 +19,16 @@ export function EmployeesRegistry({
   initial,
   initialParams,
   report,
+  level,
+  isAdmin,
   lookups,
 }: {
   initial: PageResult<EmployeeRow>;
   initialParams: PageParams;
-  report: EmployeesReport;
+  report: EmployeesReport | null;
+  /** مستوى الحساب في مجال الموظفين: 1 عرض، 2 تعديل */
+  level: number;
+  isAdmin: boolean;
   lookups: Lookups;
 }) {
   const registry = useRef<RegistryHandle>(null);
@@ -32,7 +37,7 @@ export function EmployeesRegistry({
   const [editing, setEditing] = useState<EmployeeForm | 'new' | null>(null);
   const [opening, setOpening] = useState<number | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
-  const t = report.totals;
+  const t = report?.totals;
 
   const bulkActive = async (rows: EmployeeRow[], active: boolean, clear: () => void) => {
     const ok = await confirm({
@@ -85,7 +90,7 @@ export function EmployeesRegistry({
 
   return (
     <>
-      <Insights
+      {report && t && <Insights
         stats={[
           { label: 'الموظفون النشطون', value: t.active, icon: 'employees', hint: `من ${t.all} سجل` },
           { label: 'معلمون', value: t.teachers, icon: 'tasks', hint: `${t.weekly_periods} حصة أسبوعيًا` },
@@ -98,7 +103,7 @@ export function EmployeesRegistry({
           unit: 'معلم',
           items: report.by_branch.map((b) => ({ name: b.name, value: b.teachers })).filter((b) => b.value > 0).sort((a, b) => b.value - a.value),
         }}
-      />
+      />}
       <Registry<EmployeeRow>
         ref={registry}
         queryKey="employees"
@@ -122,14 +127,18 @@ export function EmployeesRegistry({
         ]}
         toolbar={
           <>
-            <Link href="/staff/reports/employees" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
-              <Icon name="results" className="size-4" />
-              التقرير
-            </Link>
-            <button type="button" onClick={() => setEditing('new')} className="btn-primary h-11 rounded-xl px-4">
-              <Icon name="plus" className="size-4" />
-              تسجيل موظف
-            </button>
+            {isAdmin && (
+              <Link href="/staff/reports/employees" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+                <Icon name="results" className="size-4" />
+                التقرير
+              </Link>
+            )}
+            {level >= 2 && (
+              <button type="button" onClick={() => setEditing('new')} className="btn-primary h-11 rounded-xl px-4">
+                <Icon name="plus" className="size-4" />
+                تسجيل موظف
+              </button>
+            )}
           </>
         }
         bulkActions={(rows, clear) => (
@@ -137,8 +146,8 @@ export function EmployeesRegistry({
             <BulkButton onClick={() => downloadCsv('موظفون', ['الرمز', 'الاسم', 'النوع', 'المسمى', 'الفرع', 'المواد', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.user_type === 'admin' ? 'إداري' : 'معلم', r.job_role, r.branches.join('، '), r.subjects.join('، '), r.is_active ? 'نشط' : 'غير نشط']))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
-            {rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
-            {rows.some((r) => !r.is_active) && <BulkButton busy={bulkBusy} onClick={() => bulkActive(rows, true, clear)}>تفعيل</BulkButton>}
+            {isAdmin && rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
+            {isAdmin && rows.some((r) => !r.is_active) && <BulkButton busy={bulkBusy} onClick={() => bulkActive(rows, true, clear)}>تفعيل</BulkButton>}
           </>
         )}
         columns={[
@@ -168,8 +177,8 @@ export function EmployeesRegistry({
         ]}
         rowActions={(r) => (
           <>
-            <RowButton icon="edit" label="تعديل" onClick={() => open(r.id)} />
-            <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />
+            <RowButton icon="edit" label={level >= 2 ? 'تعديل' : 'عرض'} onClick={() => open(r.id)} />
+            {isAdmin && <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />}
           </>
         )}
         mobileCard={(r) => (
@@ -197,7 +206,7 @@ export function EmployeesRegistry({
           registry.current?.invalidate();
           router.refresh();
         }}
-        onDelete={editing && editing !== 'new' ? () => remove({ id: editing.id!, name_ar: editing.name_ar, code: editing.code ?? '' }) : undefined}
+        onDelete={isAdmin && editing && editing !== 'new' ? () => remove({ id: editing.id!, name_ar: editing.name_ar, code: editing.code ?? '' }) : undefined}
       />
     </>
   );

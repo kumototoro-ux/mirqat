@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
+import { getMyAccess } from '@/lib/access/server';
+import { levelOf } from '@/lib/access/areas';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createAccount, resetPassword, setStatus } from '@/lib/accounts/core';
@@ -22,12 +24,30 @@ export type AccountRow = {
 
 type Profile = { id: string; username: string; status: 'active' | 'disabled'; must_change_password: boolean; last_login_at: string | null };
 
+const DENIED = 'هذه العملية للإدارة فقط أو لصاحب الصلاحية في فرعه';
+
+/** الإداري، أو صاحب منصب بمستوى في مجال الحسابات (1 عرض، 2 إدارة). الفرع يفحصه can_manage_* في القاعدة */
+async function needAccounts(kind: AccountKind, min: number) {
+  const me = await requireUser(['admin', 'teacher']);
+  if (me.role !== 'admin' && levelOf(await getMyAccess(), kind === 'student' ? 'student_accounts' : 'employee_accounts') < min) throw new Error(DENIED);
+  return me;
+}
+
+/** فحص القاعدة قبل أي عملية بمفتاح الخدمة: هل هذا السجل/الحساب في نطاقي؟ */
+async function canManage(target: { kind: AccountKind; recordId: number } | { userId: string }): Promise<boolean> {
+  const supabase = await createClient();
+  const { data, error } = 'userId' in target
+    ? await supabase.rpc('can_manage_profile', { p_user: target.userId, p_min: 2 })
+    : await supabase.rpc('can_manage_account', { p_kind: target.kind, p_id: target.recordId, p_min: 2 });
+  return !error && data === true;
+}
+
 const clean = (q: string) => q.replace(/[,()*%\\"]/g, ' ').trim().slice(0, 60);
 const PROFILE = 'id, username, status, must_change_password, last_login_at';
 
 /** صفحة من حسابات الطلاب أو الموظفين (السجل + حسابه إن وُجد) — 15 صفًا */
 export async function listAccounts(kind: AccountKind, p: PageParams): Promise<PageResult<AccountRow>> {
-  await requireUser(['admin']);
+  await needAccounts(kind, 1);
   const supabase = await createClient();
   const page = Math.max(1, Math.floor(p.page) || 1);
   const f = p.filters ?? {};
@@ -91,7 +111,8 @@ function paths(kind: AccountKind) {
 
 /** إنشاء حساب لسجل واحد: اسم المستخدم الافتراضي = رقمه (كالنظام القديم) */
 export async function createAccountFor(kind: AccountKind, recordId: number, username: string, customPassword?: string): Promise<ActionResult> {
-  await requireUser(['admin']);
+  const me = await needAccounts(kind, 2);
+  if (me.role !== 'admin' && !(await canManage({ kind, recordId }))) return { ok: false, error: DENIED };
   const name = username.trim();
   if (!name) return { ok: false, error: 'اسم المستخدم مطلوب' };
   if (/\s/.test(name)) return { ok: false, error: 'اسم المستخدم لا يقبل المسافات' };
@@ -124,7 +145,7 @@ export type BulkResult = { ok: true; created: { code: string; name: string; user
 
 /** إنشاء حسابات لكل من بلا حساب (حتى 150 في المرة) — اسم المستخدم = الرقم */
 export async function createMissingAccounts(kind: AccountKind): Promise<BulkResult> {
-  await requireUser(['admin']);
+  await requireUser(['admin']);   // دفعة واحدة على الجميع: للإداري وحده
   const admin = createAdminClient();
   const table = kind === 'student' ? 'students' : 'employees';
   let q = admin.from(table).select(`id, code, name_ar${kind === 'employee' ? ', user_type' : ''}, profiles(id)`).is('profiles', null).limit(150);
@@ -151,7 +172,8 @@ export async function createMissingAccounts(kind: AccountKind): Promise<BulkResu
 }
 
 export async function resetAccountPassword(kind: AccountKind, userId: string, customPassword?: string): Promise<ActionResult> {
-  await requireUser(['admin']);
+  const me = await needAccounts(kind, 2);
+  if (me.role !== 'admin' && !(await canManage({ userId }))) return { ok: false, error: DENIED };
   try {
     const password = await resetPassword(createAdminClient(), userId, customPassword || undefined);
     paths(kind);
@@ -162,8 +184,9 @@ export async function resetAccountPassword(kind: AccountKind, userId: string, cu
 }
 
 export async function setAccountStatus(kind: AccountKind, userId: string, status: 'active' | 'disabled'): Promise<ActionResult> {
-  const me = await requireUser(['admin']);
+  const me = await needAccounts(kind, 2);
   if (userId === me.id) return { ok: false, error: 'لا يمكنك إيقاف حسابك بنفسك' };
+  if (me.role !== 'admin' && !(await canManage({ userId }))) return { ok: false, error: DENIED };
   try {
     await setStatus(createAdminClient(), userId, status);
     paths(kind);
