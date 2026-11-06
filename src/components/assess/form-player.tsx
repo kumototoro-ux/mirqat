@@ -284,7 +284,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
             <SaveBadge state={save} savedAt={savedAt} />
           </div>
           {left != null && (
-            <div className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-bold tabular-nums transition-colors ${left <= 60000 ? 'animate-pulse bg-danger text-chalk' : lowTime ? 'bg-danger-soft text-danger' : 'bg-board/10 text-board'}`} dir="ltr" aria-live="polite">
+            <div className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-bold tabular-nums transition-colors ${left <= 60000 ? 'animate-pulse bg-danger text-chalk' : lowTime ? 'bg-danger-soft text-danger' : 'bg-accent/10 text-accent'}`} dir="ltr" aria-live="polite">
               <Icon name="clock" className="size-4" />
               {left >= 86400000 ? <span dir="rtl">{fmtLeft(left)}</span> : fmtLeft(left)}
             </div>
@@ -306,7 +306,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
       <div className="mx-auto grid max-w-5xl gap-5 px-4 pt-4 lg:grid-cols-[1fr_15rem]">
         <main className="min-w-0">
           {idx === 0 && view === 'single' && payload.description && (
-            <div className="mb-4 rounded-2xl border border-board/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed">
+            <div className="mb-4 rounded-2xl border border-accent/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed">
               <RichText text={payload.description} />
             </div>
           )}
@@ -319,7 +319,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
           ) : (
             <div className="space-y-4">
               {payload.description && (
-                <div className="rounded-2xl border border-board/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed">
+                <div className="rounded-2xl border border-accent/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed">
                   <RichText text={payload.description} />
                 </div>
               )}
@@ -336,7 +336,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
         <aside className="hidden lg:block">
           <div className="sticky top-24 rounded-2xl border border-line bg-surface p-4">
             <Navigator qs={qs} answers={answers} flags={flags} current={view === 'single' ? idx : -1} onGo={(i) => go(i)} />
-            <button type="button" onClick={() => setView((v) => (v === 'single' ? 'all' : 'single'))} className="mt-4 w-full rounded-xl border border-line py-2 text-xs font-semibold text-muted hover:border-board/40 hover:text-board">
+            <button type="button" onClick={() => setView((v) => (v === 'single' ? 'all' : 'single'))} className="mt-4 w-full rounded-xl border border-line py-2 text-xs font-semibold text-muted hover:border-accent/40 hover:text-accent">
               {view === 'single' ? 'عرض كل الأسئلة' : 'سؤال واحد في كل صفحة'}
             </button>
           </div>
@@ -374,7 +374,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
       <AnimatePresence>
         {navOpen && (
           <motion.div className="fixed inset-0 z-40 lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <div className="absolute inset-0 bg-ink/40 backdrop-blur-[2px]" onClick={() => setNavOpen(false)} />
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setNavOpen(false)} />
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -452,7 +452,7 @@ function Navigator({ qs, answers, flags, current, onGo }: { qs: PlayerQuestion[]
               onClick={() => onGo(i)}
               className={`relative grid aspect-square place-items-center rounded-lg text-sm font-semibold tabular-nums transition-all ${
                 i === current ? 'ring-2 ring-gold ring-offset-1' : ''
-              } ${ok ? 'bg-board text-chalk' : half ? 'bg-board/25 text-board' : 'bg-paper text-muted hover:bg-board/10'}`}
+              } ${ok ? 'bg-board text-chalk' : half ? 'bg-accent/25 text-accent' : 'bg-paper text-muted hover:bg-accent/10'}`}
             >
               {i + 1}
               {f && <span className="absolute -top-1 -end-1 size-2.5 rounded-full bg-gold ring-2 ring-surface" />}
@@ -472,10 +472,10 @@ function Navigator({ qs, answers, flags, current, onGo }: { qs: PlayerQuestion[]
 export function QuestionView({ q, n, total, value, onChange, flagged, onFlag, readOnly }: { q: PlayerQuestion; n: number; total: number; value: Answer; onChange: (v: Answer) => void; flagged?: boolean; onFlag?: () => void; readOnly?: boolean }) {
   return (
     <article className="rounded-[1.4rem] border border-line bg-surface">
-      {q.section_title && <div className="rounded-t-[1.4rem] border-b border-line bg-board/[0.05] px-5 py-2.5 text-sm font-bold text-board">{q.section_title}</div>}
+      {q.section_title && <div className="rounded-t-[1.4rem] border-b border-line bg-board/[0.05] px-5 py-2.5 text-sm font-bold text-accent">{q.section_title}</div>}
       <div className="p-4 sm:p-6">
         <div className="mb-3 flex items-center gap-2 text-xs text-muted">
-          <span className="rounded-full bg-ink px-2.5 py-1 font-bold tabular-nums text-chalk">
+          <span className="rounded-full bg-inverse px-2.5 py-1 font-bold tabular-nums text-chalk">
             {n} <span className="font-normal opacity-60">/ {total}</span>
           </span>
           <span className="rounded-full bg-paper px-2.5 py-1 font-semibold tabular-nums">{q.points} {q.points === 1 ? 'درجة' : 'درجات'}</span>
@@ -517,7 +517,7 @@ function Answerer({ q, value, onChange, readOnly }: { q: PlayerQuestion; value: 
               disabled={readOnly}
               onClick={() => onChange(typeof o.id === 'number' ? o.id : String(o.id))}
               className={`flex items-center gap-3 rounded-2xl border-2 px-4 py-3.5 text-start transition-all duration-150 active:scale-[0.99] ${
-                on ? 'border-board bg-board/[0.07] shadow-[0_8px_20px_-14px_rgb(53_104_84/0.9)]' : 'border-line hover:border-board/40'
+                on ? 'border-accent bg-board/[0.07] shadow-[0_8px_20px_-14px_rgb(53_104_84/0.9)]' : 'border-line hover:border-accent/40'
               } ${q.qtype === 'tf' ? 'justify-center text-lg font-bold' : ''}`}
             >
               {q.qtype === 'mcq' && (
@@ -549,7 +549,7 @@ function Answerer({ q, value, onChange, readOnly }: { q: PlayerQuestion; value: 
             className="field py-3 text-lg"
             autoComplete="off"
           />
-          <button type="button" onClick={() => setSymbols((s) => !s)} className={`grid size-12 shrink-0 place-items-center rounded-xl border text-lg transition-colors ${symbols ? 'border-board bg-board text-chalk' : 'border-line text-muted'}`} title="رموز رياضية">
+          <button type="button" onClick={() => setSymbols((s) => !s)} className={`grid size-12 shrink-0 place-items-center rounded-xl border text-lg transition-colors ${symbols ? 'border-accent bg-board text-chalk' : 'border-line text-muted'}`} title="رموز رياضية">
             √
           </button>
         </div>
@@ -594,7 +594,7 @@ function Answerer({ q, value, onChange, readOnly }: { q: PlayerQuestion; value: 
           return (
             <li key={i} className="grid gap-2 rounded-2xl border border-line p-3 sm:grid-cols-[1fr_auto_1.2fr] sm:items-center">
               <span className="font-semibold"><RichText text={l} /></span>
-              <span className="hidden text-board sm:block">⇄</span>
+              <span className="hidden text-accent sm:block">⇄</span>
               <select
                 value={sel ?? ''}
                 disabled={readOnly}
@@ -604,7 +604,7 @@ function Answerer({ q, value, onChange, readOnly }: { q: PlayerQuestion; value: 
                   else n[String(i)] = Number(e.target.value);
                   onChange(n);
                 }}
-                className={`field py-2.5 ${sel != null ? 'border-board bg-board/[0.05] font-semibold' : ''}`}
+                className={`field py-2.5 ${sel != null ? 'border-accent bg-board/[0.05] font-semibold' : ''}`}
               >
                 <option value="">اختر ما يناسبه…</option>
                 {(q.rights ?? []).map((r, j) => (
@@ -638,7 +638,7 @@ function Answerer({ q, value, onChange, readOnly }: { q: PlayerQuestion; value: 
             }}
             aria-label={`الفراغ ${n}`}
             placeholder={`(${n})`}
-            className="mx-1 inline-block w-32 rounded-lg border-0 border-b-2 border-board bg-board/[0.05] px-2 py-0.5 text-center align-baseline text-base font-semibold focus:bg-board/10 focus:outline-none sm:w-40"
+            className="mx-1 inline-block w-32 rounded-lg border-0 border-b-2 border-accent bg-board/[0.05] px-2 py-0.5 text-center align-baseline text-base font-semibold focus:bg-accent/10 focus:outline-none sm:w-40"
           />
         )}
       />
@@ -651,7 +651,7 @@ function SubmittedScreen({ result, backHref, reviewHref, title }: { result: Subm
   return (
     <div className="grid min-h-dvh place-items-center bg-paper px-4">
       <motion.div initial={{ opacity: 0, y: 20, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} className="w-full max-w-md rounded-[2rem] border border-line bg-surface p-7 text-center shadow-[0_30px_80px_-40px_rgb(31_42_36/0.5)]">
-        <motion.span initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.15, type: 'spring', stiffness: 300, damping: 15 }} className="mx-auto grid size-20 place-items-center rounded-full bg-ok text-chalk">
+        <motion.span initial={{ scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.15, type: 'spring', stiffness: 300, damping: 15 }} className="mx-auto grid size-20 place-items-center rounded-full bg-ok text-on-ok">
           <svg viewBox="0 0 24 24" className="size-10" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="m5 12.5 4.5 4.5L19 7.5" className="[stroke-dasharray:24] [stroke-dashoffset:24] animate-draw" />
           </svg>
@@ -719,14 +719,14 @@ export function PreviewSheet({ open, onClose, title, description, questions, min
       <header className="sticky top-0 z-10 flex items-center gap-3 border-b border-line bg-surface/95 px-4 py-3 backdrop-blur">
         <span className="rounded-full bg-gold/25 px-2.5 py-1 text-xs font-bold text-brass">معاينة</span>
         <p className="min-w-0 flex-1 truncate font-bold">{title}</p>
-        {minutes && <span className="rounded-xl bg-board/10 px-3 py-1.5 text-sm font-bold tabular-nums text-board" dir="ltr">{minutes}:00</span>}
+        {minutes && <span className="rounded-xl bg-accent/10 px-3 py-1.5 text-sm font-bold tabular-nums text-accent" dir="ltr">{minutes}:00</span>}
         <button type="button" onClick={onClose} className="btn-quiet px-3 py-2">
           <Icon name="close" className="size-4" /> إغلاق
         </button>
       </header>
       <div className="mx-auto max-w-3xl space-y-4 p-4 pb-16">
         <p className="rounded-xl bg-brass-soft px-4 py-2.5 text-sm text-brass">هكذا يرى الطالب النموذج. الإجابات هنا للتجربة ولا تُحفظ. ترتيب التوصيل يُخلط فعليًا لكل طالب.</p>
-        {description && <div className="rounded-2xl border border-board/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed"><RichText text={description} /></div>}
+        {description && <div className="rounded-2xl border border-accent/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed"><RichText text={description} /></div>}
         {pq.map((q, i) => (
           <QuestionView key={q.id} q={q} n={i + 1} total={pq.length} value={answers[String(q.id)]} onChange={(v) => setAnswers((a) => ({ ...a, [String(q.id)]: v }))} />
         ))}

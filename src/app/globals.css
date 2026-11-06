@@ -22,6 +22,16 @@
   --color-muted: #5f6e66;
   --color-line: #dfe5e2;
   --color-board: #356854;
+  /* لون النص والحدود والتمييز على الأسطح العادية: يطابق board فاتحًا، ويفتح في الوضع الداكن */
+  --color-accent: #356854;
+  --color-on-gold: #1f2a24;
+  --color-on-ok: #ffffff;
+  --color-inverse: #1f2a24;
+  --color-info: #2a6f8a;
+  --color-info-soft: #e1eef3;
+  --color-gold-soft: #fbf3e1;
+  --color-gold-soft-2: #f6e7c4;
+  --color-tint: #eef4f1;
   --color-board-deep: #284e3f;
   --color-chalk: #eef4f1;
   --color-gold: #d9a441;
@@ -157,6 +167,84 @@
   }
 }
 
+/* ---------------------------------------------------------------------
+   الثيمات: لون الهوية (--pal) ووضع العرض (فاتح/داكن/تلقائي).
+   الاختيار يُحفظ في كوكي ويُطبَّق من الخادم على <html> (data-palette / data-theme) فلا وميض.
+   كل ألوان الواجهة تُشتق من --pal، فإضافة ثيم جديد = سطر واحد.
+--------------------------------------------------------------------- */
+:root { --pal: #356854; color-scheme: light; --subj-mix: 62%; }
+:root[data-palette="ocean"] { --pal: #2a6f8a; }
+:root[data-palette="indigo"] { --pal: #4c5aa6; }
+:root[data-palette="plum"] { --pal: #7a4b8c; }
+:root[data-palette="copper"] { --pal: #a3562f; }
+:root[data-palette="slate"] { --pal: #455a64; }
+:root {
+  --color-board: var(--pal);
+  --color-accent: var(--pal);
+  --color-board-deep: color-mix(in oklab, var(--pal) 78%, #000);
+  --color-chalk: color-mix(in oklab, var(--pal) 9%, #fff);
+  --color-tint: color-mix(in oklab, var(--pal) 9%, #fff);
+  --color-paper: color-mix(in oklab, var(--pal) 5%, #f8f9f8);
+  --color-line: color-mix(in oklab, var(--pal) 9%, #dde2df);
+}
+/* الوضع الداكن للشاشة فقط (الطباعة تبقى فاتحة دائمًا) */
+@media screen {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --subj-mix: 30%;
+    --color-paper: color-mix(in oklab, var(--pal) 7%, #0c100e);
+    --color-surface: color-mix(in oklab, var(--pal) 8%, #151a18);
+    --color-ink: #e9efec;
+    --color-muted: #9eafa6;
+    --color-line: color-mix(in oklab, var(--pal) 14%, #27302b);
+    --color-board: color-mix(in oklab, var(--pal) 72%, #0a0f0c);
+    --color-board-deep: color-mix(in oklab, var(--pal) 55%, #06090a);
+    --color-accent: color-mix(in oklab, var(--pal) 52%, #fff);
+    --color-tint: color-mix(in oklab, var(--pal) 20%, #121715);
+    --color-brass: #e4b862;
+    --color-brass-soft: #3a2f17;
+    --color-danger: #f08c80;
+    --color-danger-soft: #3d211e;
+    --color-ok: #62c995;
+    --color-ok-soft: #173429;
+    --color-inverse: color-mix(in oklab, var(--pal) 30%, #28322d);
+    --color-on-ok: #07160e;
+    --color-gold: #e8b95a;
+    --color-info: #6fb6d0;
+    --color-info-soft: #14303b;
+    --color-gold-soft: #2f2615;
+    --color-gold-soft-2: #3a2e17;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --subj-mix: 30%;
+      --color-paper: color-mix(in oklab, var(--pal) 7%, #0c100e);
+      --color-surface: color-mix(in oklab, var(--pal) 8%, #151a18);
+      --color-ink: #e9efec;
+      --color-muted: #9eafa6;
+      --color-line: color-mix(in oklab, var(--pal) 14%, #27302b);
+      --color-board: color-mix(in oklab, var(--pal) 72%, #0a0f0c);
+      --color-board-deep: color-mix(in oklab, var(--pal) 55%, #06090a);
+      --color-accent: color-mix(in oklab, var(--pal) 52%, #fff);
+      --color-tint: color-mix(in oklab, var(--pal) 20%, #121715);
+      --color-brass: #e4b862;
+      --color-brass-soft: #3a2f17;
+      --color-danger: #f08c80;
+      --color-danger-soft: #3d211e;
+      --color-ok: #62c995;
+      --color-ok-soft: #173429;
+      --color-inverse: color-mix(in oklab, var(--pal) 30%, #28322d);
+      --color-on-ok: #07160e;
+      --color-gold: #e8b95a;
+      --color-info: #6fb6d0;
+      --color-info-soft: #14303b;
+      --color-gold-soft: #2f2615;
+      --color-gold-soft-2: #3a2e17;
+    }
+  }
+}
+
 html {
   background: var(--color-paper);
   color: var(--color-ink);
@@ -215,7 +303,7 @@ body {
     active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:active:scale-100;
 }
 @utility btn-primary {
-  @apply btn bg-board text-chalk shadow-[0_1px_0_rgb(0_0_0/0.08)] hover:bg-board-deep hover:shadow-[0_6px_18px_-8px_rgb(53_104_84/0.7)];
+  @apply btn bg-board text-chalk shadow-[0_1px_0_rgb(0_0_0/0.08)] hover:bg-board-deep hover:shadow-[0_6px_18px_-8px_color-mix(in_oklab,var(--color-board)_70%,transparent)];
 }
 @utility btn-quiet {
   @apply btn border border-line bg-surface text-ink hover:border-muted;

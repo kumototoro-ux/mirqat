@@ -69,7 +69,7 @@ export async function CalendarView() {
                       />
                       <div
                         className={`rounded-2xl border px-4 py-3 transition-colors ${
-                          current ? 'border-board/40 bg-surface shadow-[0_14px_30px_-22px_rgb(53_104_84/0.7)]' : 'border-line bg-surface/70'
+                          current ? 'border-accent/40 bg-surface shadow-[0_14px_30px_-22px_rgb(53_104_84/0.7)]' : 'border-line bg-surface/70'
                         } ${past ? 'opacity-70' : ''}`}
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">

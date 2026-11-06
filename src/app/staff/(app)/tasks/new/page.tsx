@@ -18,7 +18,7 @@ export default async function NewAssessment({ searchParams }: { searchParams: Pr
   const ctx = await getAuthorContext(user);
   return (
     <>
-      <Link href="/staff/tasks" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+      <Link href="/staff/tasks" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <Icon name="chevron" className="size-4 rotate-180" /> المهام والنماذج
       </Link>
       <PageHeader

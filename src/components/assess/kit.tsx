@@ -29,7 +29,7 @@ export function Section({ n, title, lead, children, icon, aside }: { n: number; 
 
 export function Switch({ checked, onChange, label, hint, disabled }: { checked: boolean; onChange: (v: boolean) => void; label: string; hint?: string; disabled?: boolean }) {
   return (
-    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5 transition-colors hover:border-board/30 ${disabled ? 'pointer-events-none opacity-55' : ''}`}>
+    <label className={`flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5 transition-colors hover:border-accent/30 ${disabled ? 'pointer-events-none opacity-55' : ''}`}>
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-semibold">{label}</span>
         {hint && <span className="mt-0.5 block text-xs leading-relaxed text-muted">{hint}</span>}
@@ -60,14 +60,14 @@ export function CardChoice<T extends string>({ value, onChange, options, cols = 
             role="radio"
             aria-checked={on}
             onClick={() => onChange(o.value)}
-            className={`relative flex items-start gap-2.5 rounded-xl border p-3 text-start transition-all duration-200 active:scale-[0.98] ${on ? 'border-board bg-board/[0.06] shadow-[0_0_0_3px_rgb(53_104_84/0.12)]' : 'border-line hover:border-board/30'}`}
+            className={`relative flex items-start gap-2.5 rounded-xl border p-3 text-start transition-all duration-200 active:scale-[0.98] ${on ? 'border-accent bg-board/[0.06] shadow-[0_0_0_3px_rgb(53_104_84/0.12)]' : 'border-line hover:border-accent/30'}`}
           >
-            <span className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2 transition-colors ${on ? 'border-board bg-board' : 'border-line'}`}>
+            <span className={`mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border-2 transition-colors ${on ? 'border-accent bg-board' : 'border-line'}`}>
               {on && <span className="size-2 rounded-full bg-white" />}
             </span>
             <span className="min-w-0">
               <span className="flex items-center gap-1.5 text-sm font-semibold">
-                {o.icon && <Icon name={o.icon} className="size-4 text-board" />}
+                {o.icon && <Icon name={o.icon} className="size-4 text-accent" />}
                 {o.label}
               </span>
               {o.hint && <span className="mt-0.5 block text-xs leading-snug text-muted">{o.hint}</span>}
@@ -119,7 +119,7 @@ export function DateTime({ value, onChange, quick = 'due', allowEmpty, emptyLabe
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-1.5">
         {chips.map((c) => (
-          <button key={c.label} type="button" onClick={c.run} className="rounded-full bg-paper px-3 py-1 text-xs font-medium text-ink transition-colors hover:bg-board/10 hover:text-board">
+          <button key={c.label} type="button" onClick={c.run} className="rounded-full bg-paper px-3 py-1 text-xs font-medium text-ink transition-colors hover:bg-accent/10 hover:text-accent">
             {c.label}
           </button>
         ))}

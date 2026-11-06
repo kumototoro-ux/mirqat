@@ -30,7 +30,7 @@ export default async function PerformancePage() {
           <ul className="divide-y divide-line">
             {rows.map((r) => (
               <li key={r.id}>
-                <Link href={`/staff/performance/${r.id}`} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-board/5">
+                <Link href={`/staff/performance/${r.id}`} className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 transition-colors hover:bg-accent/5">
                   <div className="min-w-0">
                     <p className="font-semibold">
                       {r.branch}

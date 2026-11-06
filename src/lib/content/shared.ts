@@ -99,7 +99,7 @@ export const PROVIDER_LABEL: Record<Media['provider'], string> = { youtube: 'ي�
 
 export const STATUS_LABEL: Record<ContentStatus, { label: string; tone: string }> = {
   published: { label: 'منشور', tone: 'bg-ok-soft text-ok' },
-  scheduled: { label: 'مجدول', tone: 'bg-[#e1eef3] text-[#2a6f8a]' },
+  scheduled: { label: 'مجدول', tone: 'bg-info-soft text-info' },
   draft: { label: 'مسودة', tone: 'bg-paper text-muted' },
   expired: { label: 'منتهي', tone: 'bg-danger-soft text-danger' },
 };

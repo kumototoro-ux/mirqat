@@ -58,7 +58,7 @@ export function FormDesk({ form }: { form: FormDetail }) {
           const on = x.id === qid;
           const idx = form.questions.indexOf(x) + 1;
           return (
-            <button key={x.id} type="button" onClick={() => setQid(x.id)} className={`flex shrink-0 items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-sm transition-all ${on ? 'border-board bg-board text-chalk' : 'border-line bg-surface hover:border-board/40'}`}>
+            <button key={x.id} type="button" onClick={() => setQid(x.id)} className={`flex shrink-0 items-center gap-2 rounded-2xl border px-3.5 py-2.5 text-sm transition-all ${on ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-accent/40'}`}>
               <span className="font-bold">س{idx}</span>
               <span className={on ? 'text-chalk/75' : 'text-muted'}>{QTYPE_LABEL[x.qtype]}</span>
               {n > 0 ? <span className={`rounded-full px-1.5 text-xs font-bold tabular-nums ${on ? 'bg-chalk/20' : 'bg-gold/25 text-brass'}`}>{n}</span> : <Icon name="check" className="size-4" />}

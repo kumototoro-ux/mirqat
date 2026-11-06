@@ -75,7 +75,7 @@ export function ExamsAgenda({ exams, showClass, hidden }: { exams: ViewExam[]; s
               <div className="min-w-0">
                 <p className="truncate text-2xl font-bold sm:text-3xl">{next.subject}</p>
                 <p className="mt-1 text-chalk/80">{fmtWeekday(next.date)} {fmtDate(next.date)}{next.startsAt ? ` · ${fmtTime(next.startsAt)}` : ''}</p>
-                <p className="text-sm text-chalk/65">{showClass ? next.classLabel : next.period ?? fmtHijri(next.date)}</p>
+                <p className="text-sm text-chalk/70">{showClass ? next.classLabel : next.period ?? fmtHijri(next.date)}</p>
               </div>
               <div className="shrink-0 rounded-2xl bg-chalk/10 px-4 py-3 text-center ring-1 ring-chalk/15">
                 <motion.p key={next.id} initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 300, damping: 18 }} className="text-4xl font-bold tabular-nums text-gold">
@@ -194,7 +194,7 @@ export function AdminExams({ exams, hidden }: { exams: ViewExam[]; hidden: boole
         <div className="mb-5 flex flex-wrap items-center gap-2">
           <div className="flex rounded-xl bg-paper p-1">
             {([['upcoming', 'القادمة'], ['week', 'هذا الأسبوع'], ['all', 'الكل']] as const).map(([k, l]) => (
-              <button key={k} type="button" onClick={() => setRange(k)} className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${range === k ? 'bg-surface text-board shadow-sm' : 'text-muted'}`}>{l}</button>
+              <button key={k} type="button" onClick={() => setRange(k)} className={`rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${range === k ? 'bg-surface text-accent shadow-sm' : 'text-muted'}`}>{l}</button>
             ))}
           </div>
           {branches.length > 1 && (
@@ -209,10 +209,10 @@ export function AdminExams({ exams, hidden }: { exams: ViewExam[]; hidden: boole
           </select>
           <div className="flex gap-2 sm:ms-auto">
             <button type="button" onClick={() => downloadCsv('جدول-الاختبارات', ['التاريخ', 'اليوم', 'الوقت', 'المادة', 'الفصل', 'الفرع', 'المعلم', 'الفترة'], filtered.map((e) => [e.date, fmtWeekday(e.date), fmtTime(e.startsAt), e.subject, e.classLabel, e.branch, e.teacher, e.period]))}
-              className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent">
               <Icon name="audit" className="size-4" /> تصدير
             </button>
-            <Link href="/staff/settings?s=exams" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+            <Link href="/staff/settings?s=exams" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent">
               <Icon name="edit" className="size-4" /> تعديل
             </Link>
           </div>

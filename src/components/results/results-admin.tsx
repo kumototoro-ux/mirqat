@@ -88,7 +88,7 @@ export function ResultsAdmin({
         {shownTab === 'board' && (
           <div className="flex max-w-full gap-1.5 overflow-x-auto pb-0.5">
             {ref_.terms.map((t) => (
-              <Link key={t.id} href={href({ term: t.id, class: classId })} aria-current={t.id === shownTerm ? 'page' : undefined} className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors ${t.id === shownTerm ? 'bg-ink text-chalk' : 'bg-surface text-ink ring-1 ring-line hover:ring-board/40'}`}>
+              <Link key={t.id} href={href({ term: t.id, class: classId })} aria-current={t.id === shownTerm ? 'page' : undefined} className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm transition-colors ${t.id === shownTerm ? 'bg-inverse text-chalk' : 'bg-surface text-ink ring-1 ring-line hover:ring-accent/40'}`}>
                 {t.name} <span className="text-xs opacity-60">{t.year}</span>
               </Link>
             ))}
@@ -161,13 +161,13 @@ function Board({ termId, ref_, overview }: { termId: number; ref_: RefData; over
               const state = !o || !o.students ? 'empty' : o.visible === o.students ? 'open' : o.visible === 0 ? 'closed' : 'partial';
               return (
                 <motion.li key={c.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 12) * 0.03 }}>
-                  <Link href={href({ term: termId, class: c.id })} className="group block rounded-[1.4rem] border border-line bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-board/40 hover:shadow-[0_14px_30px_-22px_rgb(53_104_84/0.8)]">
+                  <Link href={href({ term: termId, class: c.id })} className="group block rounded-[1.4rem] border border-line bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[0_14px_30px_-22px_rgb(53_104_84/0.8)]">
                     <div className="flex items-start gap-3">
                       <div className="min-w-0 flex-1">
                         <p className="truncate font-bold">{c.label}</p>
                         <p className="text-xs text-muted">{o?.students ?? 0} طالب · {o?.graded ?? 0} لهم درجات</p>
                       </div>
-                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[0.7rem] font-semibold ${state === 'open' ? 'bg-ok-soft text-ok' : state === 'closed' ? 'bg-brass-soft text-brass' : state === 'partial' ? 'bg-board/10 text-board' : 'bg-paper text-muted'}`}>
+                      <span className={`shrink-0 rounded-full px-2.5 py-1 text-[0.7rem] font-semibold ${state === 'open' ? 'bg-ok-soft text-ok' : state === 'closed' ? 'bg-brass-soft text-brass' : state === 'partial' ? 'bg-accent/10 text-accent' : 'bg-paper text-muted'}`}>
                         {state === 'open' ? 'ظاهرة' : state === 'closed' ? 'محجوبة' : state === 'partial' ? `ظاهرة لـ ${o!.visible}` : 'لا طلاب'}
                       </span>
                     </div>
@@ -179,7 +179,7 @@ function Board({ termId, ref_, overview }: { termId: number; ref_: RefData; over
                           <p className="mt-1 text-[0.7rem] text-muted">الأداء حتى الآن <b className={`tabular-nums ${rating(o.progress)?.tone ?? ''}`} dir="ltr">{n2(o.progress)}%</b></p>
                         )}
                       </div>
-                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-board opacity-70 transition-opacity group-hover:opacity-100">
+                      <span className="inline-flex items-center gap-1 text-sm font-semibold text-accent opacity-70 transition-opacity group-hover:opacity-100">
                         الكشف <Icon name="chevron" className="size-4" />
                       </span>
                     </div>
@@ -252,7 +252,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
 
   return (
     <div className="space-y-4">
-      <Link href={href({ term: termId })} className="inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+      <Link href={href({ term: termId })} className="inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <Icon name="chevron" className="size-4 rotate-180" /> كل الفصول
       </Link>
       <section className="flex flex-wrap items-center gap-4 rounded-[1.6rem] border border-line bg-surface p-5">
@@ -262,7 +262,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
           <h2 className="text-[1.4rem] font-bold leading-snug">{cls?.label ?? 'الفصل'}</h2>
           <p className="mt-1 text-sm text-muted">
             {data.students.length} طالب · {subjects.length} مادة ·{' '}
-            <span className={visibleN === data.students.length ? 'text-ok' : visibleN ? 'text-board' : 'text-brass'}>
+            <span className={visibleN === data.students.length ? 'text-ok' : visibleN ? 'text-accent' : 'text-brass'}>
               {visibleN === data.students.length ? 'النتائج ظاهرة للجميع' : visibleN ? `ظاهرة لـ ${visibleN} طالب` : 'محجوبة عن الطلاب'}
             </span>
           </p>
@@ -345,7 +345,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
                 return (
                   <tr key={s.id} className="transition-colors hover:bg-paper/50">
                     <th scope="row" className="sticky start-0 bg-surface px-4 py-2 text-start font-medium">
-                      <button type="button" onClick={() => setOpen(s)} className="text-start hover:text-board">
+                      <button type="button" onClick={() => setOpen(s)} className="text-start hover:text-accent">
                         <span className="block max-w-48 truncate">{s.name_ar}</span>
                         <span className="block text-xs font-normal text-muted"><bdi>{s.code}</bdi>{s.is_intisab ? ' · منتسب' : ''}</span>
                       </button>

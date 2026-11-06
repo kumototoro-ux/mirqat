@@ -183,7 +183,7 @@ export function TaskEditor({ ctx, task }: { ctx: AuthorContext; task?: TaskDetai
                 type="button"
                 onClick={() => setEvalType(e.value)}
                 aria-pressed={evalType === e.value}
-                className={`rounded-full px-3.5 py-2 text-sm transition-all duration-200 active:scale-95 ${evalType === e.value ? 'bg-board text-chalk shadow-[0_6px_14px_-8px_rgb(53_104_84/0.9)]' : 'bg-paper hover:bg-board/10'}`}
+                className={`rounded-full px-3.5 py-2 text-sm transition-all duration-200 active:scale-95 ${evalType === e.value ? 'bg-board text-chalk shadow-[0_6px_14px_-8px_rgb(53_104_84/0.9)]' : 'bg-paper hover:bg-accent/10'}`}
               >
                 {e.label}
               </button>
@@ -228,7 +228,7 @@ export function TaskEditor({ ctx, task }: { ctx: AuthorContext; task?: TaskDetai
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={a.href} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
                     ) : (
-                      <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-board/10 text-board">
+                      <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
                         <Icon name={a.kind === 'link' ? 'link' : 'clip'} className="size-5" />
                       </span>
                     )}
@@ -243,7 +243,7 @@ export function TaskEditor({ ctx, task }: { ctx: AuthorContext; task?: TaskDetai
                         {a.kind === 'link' ? a.url : `${a.kind === 'image' ? 'صورة' : 'ملف'} · ${fmtBytes(a.size_bytes ?? 0)}`}
                       </p>
                     </div>
-                    <a href={a.href} target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-lg text-muted hover:bg-board/10 hover:text-board" title="فتح">
+                    <a href={a.href} target="_blank" rel="noopener noreferrer" className="grid size-8 place-items-center rounded-lg text-muted hover:bg-accent/10 hover:text-accent" title="فتح">
                       <Icon name="eye" className="size-4" />
                     </a>
                     <button type="button" onClick={() => setAtts((list) => list.filter((x) => x.key !== a.key))} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger" title="إزالة">
@@ -267,7 +267,7 @@ export function TaskEditor({ ctx, task }: { ctx: AuthorContext; task?: TaskDetai
               <Icon name="link" className="size-4" /> رابط
             </button>
             {uploading > 0 && (
-              <span className="inline-flex items-center gap-2 text-sm text-board">
+              <span className="inline-flex items-center gap-2 text-sm text-accent">
                 <span className="spinner" /> جارٍ الرفع ({uploading})…
               </span>
             )}
@@ -292,7 +292,7 @@ export function TaskEditor({ ctx, task }: { ctx: AuthorContext; task?: TaskDetai
           <CardChoice value={mode} onChange={setMode} cols={4} options={SUBMISSION_MODES.map((m) => ({ ...m, icon: m.value === 'text' ? 'text' : m.value === 'file' ? 'upload' : m.value === 'any' ? 'clip' : 'edit' }))} />
           {hasSubmissions && <p className="mt-2 text-xs text-brass">وصلت تسليمات، فلا يمكن تغيير طريقة التسليم.</p>}
           {(mode === 'file' || mode === 'any') && (
-            <p className="mt-2 rounded-xl bg-board/[0.06] px-3 py-2 text-xs leading-relaxed text-board">
+            <p className="mt-2 rounded-xl bg-board/[0.06] px-3 py-2 text-xs leading-relaxed text-accent">
               حتى 5 ملفات، كل ملف 1 ميقا كحد أقصى. الصور تُضغط تلقائيًا في جهاز الطالب قبل الرفع. تُحذف ملفات التسليم بعد التصحيح حسب إعداد الإدارة، ويبقى النص والدرجة.
             </p>
           )}
@@ -315,7 +315,7 @@ export function TaskEditor({ ctx, task }: { ctx: AuthorContext; task?: TaskDetai
             {ctx.subjects.find((s) => s.value === subject)?.label ?? 'المادة'} · {ctx.evalTypes.find((e) => e.value === evalType)?.label ?? 'نوع التقييم'} · من {Number(maxScore) || '—'}
           </p>
           {description && <RichText text={description} className="mt-3 block leading-relaxed" />}
-          {atts.length > 0 && <p className="mt-3 text-sm text-board">{atts.length} مرفق</p>}
+          {atts.length > 0 && <p className="mt-3 text-sm text-accent">{atts.length} مرفق</p>}
         </div>
       </Section>
 

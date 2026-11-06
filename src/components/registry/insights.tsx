@@ -17,7 +17,7 @@ export type Stat = {
 export type Slice = { name: string; value: number };
 
 // ألوان متناسقة مع الهوية: درجات الأخضر ثم الذهبي
-export const CHART_COLORS = ['#356854', '#d9a441', '#5d9478', '#8a6116', '#9cc3ad', '#2a6f8a', '#c9dccf', '#a3462f'];
+export const CHART_COLORS = ['var(--color-accent)', '#d9a441', '#5d9478', '#8a6116', '#9cc3ad', '#2a6f8a', '#c9dccf', '#a3462f'];
 
 function Delta({ now, before, upIsGood = true }: NonNullable<Stat['delta']>) {
   if (!before && !now) return <span className="rounded-full bg-paper px-2 py-0.5 text-xs font-semibold text-muted">—</span>;
@@ -25,7 +25,7 @@ function Delta({ now, before, upIsGood = true }: NonNullable<Stat['delta']>) {
   const up = now >= before;
   const good = up === upIsGood;
   return (
-    <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${good ? 'bg-ok text-chalk' : 'bg-danger-soft text-danger'}`} dir="ltr">
+    <span className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-bold tabular-nums ${good ? 'bg-ok text-on-ok' : 'bg-danger-soft text-danger'}`} dir="ltr">
       <svg viewBox="0 0 10 10" className={`size-2.5 ${up ? '' : 'rotate-180'}`}><path d="M5 2 9 7H1z" fill="currentColor" /></svg>
       {pct > 0 ? '+' : ''}{pct}%
     </span>
@@ -46,11 +46,11 @@ export function Insights({ stats, donut }: { stats: Stat[]; donut: { title: stri
             transition={{ delay: i * 0.06, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -3 }}
             className={`relative overflow-hidden rounded-[1.4rem] border p-4 sm:p-5 ${
-              featured ? 'border-board/15 bg-gradient-to-br from-[#dcebe2] to-[#eef5f0]' : 'border-line bg-surface'
+              featured ? 'border-accent/15 bg-gradient-to-br from-tint to-surface' : 'border-line bg-surface'
             } ${i < 2 ? 'lg:row-start-1' : 'lg:row-start-2'} ${i % 2 === 0 ? 'lg:col-start-1' : 'lg:col-start-2'}`}
           >
             <p className="flex items-center gap-2 text-xs font-medium text-muted sm:text-sm">
-              <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${featured ? 'bg-board text-chalk' : 'bg-board/10 text-board'}`}>
+              <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${featured ? 'bg-board text-chalk' : 'bg-accent/10 text-accent'}`}>
                 <Icon name={s.icon} className="size-[1.1rem]" />
               </span>
               <span className="truncate">{s.label}</span>
@@ -80,7 +80,7 @@ export function Insights({ stats, donut }: { stats: Stat[]; donut: { title: stri
             <h3 className="font-bold">{donut.title}</h3>
             <p className="text-xs text-muted">{donut.caption}</p>
           </div>
-          <span className="rounded-full bg-board/10 px-2.5 py-1 text-xs font-semibold text-board">{total} {donut.unit}</span>
+          <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">{total} {donut.unit}</span>
         </div>
         {total === 0 ? (
           <p className="grid h-40 place-items-center text-sm text-muted">لا بيانات بعد</p>

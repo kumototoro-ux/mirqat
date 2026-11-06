@@ -74,12 +74,12 @@ export function GradingHub({
               className={`group relative flex items-center gap-4 overflow-hidden rounded-[1.4rem] border p-4 text-start transition-all duration-300 sm:p-5 ${
                 on
                   ? c.tone === 'board'
-                    ? 'border-board bg-gradient-to-br from-board to-board-deep text-chalk shadow-[0_18px_40px_-24px_rgb(53_104_84/0.9)]'
-                    : 'border-gold bg-gradient-to-br from-[#f7e6bd] to-[#efd59a] text-ink shadow-[0_18px_40px_-26px_rgb(138_97_22/0.8)]'
-                  : 'border-line bg-surface hover:-translate-y-0.5 hover:border-board/30'
+                    ? 'border-accent bg-gradient-to-br from-board to-board-deep text-chalk shadow-[0_18px_40px_-24px_rgb(53_104_84/0.9)]'
+                    : 'border-gold bg-gradient-to-br from-gold-soft to-gold-soft-2 text-ink shadow-[0_18px_40px_-26px_rgb(138_97_22/0.8)]'
+                  : 'border-line bg-surface hover:-translate-y-0.5 hover:border-accent/30'
               }`}
             >
-              <span className={`grid size-14 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105 ${on ? (c.tone === 'board' ? 'bg-chalk/15' : 'bg-white/60 text-brass') : c.tone === 'board' ? 'bg-board/10 text-board' : 'bg-brass-soft text-brass'}`}>
+              <span className={`grid size-14 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105 ${on ? (c.tone === 'board' ? 'bg-chalk/15' : 'bg-white/60 text-brass') : c.tone === 'board' ? 'bg-accent/10 text-accent' : 'bg-brass-soft text-brass'}`}>
                 <Icon name={c.icon} className="size-7" />
               </span>
               <span className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ export function GradingHub({
             key={k}
             type="button"
             onClick={() => go(k)}
-            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all ${mode === k ? 'bg-ink text-chalk' : 'bg-surface text-ink ring-1 ring-line hover:ring-board/40'}`}
+            className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all ${mode === k ? 'bg-inverse text-chalk' : 'bg-surface text-ink ring-1 ring-line hover:ring-accent/40'}`}
           >
             <Icon name={icon} className="size-4" /> {label}
           </button>
@@ -169,10 +169,10 @@ function TasksMode({ ctx, pending, classNames, subjectNames }: { ctx: AuthorCont
             const m = STATUS_META[r.status];
             return (
               <motion.li key={r.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 9) * 0.035 }}>
-                <Link href={`/staff/grading/${r.id}`} className="group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-line bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-board/30 hover:shadow-[0_18px_40px_-28px_rgb(31_42_36/0.6)]">
+                <Link href={`/staff/grading/${r.id}`} className="group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-line bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_18px_40px_-28px_rgb(31_42_36/0.6)]">
                   <span className="absolute inset-y-0 start-0 w-1.5" style={{ background: subjectColor(subjectNames[r.subject_id] ?? '') }} />
                   <div className="flex items-start gap-3 ps-1">
-                    <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${r.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+                    <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${r.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
                       <Icon name={r.kind === 'form' ? 'forms' : 'tasks'} className="size-5" />
                     </span>
                     <div className="min-w-0 flex-1">
@@ -192,7 +192,7 @@ function TasksMode({ ctx, pending, classNames, subjectNames }: { ctx: AuthorCont
                     </div>
                     <p className="flex items-center justify-between text-xs text-muted">
                       <span>رُصد {r.graded} من {r.class_size}</span>
-                      <span className="inline-flex items-center gap-1 font-semibold text-board opacity-0 transition-opacity group-hover:opacity-100">ابدأ التصحيح <Icon name="chevron" className="size-3.5" /></span>
+                      <span className="inline-flex items-center gap-1 font-semibold text-accent opacity-0 transition-opacity group-hover:opacity-100">ابدأ التصحيح <Icon name="chevron" className="size-3.5" /></span>
                     </p>
                   </div>
                 </Link>
@@ -235,7 +235,7 @@ function MetaFields({ ctx, meta, set, lockClass }: { ctx: AuthorContext; meta: M
         <p className="label">نوع التقييم <span className="text-danger">*</span></p>
         <div className="flex flex-wrap gap-1.5">
           {ctx.evalTypes.map((e) => (
-            <button key={e.value} type="button" aria-pressed={meta.evalType === e.value} onClick={() => set({ evalType: e.value, title: meta.title || e.label })} className={`rounded-full px-3.5 py-2 text-sm transition-all active:scale-95 ${meta.evalType === e.value ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+            <button key={e.value} type="button" aria-pressed={meta.evalType === e.value} onClick={() => set({ evalType: e.value, title: meta.title || e.label })} className={`rounded-full px-3.5 py-2 text-sm transition-all active:scale-95 ${meta.evalType === e.value ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
               {e.label}
             </button>
           ))}
@@ -418,7 +418,7 @@ function SingleMode({ ctx }: { ctx: AuthorContext }) {
           <div className="relative">
             <Icon name="search" className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted" />
             <input ref={box} value={q} onChange={(e) => { setQ(e.target.value); setStudent(null); }} placeholder="اكتب اسم الطالب أو رقمه" className="field ps-10 text-[1.05rem]" autoComplete="off" />
-            {searching && <span className="spinner absolute inset-y-0 end-3 my-auto text-board" />}
+            {searching && <span className="spinner absolute inset-y-0 end-3 my-auto text-accent" />}
           </div>
           <AnimatePresence>
             {hits.length > 0 && (
@@ -426,7 +426,7 @@ function SingleMode({ ctx }: { ctx: AuthorContext }) {
                 {hits.map((h) => (
                   <li key={h.id}>
                     <button type="button" onClick={() => pick(h)} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start hover:bg-board/[0.06]">
-                      <span className="grid size-9 place-items-center rounded-full bg-board/10 font-bold text-board">{h.name_ar.trim().charAt(0)}</span>
+                      <span className="grid size-9 place-items-center rounded-full bg-accent/10 font-bold text-accent">{h.name_ar.trim().charAt(0)}</span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold">{h.name_ar}</span>
                         <span className="block truncate text-xs text-muted"><bdi>{h.code}</bdi> · {h.class_label}</span>
@@ -437,7 +437,7 @@ function SingleMode({ ctx }: { ctx: AuthorContext }) {
               </motion.ul>
             )}
           </AnimatePresence>
-          {student && <p className="mt-1.5 text-xs text-board">✓ {student.class_label}</p>}
+          {student && <p className="mt-1.5 text-xs text-accent">✓ {student.class_label}</p>}
         </div>
         <MetaFields ctx={ctx} meta={meta} set={(p) => setMeta((m) => ({ ...m, ...p }))} lockClass />
         <div>
@@ -445,7 +445,7 @@ function SingleMode({ ctx }: { ctx: AuthorContext }) {
           <div className="flex flex-wrap items-center gap-2">
             <input type="number" inputMode="decimal" min={0} max={max} step={0.25} value={score} onChange={(e) => setScore(e.target.value)} className="field w-28 py-3 text-center text-xl font-bold tabular-nums" dir="ltr" />
             {[max, max / 2, 0].filter((v, i, a) => a.indexOf(v) === i && v >= 0).map((v) => (
-              <button key={v} type="button" onClick={() => setScore(String(Math.round(v * 100) / 100))} className={`rounded-full px-3.5 py-2 text-sm tabular-nums ${score === String(Math.round(v * 100) / 100) ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+              <button key={v} type="button" onClick={() => setScore(String(Math.round(v * 100) / 100))} className={`rounded-full px-3.5 py-2 text-sm tabular-nums ${score === String(Math.round(v * 100) / 100) ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
                 {Math.round(v * 100) / 100}
               </button>
             ))}
@@ -521,7 +521,7 @@ function RecordsMode({ ctx, classNames, subjectNames }: { ctx: AuthorContext; cl
           sort: 'title',
           render: (r) => (
             <div className="flex items-center gap-3">
-              <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${r.kind === 'manual' ? 'bg-paper text-ink' : r.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+              <span className={`grid size-10 shrink-0 place-items-center rounded-xl ${r.kind === 'manual' ? 'bg-paper text-ink' : r.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
                 <Icon name={r.kind === 'manual' ? (r.target_student_id ? 'user' : 'edit') : r.kind === 'form' ? 'forms' : 'tasks'} className="size-5" />
               </span>
               <div className="min-w-0">
@@ -535,7 +535,7 @@ function RecordsMode({ ctx, classNames, subjectNames }: { ctx: AuthorContext; cl
         },
         { key: 'class', label: 'الفصل', render: (r) => <span className="text-sm">{classNames[r.class_id]}</span> },
         { key: 'graded', label: 'المرصودون', render: (r) => <span className="tabular-nums">{r.graded}/{r.class_size}</span> },
-        { key: 'avg', label: 'المتوسط', render: (r) => (r.avg_pct != null ? <span className={`rounded-lg px-2 py-1 text-xs font-bold tabular-nums ${r.avg_pct >= 75 ? 'bg-ok-soft text-ok' : r.avg_pct >= 50 ? 'bg-board/10 text-board' : 'bg-danger-soft text-danger'}`}>{r.avg_pct}%</span> : '—') },
+        { key: 'avg', label: 'المتوسط', render: (r) => (r.avg_pct != null ? <span className={`rounded-lg px-2 py-1 text-xs font-bold tabular-nums ${r.avg_pct >= 75 ? 'bg-ok-soft text-ok' : r.avg_pct >= 50 ? 'bg-accent/10 text-accent' : 'bg-danger-soft text-danger'}`}>{r.avg_pct}%</span> : '—') },
         { key: 'when', label: 'آخر رصد', sort: 'recorded', render: (r) => <span className="whitespace-nowrap text-xs text-muted">{r.grades_recorded_at ? fmtFull(r.grades_recorded_at) : '—'}</span> },
       ]}
       mobileCard={(r) => (

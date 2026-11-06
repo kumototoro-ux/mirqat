@@ -17,9 +17,9 @@ const REASONS: Record<'positive' | 'negative', string[]> = {
   positive: ['مشاركة متميزة', 'مساعدة زملائه', 'نظافة وترتيب', 'التزام وانضباط', 'إبداع في العمل', 'قيادة ومبادرة'],
 };
 const KIND_STYLE: Record<BehKind, { soft: string; on: string; label: string }> = {
-  positive: { soft: 'bg-ok-soft text-ok', on: 'bg-ok text-chalk', label: 'إيجابي' },
+  positive: { soft: 'bg-ok-soft text-ok', on: 'bg-ok text-on-ok', label: 'إيجابي' },
   negative: { soft: 'bg-danger-soft text-danger', on: 'bg-danger text-chalk', label: 'سلبي' },
-  neutral: { soft: 'bg-paper text-muted', on: 'bg-ink text-chalk', label: 'ملاحظة' },
+  neutral: { soft: 'bg-paper text-muted', on: 'bg-inverse text-chalk', label: 'ملاحظة' },
 };
 
 export function BehaviorApp({ ctx, statuses, initialBoard, initialRecent, myEmployeeId }: { ctx: AuthorContext; statuses: Status[]; initialBoard: Board; initialRecent: BehaviorRecord[]; myEmployeeId: number | null }) {
@@ -126,15 +126,15 @@ function StudentSearch({ onPick }: { onPick: (s: StudentHit) => void }) {
   return (
     <div className="relative">
       <Icon name="search" className="pointer-events-none absolute inset-y-0 start-4 my-auto size-5 text-muted" />
-      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث عن طالب بالاسم أو الرقم لتسجيل سلوكه أو عرض سجله" className="h-14 w-full rounded-2xl border border-line bg-surface pe-10 ps-12 text-[1.02rem] shadow-[0_1px_0_rgb(31_42_36/0.03)] focus:border-board focus:outline-none focus:ring-4 focus:ring-gold/20" autoComplete="off" />
-      {busy && <span className="spinner absolute inset-y-0 end-4 my-auto text-board" />}
+      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث عن طالب بالاسم أو الرقم لتسجيل سلوكه أو عرض سجله" className="h-14 w-full rounded-2xl border border-line bg-surface pe-10 ps-12 text-[1.02rem] shadow-[0_1px_0_rgb(31_42_36/0.03)] focus:border-accent focus:outline-none focus:ring-4 focus:ring-gold/20" autoComplete="off" />
+      {busy && <span className="spinner absolute inset-y-0 end-4 my-auto text-accent" />}
       <AnimatePresence>
         {hits.length > 0 && (
           <motion.ul initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute inset-x-0 top-full z-20 mt-1 max-h-80 overflow-y-auto rounded-2xl border border-line bg-surface p-1 shadow-[0_20px_50px_-20px_rgb(31_42_36/0.45)]">
             {hits.map((h) => (
               <li key={h.id}>
                 <button type="button" onClick={() => { onPick(h); setQ(''); setHits([]); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start hover:bg-board/[0.06]">
-                  <span className="grid size-9 place-items-center rounded-full bg-board/10 font-bold text-board">{h.name_ar.trim().charAt(0)}</span>
+                  <span className="grid size-9 place-items-center rounded-full bg-accent/10 font-bold text-accent">{h.name_ar.trim().charAt(0)}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold">{h.name_ar}</span>
                     <span className="block truncate text-xs text-muted"><bdi>{h.code}</bdi> · {h.class_label}</span>
@@ -152,7 +152,7 @@ function StudentSearch({ onPick }: { onPick: (s: StudentHit) => void }) {
 function ScoreRing({ score }: { score: number }) {
   const r = 34;
   const c = 2 * Math.PI * r;
-  const tone = score >= 90 ? '#11734b' : score >= 75 ? '#356854' : score >= 60 ? '#d9a441' : '#b03a2e';
+  const tone = score >= 90 ? '#11734b' : score >= 75 ? 'var(--color-accent)' : score >= 60 ? '#d9a441' : '#b03a2e';
   return (
     <div className="relative size-24 shrink-0">
       <svg viewBox="0 0 80 80" className="size-full -rotate-90">
@@ -266,7 +266,7 @@ function StudentPanel({ student, statuses, ctx, term, myEmployeeId, onClose }: {
             <p className="label">الحالة</p>
             <div className="flex flex-wrap gap-1.5">
               {options.map((o) => (
-                <button key={o.id} type="button" onClick={() => setStatus(o.id)} className={`rounded-full px-3.5 py-2 text-sm transition-all ${status === o.id ? KIND_STYLE[behKind(o.name)].on : 'bg-paper hover:bg-board/10'}`}>{o.name}</button>
+                <button key={o.id} type="button" onClick={() => setStatus(o.id)} className={`rounded-full px-3.5 py-2 text-sm transition-all ${status === o.id ? KIND_STYLE[behKind(o.name)].on : 'bg-paper hover:bg-accent/10'}`}>{o.name}</button>
               ))}
               {!options.length && <span className="text-sm text-muted">أضف حالات السلوك من الإعدادات العامة</span>}
             </div>
@@ -286,7 +286,7 @@ function StudentPanel({ student, statuses, ctx, term, myEmployeeId, onClose }: {
             <input value={note} onChange={(e) => setNote(e.target.value.slice(0, 1000))} className="field" placeholder="ماذا حدث؟" />
             <span className="mt-1.5 flex flex-wrap gap-1">
               {REASONS[kind].map((t) => (
-                <button key={t} type="button" onClick={() => setNote(t)} className="rounded-full bg-paper px-2.5 py-1 text-xs hover:bg-board/10">{t}</button>
+                <button key={t} type="button" onClick={() => setNote(t)} className="rounded-full bg-paper px-2.5 py-1 text-xs hover:bg-accent/10">{t}</button>
               ))}
             </span>
           </Field>
@@ -296,7 +296,7 @@ function StudentPanel({ student, statuses, ctx, term, myEmployeeId, onClose }: {
             </Field>
             <div className="ms-auto flex gap-2">
               {editing && <button type="button" onClick={reset} className="btn-quiet">إلغاء التعديل</button>}
-              <button type="button" onClick={save} disabled={busy} className={`btn px-8 py-3 text-chalk ${kind === 'negative' ? 'bg-danger hover:bg-[#93281f]' : 'bg-ok hover:bg-[#0c5a3a]'}`}>
+              <button type="button" onClick={save} disabled={busy} className={`btn px-8 py-3 text-on-ok ${kind === 'negative' ? 'bg-danger hover:bg-[#93281f]' : 'bg-ok hover:bg-[#0c5a3a]'}`}>
                 {busy ? <span className="spinner" /> : <Icon name="check" className="size-4" />} {editing ? 'حفظ التعديل' : 'تسجيل'}
               </button>
             </div>
@@ -326,7 +326,7 @@ function StudentPanel({ student, statuses, ctx, term, myEmployeeId, onClose }: {
                     <p className="mt-0.5 text-xs text-muted">{r.occurred_on ? fmtDay(r.occurred_on) : ''}{r.recorder ? ` · ${r.recorder}` : ''}</p>
                   </div>
                   <div className="flex shrink-0 gap-0.5">
-                    {canTouch(r, 72) && <button type="button" onClick={() => edit(r)} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-board/10 hover:text-board" aria-label="تعديل"><Icon name="edit" className="size-4" /></button>}
+                    {canTouch(r, 72) && <button type="button" onClick={() => edit(r)} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-accent/10 hover:text-accent" aria-label="تعديل"><Icon name="edit" className="size-4" /></button>}
                     {canTouch(r, 6) && <button type="button" onClick={() => remove(r)} className="grid size-8 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger" aria-label="حذف"><Icon name="trash" className="size-4" /></button>}
                   </div>
                 </li>

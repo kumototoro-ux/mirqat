@@ -99,7 +99,7 @@ export function StaffDashboard({ role, name, greet, date, data, periods, classNa
                 <>
                   <p className="flex items-center gap-1.5 text-xs text-gold"><span className="size-2 animate-pulse rounded-full bg-gold" /> الحصة الآن</p>
                   <p className="mt-0.5 font-bold">{current.subject} · {classNames[current.class_id] ?? ''}</p>
-                  <Link href="/staff/attendance" className="mt-2 inline-flex items-center gap-1 rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-ink">{current.recorded ? 'تعديل التحضير' : 'حضّرها الآن'}</Link>
+                  <Link href="/staff/attendance" className="mt-2 inline-flex items-center gap-1 rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-on-gold">{current.recorded ? 'تعديل التحضير' : 'حضّرها الآن'}</Link>
                 </>
               ) : next ? (
                 <>
@@ -142,7 +142,7 @@ export function StaffDashboard({ role, name, greet, date, data, periods, classNa
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
         {admin ? (
           <Panel title="نبض المدرسة — آخر 14 يومًا" action={<MoreLink href="/staff/reports">التقارير</MoreLink>}>
-            <ActivityChart days={data.activity} series={[{ key: 'grades', label: 'درجات', color: '#356854' }, { key: 'attendance', label: 'تحضير', color: '#d9a441' }, { key: 'views', label: 'مشاهدات', color: '#2a6f8a' }]} />
+            <ActivityChart days={data.activity} series={[{ key: 'grades', label: 'درجات', color: 'var(--color-accent)' }, { key: 'attendance', label: 'تحضير', color: '#d9a441' }, { key: 'views', label: 'مشاهدات', color: '#2a6f8a' }]} />
           </Panel>
         ) : (
           <Panel title="حصصي اليوم" action={<MoreLink href="/staff/timetable?mine=1">جدولي</MoreLink>} pad={false}>
@@ -155,7 +155,7 @@ export function StaffDashboard({ role, name, greet, date, data, periods, classNa
                   return (
                     <motion.li key={p.slot_id} initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="relative flex gap-3 pb-3 last:pb-0">
                       <span className="relative flex flex-col items-center">
-                        <span className={`grid size-10 shrink-0 place-items-center rounded-xl text-sm font-bold ${live ? 'bg-gold text-ink ring-4 ring-gold/25' : p.recorded ? 'bg-ok-soft text-ok' : 'bg-paper text-ink'}`}>{p.period_no}</span>
+                        <span className={`grid size-10 shrink-0 place-items-center rounded-xl text-sm font-bold ${live ? 'bg-gold text-on-gold ring-4 ring-gold/25' : p.recorded ? 'bg-ok-soft text-ok' : 'bg-paper text-on-gold'}`}>{p.period_no}</span>
                         {i < periods.length - 1 && <span className="w-px flex-1 bg-line" />}
                       </span>
                       <Link href="/staff/attendance" className={`mb-1 flex min-w-0 flex-1 items-center gap-3 rounded-xl px-3 py-2 transition-colors ${live ? 'bg-gold/10' : 'hover:bg-paper'}`}>
@@ -235,7 +235,7 @@ export function StaffDashboard({ role, name, greet, date, data, periods, classNa
           {!data.content.top.length ? (
             <div className="px-5 pb-5 pt-2 text-sm text-muted">
               لم يُنشر محتوى بعد.
-              <Link href="/staff/content" className="mt-3 flex items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line py-3 font-semibold text-board hover:border-board/40"><Icon name="plus" className="size-4" /> انشر أول فيديو</Link>
+              <Link href="/staff/content" className="mt-3 flex items-center justify-center gap-1.5 rounded-xl border-2 border-dashed border-line py-3 font-semibold text-accent hover:border-accent/40"><Icon name="plus" className="size-4" /> انشر أول فيديو</Link>
             </div>
           ) : (
             <ul className="space-y-1 px-3 pb-3">

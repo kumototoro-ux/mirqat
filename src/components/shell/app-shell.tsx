@@ -1,5 +1,6 @@
 'use client';
 
+import { ThemePicker } from '@/components/theme-picker';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
@@ -153,6 +154,7 @@ function AccountMenu({ user, home, children, align, up }: { user: User; home: st
               <Icon name="key" className="size-4 text-muted" />
               تغيير كلمة المرور
             </NavLink>
+            <div className="my-1 border-t border-line pt-2"><ThemePicker /></div>
             <form action="/auth/signout" method="post" data-local="1">
               <button type="submit" className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-danger transition-colors hover:bg-danger-soft">
                 <Icon name="logout" className="size-4" />
@@ -183,7 +185,7 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
           {!collapsed && (
             <motion.span initial={{ opacity: 0, x: 8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.2 }} className="min-w-0">
               <span className="block font-display text-[1.75rem] font-bold leading-none text-chalk">مِرقاة</span>
-              <span className="mt-1 block truncate text-xs text-chalk/60">{schoolName}</span>
+              <span className="mt-1 block truncate text-xs text-chalk/70">{schoolName}</span>
             </motion.span>
           )}
         </AnimatePresence>
@@ -197,7 +199,7 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
                 (collapsed ? (
                   <span aria-hidden className="mx-auto mb-2 block h-px w-6 bg-chalk/15" />
                 ) : (
-                  <p className="mb-1.5 px-3 text-xs font-semibold tracking-wide text-chalk/45">{g.title}</p>
+                  <p className="mb-1.5 px-3 text-xs font-semibold tracking-wide text-chalk/70">{g.title}</p>
                 ))}
               <ul className="space-y-1">
                 {g.items.map((item) => {
@@ -220,7 +222,7 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
                             className="absolute inset-0 rounded-xl bg-chalk shadow-[0_10px_24px_-12px_rgb(0_0_0/0.55)]"
                           />
                         )}
-                        <Icon name={item.icon} className={`relative size-5 shrink-0 ${on ? 'text-board' : 'text-chalk/60'}`} />
+                        <Icon name={item.icon} className={`relative size-5 shrink-0 ${on ? 'text-board' : 'text-chalk/70'}`} />
                         {!collapsed && <span className="relative truncate">{item.label}</span>}
                         {on && !collapsed && <span aria-hidden className="relative ms-auto size-1.5 rounded-full bg-gold" />}
                       </NavLink>
@@ -235,7 +237,7 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
 
       {week && !collapsed && (
         <div className="relative mx-4 mb-3 rounded-2xl bg-chalk/[0.08] p-3.5 ring-1 ring-chalk/10">
-          <p className="flex items-center justify-between text-xs text-chalk/60">
+          <p className="flex items-center justify-between text-xs text-chalk/70">
             الأسبوع الحالي
             <span aria-hidden className="flex h-3.5 items-end gap-0.5">
               {[35, 55, 75].map((h) => <span key={h} className="w-1 rounded-sm bg-chalk/40" style={{ height: `${h}%` }} />)}
@@ -243,7 +245,7 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
             </span>
           </p>
           <p className="mt-1 font-bold text-chalk">{week.label}</p>
-          <p className="text-xs text-chalk/60">{week.range}</p>
+          <p className="text-xs text-chalk/70">{week.range}</p>
         </div>
       )}
 
@@ -257,9 +259,9 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
                 <>
                   <span className="min-w-0 flex-1 leading-tight">
                     <span className="block truncate text-sm font-semibold text-chalk">{user.displayName}</span>
-                    <span className="block truncate text-xs text-chalk/55">{ROLE_LABEL[user.role]}{user.code ? ` · ${user.code}` : ''}</span>
+                    <span className="block truncate text-xs text-chalk/70">{ROLE_LABEL[user.role]}{user.code ? ` · ${user.code}` : ''}</span>
                   </span>
-                  <Icon name="more" className="size-5 text-chalk/50" />
+                  <Icon name="more" className="size-5 text-chalk/70" />
                 </>
               )}
             </span>
@@ -341,7 +343,7 @@ function ShellInner(props: Props) {
         onClick={toggle}
         aria-label={collapsed ? 'توسيع القائمة' : 'طي القائمة'}
         aria-expanded={!collapsed}
-        className="absolute -end-3.5 top-[1.85rem] z-10 grid size-7 place-items-center rounded-full border border-line bg-surface text-board shadow-md transition-transform duration-200 hover:scale-110"
+        className="absolute -end-3.5 top-[1.85rem] z-10 grid size-7 place-items-center rounded-full border border-line bg-surface text-accent shadow-md transition-transform duration-200 hover:scale-110"
       >
         <Icon name="chevron" className={`size-4 transition-transform duration-300 ${collapsed ? '' : 'rotate-180'}`} />
       </button>
@@ -361,9 +363,9 @@ function ShellInner(props: Props) {
                 <div className="min-w-0 flex-1">
                   {current?.group && <p className="truncate text-[0.7rem] font-medium text-muted sm:hidden">{current.group}</p>}
                   <nav aria-label="مسار الصفحة" className="hidden items-center gap-1.5 text-xs text-muted sm:flex">
-                    <NavLink href={props.home} className="transition-colors hover:text-board">الرئيسية</NavLink>
+                    <NavLink href={props.home} className="transition-colors hover:text-accent">الرئيسية</NavLink>
                     {current?.group && (<><Icon name="chevron" className="size-3" /><span>{current.group}</span></>)}
-                    {current && current.item.href !== props.home && (<><Icon name="chevron" className="size-3" /><span className="font-medium text-board">{current.item.label}</span></>)}
+                    {current && current.item.href !== props.home && (<><Icon name="chevron" className="size-3" /><span className="font-medium text-accent">{current.item.label}</span></>)}
                   </nav>
                   <AnimatePresence mode="wait" initial={false}>
                     <motion.h1
@@ -380,7 +382,7 @@ function ShellInner(props: Props) {
                 </div>
 
                 <span className="hidden items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-sm xl:flex">
-                  <Icon name="calendar" className="size-4 text-board" />
+                  <Icon name="calendar" className="size-4 text-accent" />
                   <span className="font-medium">{props.today.day}</span>
                   <span className="text-muted">{props.today.date}</span>
                   <span className="text-xs text-muted/80">· {props.today.hijri}</span>
@@ -398,14 +400,14 @@ function ShellInner(props: Props) {
                       name="q"
                       aria-label="بحث عن طالب"
                       placeholder="ابحث عن طالب…"
-                      className="h-11 w-52 rounded-full border border-line bg-surface pe-4 ps-10 text-sm transition-[width,border-color,box-shadow] duration-300 placeholder:text-muted/70 focus:w-72 focus:border-board focus:outline-none focus:ring-4 focus:ring-gold/20"
+                      className="h-11 w-52 rounded-full border border-line bg-surface pe-4 ps-10 text-sm transition-[width,border-color,box-shadow] duration-300 placeholder:text-muted/70 focus:w-72 focus:border-accent focus:outline-none focus:ring-4 focus:ring-gold/20"
                     />
                   </form>
                 )}
 
                 <AccountMenu user={props.user} home={props.home} align="end">
                   {(open) => (
-                    <span className={`flex items-center gap-2.5 rounded-full border p-1 transition-colors sm:pe-3 ${open ? 'border-board/30 bg-surface' : 'border-transparent hover:border-line hover:bg-surface'}`}>
+                    <span className={`flex items-center gap-2.5 rounded-full border p-1 transition-colors sm:pe-3 ${open ? 'border-accent/30 bg-surface' : 'border-transparent hover:border-line hover:bg-surface'}`}>
                       <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold to-[#c48d2e] font-bold text-ink">{initial(props.user.displayName)}</span>
                       <span className="hidden text-start leading-tight sm:block">
                         <span className="block max-w-36 truncate text-sm font-semibold">{props.user.displayName}</span>
@@ -472,7 +474,7 @@ function ShellInner(props: Props) {
       <AnimatePresence>
         {moreOpen && (
           <div className="fixed inset-0 z-30 lg:hidden">
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMoreOpen(false)} className="absolute inset-0 bg-ink/40 backdrop-blur-[3px]" />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setMoreOpen(false)} className="absolute inset-0 bg-black/40 backdrop-blur-[3px]" />
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -492,9 +494,10 @@ function ShellInner(props: Props) {
                   <span className="grid size-12 shrink-0 place-items-center rounded-full bg-gradient-to-br from-gold to-[#c48d2e] text-xl font-bold text-ink ring-2 ring-chalk/25">{initial(props.user.displayName)}</span>
                   <span className="min-w-0 flex-1 leading-tight">
                     <span className="block truncate font-bold">{props.user.displayName}</span>
-                    <span className="block text-sm text-chalk/65">{ROLE_LABEL[props.user.role]}{props.user.code ? ` · ${props.user.code}` : ''}</span>
+                    <span className="block text-sm text-chalk/70">{ROLE_LABEL[props.user.role]}{props.user.code ? ` · ${props.user.code}` : ''}</span>
                   </span>
                 </div>
+                <div className="relative mt-3"><ThemePicker tone="dark" /></div>
                 <div className="relative mt-3 grid grid-cols-2 gap-2">
                   <NavLink href={`${props.home}/password`} className="flex items-center justify-center gap-1.5 rounded-xl bg-chalk/10 py-2.5 text-sm transition-colors active:bg-chalk/20">
                     <Icon name="key" className="size-4" /> كلمة المرور
@@ -516,9 +519,9 @@ function ShellInner(props: Props) {
                         <motion.li key={item.href} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.04 * (gi * 3 + ii), duration: 0.25 }}>
                           <NavLink
                             href={item.href}
-                            className={`flex h-full flex-col items-center gap-2 rounded-2xl border px-2 py-3.5 text-center text-xs font-medium transition-colors active:scale-95 ${on ? 'border-board bg-board text-chalk' : 'border-line bg-paper/60 text-ink'}`}
+                            className={`flex h-full flex-col items-center gap-2 rounded-2xl border px-2 py-3.5 text-center text-xs font-medium transition-colors active:scale-95 ${on ? 'border-accent bg-board text-chalk' : 'border-line bg-paper/60 text-ink'}`}
                           >
-                            <span className={`grid size-9 place-items-center rounded-xl ${on ? 'bg-chalk/15 text-gold' : 'bg-board/10 text-board'}`}>
+                            <span className={`grid size-9 place-items-center rounded-xl ${on ? 'bg-chalk/15 text-gold' : 'bg-accent/10 text-accent'}`}>
                               <Icon name={item.icon} className="size-5" />
                             </span>
                             <span className="leading-tight">{item.label}</span>

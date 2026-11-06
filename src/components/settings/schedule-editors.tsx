@@ -132,7 +132,7 @@ export function CalendarEditor() {
       <div className="flex flex-wrap gap-1.5">
         {lookups.isPending ? <div className="skeleton h-9 w-60 rounded-full" /> : lookups.data?.terms.map((t) => (
           <button key={t.id} type="button" onClick={() => setTermId(t.id)} aria-pressed={t.id === termId}
-            className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${t.id === termId ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+            className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${t.id === termId ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
             {t.label}
           </button>
         ))}
@@ -145,7 +145,7 @@ export function CalendarEditor() {
         <ol className="space-y-2">
           {entries.data.map((e, i) => (
             <motion.li key={e.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 12) * 0.02 }}>
-              <button type="button" onClick={() => setForm({ ...e })} className="flex w-full items-center gap-3 rounded-2xl border border-line px-4 py-3 text-start transition-colors hover:border-board/30 hover:bg-board/[0.03]">
+              <button type="button" onClick={() => setForm({ ...e })} className="flex w-full items-center gap-3 rounded-2xl border border-line px-4 py-3 text-start transition-colors hover:border-accent/30 hover:bg-board/[0.03]">
                 <span className="h-9 w-1 shrink-0 rounded-full" style={{ background: e.color || (eventKind(e.event) === 'holiday' ? '#a3462f' : '#356854') }} />
                 <span className="min-w-0 flex-1">
                   <span className="block font-semibold">
@@ -188,7 +188,7 @@ export function CalendarEditor() {
               <div className="flex gap-2">
                 {COLORS.map((c) => (
                   <button key={c || 'none'} type="button" onClick={() => setForm({ ...form, color: c || null })} aria-label={c || 'بلا لون'}
-                    className={`size-9 rounded-full ring-2 ring-offset-2 transition-transform active:scale-90 ${(form.color ?? '') === c ? 'ring-board' : 'ring-transparent'}`}
+                    className={`size-9 rounded-full ring-2 ring-offset-2 transition-transform active:scale-90 ${(form.color ?? '') === c ? 'ring-accent' : 'ring-transparent'}`}
                     style={{ background: c || 'repeating-linear-gradient(45deg,#eee 0 4px,#fff 4px 8px)' }} />
                 ))}
               </div>
@@ -271,13 +271,13 @@ export function TimetableEditor() {
                             const c = subjectColor(subjectName(s.subject_id));
                             return (
                               <button key={s.id} type="button" onClick={() => open(d, p + 1, s)} className="block w-full rounded-xl px-2 py-1.5 text-start leading-tight transition-transform hover:-translate-y-0.5" style={{ background: `${c}16`, boxShadow: `inset -3px 0 0 ${c}` }}>
-                                <span className="block truncate text-[0.8rem] font-semibold" style={{ color: c }}>{subjectName(s.subject_id)}</span>
+                                <span className="block truncate text-[0.8rem] font-semibold" style={{ color: `color-mix(in oklab, ${c} var(--subj-mix), var(--color-ink))` }}>{subjectName(s.subject_id)}</span>
                                 <span className="block truncate text-[0.7rem] text-muted">{teacherName(s.teacher_id) || 'بلا معلم'}</span>
                               </button>
                             );
                           })}
                           <button type="button" onClick={() => open(d, p + 1)} aria-label={`إضافة حصة ${day} ${p + 1}`}
-                            className={`grid w-full place-items-center rounded-xl border border-dashed border-line text-muted transition-colors hover:border-board/50 hover:bg-board/5 hover:text-board ${cell.length ? 'h-6' : 'h-14'}`}>
+                            className={`grid w-full place-items-center rounded-xl border border-dashed border-line text-muted transition-colors hover:border-accent/50 hover:bg-accent/5 hover:text-accent ${cell.length ? 'h-6' : 'h-14'}`}>
                             <Icon name="plus" className="size-4" />
                           </button>
                         </div>
@@ -379,7 +379,7 @@ export function ExamsEditor() {
                     const c = subjectColor(subjectName(e.subject_id));
                     return (
                       <li key={e.id}>
-                        <button type="button" onClick={() => setForm({ ...e })} className="w-full rounded-2xl border border-line p-3.5 text-start transition-colors hover:border-board/30" style={{ boxShadow: `inset -3px 0 0 ${c}` }}>
+                        <button type="button" onClick={() => setForm({ ...e })} className="w-full rounded-2xl border border-line p-3.5 text-start transition-colors hover:border-accent/30" style={{ boxShadow: `inset -3px 0 0 ${c}` }}>
                           <span className="block font-semibold">{subjectName(e.subject_id)}</span>
                           <span className="block text-sm text-muted">{className(e.class_id)}</span>
                           <span className="mt-1 block text-xs text-muted">{fmtTime(e.starts_at)}{e.exam_period ? ` · ${e.exam_period}` : ''}</span>

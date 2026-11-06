@@ -34,7 +34,7 @@ export function DueReminders({ items, compact }: { items: StudentItem[]; compact
     .sort((a, b) => new Date(deadlineOf(a)!).getTime() - new Date(deadlineOf(b)!).getTime());
   if (!soon.length) return null;
   return (
-    <motion.section initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className={`overflow-hidden rounded-[1.4rem] border border-gold/50 bg-gradient-to-br from-[#fbf3e1] to-[#f6e7c4] ${compact ? 'mb-5' : 'mb-6'}`}>
+    <motion.section initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className={`overflow-hidden rounded-[1.4rem] border border-gold/50 bg-gradient-to-br from-gold-soft to-gold-soft-2 ${compact ? 'mb-5' : 'mb-6'}`}>
       <p className="flex items-center gap-2 px-4 pt-3.5 text-sm font-bold text-brass">
         <span className="relative grid size-7 place-items-center rounded-full bg-gold text-white">
           <Icon name="clock" className="size-4" />
@@ -47,7 +47,7 @@ export function DueReminders({ items, compact }: { items: StudentItem[]; compact
           const hrs = (new Date(deadlineOf(i)!).getTime() - now) / 3600000;
           return (
             <li key={i.id}>
-              <Link href={`/student/tasks/${i.id}`} className="flex items-center gap-3 rounded-xl bg-white/75 px-3 py-2.5 transition-colors hover:bg-white">
+              <Link href={`/student/tasks/${i.id}`} className="flex items-center gap-3 rounded-xl bg-surface/75 px-3 py-2.5 transition-colors hover:bg-surface">
                 <Icon name={i.kind === 'form' ? 'forms' : 'tasks'} className="size-5 shrink-0 text-brass" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">{i.title}</span>
@@ -106,7 +106,7 @@ export function StudentAssessments({ items }: { items: StudentItem[] }) {
         </div>
         <div className="ms-auto flex gap-1">
           {([['', 'الكل'], ['task', 'مهام'], ['form', 'نماذج']] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setKind(k)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${kind === k ? 'bg-ink text-chalk' : 'bg-surface text-muted ring-1 ring-line'}`}>
+            <button key={k} onClick={() => setKind(k)} className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${kind === k ? 'bg-inverse text-chalk' : 'bg-surface text-muted ring-1 ring-line'}`}>
               {l}
             </button>
           ))}
@@ -142,11 +142,11 @@ function ItemCard({ i, s, now }: { i: StudentItem; s: StudentState; now: number 
   return (
     <Link
       href={`/student/tasks/${i.id}`}
-      className="group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-line bg-surface p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-board/30 hover:shadow-[0_18px_40px_-28px_rgb(31_42_36/0.6)]"
+      className="group relative flex h-full flex-col overflow-hidden rounded-[1.4rem] border border-line bg-surface p-4 transition-all duration-300 hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_18px_40px_-28px_rgb(31_42_36/0.6)]"
     >
       <span className="absolute inset-y-0 start-0 w-1.5" style={{ background: subjectColor(i.subject ?? '') }} />
       <div className="flex items-start gap-3 ps-1">
-        <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${i.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+        <span className={`grid size-11 shrink-0 place-items-center rounded-2xl ${i.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
           <Icon name={i.kind === 'form' ? 'forms' : 'tasks'} className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
@@ -157,7 +157,7 @@ function ItemCard({ i, s, now }: { i: StudentItem; s: StudentState; now: number 
           </p>
         </div>
         {pct != null ? (
-          <span className={`shrink-0 rounded-xl px-2.5 py-1 text-sm font-bold tabular-nums ${i.grade?.source === 'auto_absent' ? 'bg-danger-soft text-danger' : pct >= 85 ? 'bg-ok-soft text-ok' : pct >= 50 ? 'bg-board/10 text-board' : 'bg-danger-soft text-danger'}`} dir="ltr">
+          <span className={`shrink-0 rounded-xl px-2.5 py-1 text-sm font-bold tabular-nums ${i.grade?.source === 'auto_absent' ? 'bg-danger-soft text-danger' : pct >= 85 ? 'bg-ok-soft text-ok' : pct >= 50 ? 'bg-accent/10 text-accent' : 'bg-danger-soft text-danger'}`} dir="ltr">
             {Number(i.grade!.score)} / {Number(i.grade!.max_score)}
           </span>
         ) : (
@@ -176,11 +176,11 @@ function ItemCard({ i, s, now }: { i: StudentItem; s: StudentState; now: number 
             <Icon name="clock" className="size-3.5" /> {s === 'late_open' ? `انتهى ${relTime(d, now)}` : `يُغلق ${relTime(d, now)}`}
           </span>
         )}
-        {s === 'submitted' && <span className="text-board">بانتظار التصحيح</span>}
-        {canRetry(i, now) && <span className="font-semibold text-board">يمكنك محاولة أخرى</span>}
+        {s === 'submitted' && <span className="text-accent">بانتظار التصحيح</span>}
+        {canRetry(i, now) && <span className="font-semibold text-accent">يمكنك محاولة أخرى</span>}
         {i.grade?.source === 'auto_absent' && <span className="text-danger">صفر لعدم الحل</span>}
-        {i.submission?.feedback && <span className="inline-flex items-center gap-1 text-board"><Icon name="edit" className="size-3.5" /> ملاحظة من المعلم</span>}
-        <span className="ms-auto inline-flex items-center gap-1 font-semibold text-board opacity-0 transition-opacity group-hover:opacity-100">
+        {i.submission?.feedback && <span className="inline-flex items-center gap-1 text-accent"><Icon name="edit" className="size-3.5" /> ملاحظة من المعلم</span>}
+        <span className="ms-auto inline-flex items-center gap-1 font-semibold text-accent opacity-0 transition-opacity group-hover:opacity-100">
           فتح <Icon name="chevron" className="size-3.5" />
         </span>
       </div>

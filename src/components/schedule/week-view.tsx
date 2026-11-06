@@ -41,7 +41,7 @@ export function WeekTimetable({ slots, secondary }: { slots: ViewSlot[]; seconda
         style={{ background: `${c}17`, boxShadow: `inset -3px 0 0 ${c}` }}
       >
         {live && <span className="absolute -top-1.5 end-1.5 flex size-3"><span className="absolute inline-flex size-full animate-ping rounded-full bg-gold opacity-70" /><span className="relative inline-flex size-3 rounded-full bg-gold" /></span>}
-        <p className="truncate text-[0.82rem] font-semibold" style={{ color: c }}>{s.subject}</p>
+        <p className="truncate text-[0.82rem] font-semibold" style={{ color: `color-mix(in oklab, ${c} var(--subj-mix), var(--color-ink))` }}>{s.subject}</p>
         <p className="mt-0.5 truncate text-xs text-muted">{sub(s)}</p>
       </div>
     );
@@ -124,7 +124,7 @@ export function WeekTimetable({ slots, secondary }: { slots: ViewSlot[]; seconda
                       <p className="truncate text-sm text-muted">{sub(s)}</p>
                       {s.mode && <p className="truncate text-xs text-muted/80">{s.mode}</p>}
                     </div>
-                    {live && <span className="rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-ink">الآن</span>}
+                    {live && <span className="rounded-full bg-gold px-2 py-0.5 text-xs font-bold text-on-gold">الآن</span>}
                   </li>
                 );
               })
@@ -172,7 +172,7 @@ export function NowNext({ slots, secondary }: { slots: ViewSlot[]; secondary: 't
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-chalk/15">
                 <motion.div className="h-full rounded-full bg-gold" initial={{ width: 0 }} animate={{ width: `${Math.round(((now.minutes - current.w!.start) / (current.w!.end - current.w!.start)) * 100)}%` }} transition={{ duration: 0.8 }} />
               </div>
-              <p className="mt-1 text-xs text-chalk/65">تنتهي {fromMin(current.w!.end)} · باقي {current.w!.end - now.minutes} دقيقة</p>
+              <p className="mt-1 text-xs text-chalk/70">تنتهي {fromMin(current.w!.end)} · باقي {current.w!.end - now.minutes} دقيقة</p>
             </>
           )}
         </div>
@@ -182,7 +182,7 @@ export function NowNext({ slots, secondary }: { slots: ViewSlot[]; secondary: 't
             <>
               <p className="mt-1 truncate text-lg font-bold">{next.s.subject}</p>
               <p className="truncate text-sm text-chalk/75">{sub(next.s)}</p>
-              <p className="mt-1 text-sm"><span className="font-bold text-gold">{next.w!.start - now.minutes} دقيقة</span> <span className="text-chalk/65">· تبدأ {fromMin(next.w!.start)}</span></p>
+              <p className="mt-1 text-sm"><span className="font-bold text-gold">{next.w!.start - now.minutes} دقيقة</span> <span className="text-chalk/70">· تبدأ {fromMin(next.w!.start)}</span></p>
             </>
           ) : (
             <p className="mt-1 text-sm text-chalk/75">لا حصص أخرى اليوم</p>

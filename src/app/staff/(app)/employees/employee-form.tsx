@@ -159,7 +159,7 @@ export function EmployeeFormSheet({
     >
       <div className="space-y-6">
         <fieldset className="space-y-4">
-          <legend className="mb-3 text-xs font-bold text-board">البيانات الشخصية</legend>
+          <legend className="mb-3 text-xs font-bold text-accent">البيانات الشخصية</legend>
           <Field label="الاسم بالعربي" required hint={errHint('name_ar')}>
             <input value={f.name_ar} onChange={(e) => set('name_ar', e.target.value)} className={`field ${errors.name_ar ? 'border-danger/60' : ''}`} />
           </Field>
@@ -174,7 +174,7 @@ export function EmployeeFormSheet({
               <div className="grid grid-cols-2 gap-2">
                 {['ذكر', 'أنثى'].map((g) => (
                   <button key={g} type="button" onClick={() => set('gender', g)} aria-pressed={f.gender === g}
-                    className={`h-[2.85rem] rounded-md border text-sm transition-all ${f.gender === g ? 'border-board bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}>
+                    className={`h-[2.85rem] rounded-md border text-sm transition-all ${f.gender === g ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}>
                     {g}
                   </button>
                 ))}
@@ -184,14 +184,14 @@ export function EmployeeFormSheet({
         </fieldset>
 
         <fieldset className="space-y-4">
-          <legend className="mb-3 text-xs font-bold text-board">النوع والصلاحية</legend>
+          <legend className="mb-3 text-xs font-bold text-accent">النوع والصلاحية</legend>
           <div className={`grid gap-2 ${canAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {([
               ['teacher', 'معلم', 'يرى فصوله ومواده فقط'],
               ...(canAdmin ? [['admin', 'إداري', 'يرى كل شيء ويدير النظام'] as const] : []),
             ] as const).map(([v, l, h]) => (
               <button key={v} type="button" onClick={() => set('user_type', v)} aria-pressed={f.user_type === v}
-                className={`rounded-xl border p-3 text-start transition-all ${f.user_type === v ? 'border-board bg-board/[0.07] ring-2 ring-board/20' : 'border-line hover:border-muted'}`}>
+                className={`rounded-xl border p-3 text-start transition-all ${f.user_type === v ? 'border-accent bg-board/[0.07] ring-2 ring-accent/20' : 'border-line hover:border-muted'}`}>
                 <span className="block font-semibold">{l}</span>
                 <span className="block text-xs text-muted">{h}</span>
               </button>
@@ -213,7 +213,7 @@ export function EmployeeFormSheet({
 
         {teacher && (
           <fieldset className="animate-fade-up space-y-4">
-            <legend className="mb-3 text-xs font-bold text-board">نطاق العمل</legend>
+            <legend className="mb-3 text-xs font-bold text-accent">نطاق العمل</legend>
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="الفرع" required hint={errHint('branch_id')}>
                 <select value={f.branch_id ?? ''} onChange={(e) => set('branch_id', Number(e.target.value) || null)} className="field">

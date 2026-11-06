@@ -95,7 +95,7 @@ export function LoginForm({ portal }: { portal: Portal }) {
         <div>
           <label htmlFor="username" className="label">اسم المستخدم</label>
           <div className="group relative">
-            <span className="pointer-events-none absolute inset-y-0 start-0 grid w-11 place-items-center text-muted transition-colors group-focus-within:text-board">
+            <span className="pointer-events-none absolute inset-y-0 start-0 grid w-11 place-items-center text-muted transition-colors group-focus-within:text-accent">
               <UserIcon />
             </span>
             <input
@@ -123,13 +123,13 @@ export function LoginForm({ portal }: { portal: Portal }) {
               type="button"
               onClick={() => setHelpOpen((v) => !v)}
               aria-expanded={helpOpen}
-              className="text-xs text-muted underline-offset-4 transition-colors hover:text-board hover:underline"
+              className="text-xs text-muted underline-offset-4 transition-colors hover:text-accent hover:underline"
             >
               نسيت كلمة المرور؟
             </button>
           </div>
           <div className="group relative">
-            <span className="pointer-events-none absolute inset-y-0 start-0 grid w-11 place-items-center text-muted transition-colors group-focus-within:text-board">
+            <span className="pointer-events-none absolute inset-y-0 start-0 grid w-11 place-items-center text-muted transition-colors group-focus-within:text-accent">
               <LockIcon />
             </span>
             <input

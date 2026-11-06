@@ -101,7 +101,7 @@ function StudentsImport({ branches }: { branches: { id: number; name: string }[]
     <SettingsCard title="استيراد الطلاب" description="نموذج جاهز بقوائم منسدلة، ثم رفع ومعاينة تدقق كل صف قبل الحفظ. الرقم الأكاديمي يمنع التكرار عند إعادة الرفع.">
       <div className="space-y-4">
         <Steps items={['تنزيل النموذج وتعبئته', 'رفع ومعاينة', 'حفظ', 'إنشاء الحسابات']} current={done ? 3 : preview ? 2 : 1} />
-        <div className="flex flex-col gap-3 rounded-2xl bg-board/5 p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 rounded-2xl bg-accent/5 p-4 sm:flex-row sm:items-center">
           <p className="flex-1 text-sm leading-relaxed">
             النموذج فيه قوائم منسدلة بالصفوف والشعب والفروع الموجودة. ويمكن رفع ورقة الطلاب من النظام القديم مباشرة — العناوين تُعرف بأسمائها.
           </p>
@@ -172,7 +172,7 @@ function StudentsImport({ branches }: { branches: { id: number; name: string }[]
               )}
               <div className="flex gap-1.5">
                 {([['all', 'الكل'], ['error', `الأخطاء (${preview.errors})`], ['warn', `التنبيهات (${preview.noSection})`]] as const).map(([k, l]) => (
-                  <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${filter === k ? 'bg-ink text-chalk' : 'bg-paper hover:bg-board/10'}`}>{l}</button>
+                  <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${filter === k ? 'bg-inverse text-chalk' : 'bg-paper hover:bg-accent/10'}`}>{l}</button>
                 ))}
               </div>
               <div className="max-h-[22rem] overflow-auto rounded-2xl border border-line">
@@ -187,7 +187,7 @@ function StudentsImport({ branches }: { branches: { id: number; name: string }[]
                         <td className="px-3 py-2 tabular-nums" dir="ltr">{r.code ?? <span className="text-brass">تلقائي</span>}</td>
                         <td className="whitespace-nowrap px-3 py-2 font-semibold">{r.name_ar}</td>
                         <td className="min-w-40 px-3 py-2">
-                          {r.error ? <span className="text-danger">{r.error}</span> : r.warn ? <span className="text-brass">{r.warn}</span> : r.existing ? <span className="text-board">تحديث</span> : <span className="text-ok">جديد</span>}
+                          {r.error ? <span className="text-danger">{r.error}</span> : r.warn ? <span className="text-brass">{r.warn}</span> : r.existing ? <span className="text-accent">تحديث</span> : <span className="text-ok">جديد</span>}
                         </td>
                         <td className="whitespace-nowrap px-3 py-2">{r.grade || '—'}</td>
                         <td className="px-3 py-2">{r.section || '—'}</td>
@@ -281,7 +281,7 @@ function GradesImport({ branches, terms }: { branches: { id: number; name: strin
             </Field>
           )}
         </div>
-        <div className="flex flex-col gap-3 rounded-2xl bg-board/5 p-4 sm:flex-row sm:items-center">
+        <div className="flex flex-col gap-3 rounded-2xl bg-accent/5 p-4 sm:flex-row sm:items-center">
           <p className="flex-1 text-sm leading-relaxed">النموذج بنفس أعمدة «Grade Aggregation»، فيه صف لكل طالب ومادة من مواد فصله، وورقة بأوزان كل نوع.</p>
           <button type="button" onClick={template} disabled={tpl || !term} className="btn-quiet shrink-0">
             {tpl ? <span className="spinner" /> : <Icon name="download" className="size-4" />} تنزيل النموذج
@@ -336,7 +336,7 @@ function GradesImport({ branches, terms }: { branches: { id: number; name: strin
                     {preview.sample.map((x, i) => (
                       <div key={i} className="flex items-center justify-between gap-2 rounded-xl bg-paper px-3 py-2 text-xs">
                         <span className="truncate"><b>{x.name || x.code}</b> · {x.subject}</span>
-                        <b className="tabular-nums text-board" dir="ltr">{x.total}</b>
+                        <b className="tabular-nums text-accent" dir="ltr">{x.total}</b>
                       </div>
                     ))}
                   </div>

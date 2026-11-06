@@ -91,7 +91,7 @@ export function ImportSheet({ open, onClose, onImport }: { open: boolean; onClos
     >
       <div className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-paper p-1">
         {(['text', 'file'] as const).map((t) => (
-          <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg py-2 text-sm font-semibold transition-all ${tab === t ? 'bg-surface text-board shadow-sm' : 'text-muted'}`}>
+          <button key={t} type="button" onClick={() => setTab(t)} className={`rounded-lg py-2 text-sm font-semibold transition-all ${tab === t ? 'bg-surface text-accent shadow-sm' : 'text-muted'}`}>
             {t === 'text' ? 'لصق نص' : 'ملف Excel'}
           </button>
         ))}
@@ -106,7 +106,7 @@ export function ImportSheet({ open, onClose, onImport }: { open: boolean; onClos
         <>
           <textarea value={text} onChange={(e) => setText(e.target.value)} rows={10} className="field font-mono text-sm leading-relaxed" placeholder="الصق الأسئلة هنا… أو انسخ صفوفًا من Excel مباشرة" />
           <details className="mt-3 rounded-xl border border-line p-3 text-sm">
-            <summary className="cursor-pointer font-semibold text-board">طريقة الكتابة (مثال جاهز)</summary>
+            <summary className="cursor-pointer font-semibold text-accent">طريقة الكتابة (مثال جاهز)</summary>
             <ul className="mt-2 space-y-1 text-xs leading-relaxed text-muted">
               <li>• سطر فارغ بين كل سؤال والآخر، والدرجة بين قوسين في آخر السؤال <code>(2)</code></li>
               <li>• الخيارات بحروف <code>أ) ب) ج)</code> والصحيح بنجمة <code>*</code> في آخره</li>
@@ -114,18 +114,18 @@ export function ImportSheet({ open, onClose, onImport }: { open: boolean; onClos
               <li>• التوصيل: سطور <code>يسار = يمين</code> — الفراغ: <code>{'{{الإجابة}}'}</code> داخل النص</li>
               <li>• بلا خيارات ولا إجابة = سؤال مقالي</li>
             </ul>
-            <button type="button" onClick={() => setText(SAMPLE)} className="mt-2 text-xs font-semibold text-board underline">ضع المثال في الصندوق</button>
+            <button type="button" onClick={() => setText(SAMPLE)} className="mt-2 text-xs font-semibold text-accent underline">ضع المثال في الصندوق</button>
           </details>
         </>
       ) : (
         <>
           <input ref={fileRef} type="file" accept=".xlsx,.csv" hidden onChange={(e) => { readFile(e.target.files?.[0]); e.target.value = ''; }} />
-          <button type="button" onClick={() => fileRef.current?.click()} className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-line px-4 py-8 text-center transition-colors hover:border-board/50 hover:bg-board/[0.03]">
-            {reading ? <span className="spinner size-6 text-board" /> : <Icon name="upload" className="size-8 text-board" />}
+          <button type="button" onClick={() => fileRef.current?.click()} className="flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-line px-4 py-8 text-center transition-colors hover:border-accent/50 hover:bg-board/[0.03]">
+            {reading ? <span className="spinner size-6 text-accent" /> : <Icon name="upload" className="size-8 text-accent" />}
             <span className="font-semibold">{fileResult?.name ?? 'اختر ملف Excel أو CSV'}</span>
             <span className="text-xs text-muted">الأعمدة: النوع · السؤال · الدرجة · الإجابة · خيار 1 … خيار 6</span>
           </button>
-          <button type="button" onClick={() => downloadCsv('قالب-أسئلة', SHEET_HEADER, SHEET_EXAMPLES)} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-board hover:underline">
+          <button type="button" onClick={() => downloadCsv('قالب-أسئلة', SHEET_HEADER, SHEET_EXAMPLES)} className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
             <Icon name="download" className="size-4" /> تحميل القالب
           </button>
           <p className="mt-1 text-xs text-muted">في الاختيار: الإجابة رقم الخيار الصحيح أو نصه. التوصيل: كل خيار بصيغة &quot;يسار = يمين&quot;.</p>
@@ -135,7 +135,7 @@ export function ImportSheet({ open, onClose, onImport }: { open: boolean; onClos
       {result && (
         <div className="mt-5">
           <p className="mb-2 flex items-center gap-2 text-sm font-semibold">
-            <span className="grid size-6 place-items-center rounded-full bg-ok text-chalk"><Icon name="check" className="size-3.5" /></span>
+            <span className="grid size-6 place-items-center rounded-full bg-ok text-on-ok"><Icon name="check" className="size-3.5" /></span>
             تعرّفت على {result.questions.length} سؤال
             {result.skipped > 0 && <span className="text-xs font-normal text-muted">· تُرك {result.skipped}</span>}
           </p>

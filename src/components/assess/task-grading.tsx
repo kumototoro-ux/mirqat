@@ -114,7 +114,7 @@ export function TaskGrading({ task }: { task: TaskDetail }) {
                 key={k}
                 type="button"
                 onClick={() => setFilter(k)}
-                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all ${filter === k ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}
+                className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all ${filter === k ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}
               >
                 {label} <span className="tabular-nums opacity-70">{counts[k]}</span>
               </button>
@@ -170,13 +170,13 @@ export function TaskGrading({ task }: { task: TaskDetail }) {
                       step={0.25}
                       value={v}
                       onChange={(e) => setDraft((d) => ({ ...d, [st.id]: e.target.value }))}
-                      className={`h-10 w-16 rounded-xl border bg-surface text-center sm:w-20 text-base font-bold tabular-nums focus:outline-none focus:ring-4 ${bad ? 'border-danger text-danger focus:ring-danger/15' : draft[st.id] != null && draft[st.id] !== (g ? String(g.score) : '') ? 'border-gold bg-brass-soft/40 focus:ring-gold/20' : 'border-line focus:border-board focus:ring-gold/20'}`}
+                      className={`h-10 w-16 rounded-xl border bg-surface text-center sm:w-20 text-base font-bold tabular-nums focus:outline-none focus:ring-4 ${bad ? 'border-danger text-danger focus:ring-danger/15' : draft[st.id] != null && draft[st.id] !== (g ? String(g.score) : '') ? 'border-gold bg-brass-soft/40 focus:ring-gold/20' : 'border-line focus:border-accent focus:ring-gold/20'}`}
                       dir="ltr"
                       aria-label={`درجة ${st.name_ar}`}
                     />
                     <span className="text-sm text-muted tabular-nums sm:w-10">/ {max}</span>
                     {!noSubmit && (
-                      <button type="button" onClick={() => setOpenId(st.id)} className="grid size-10 place-items-center rounded-xl text-muted hover:bg-board/10 hover:text-board" title="فتح التسليم">
+                      <button type="button" onClick={() => setOpenId(st.id)} className="grid size-10 place-items-center rounded-xl text-muted hover:bg-accent/10 hover:text-accent" title="فتح التسليم">
                         <Icon name="eye" className="size-[1.15rem]" />
                       </button>
                     )}
@@ -299,8 +299,8 @@ function SubmissionSheet({
                         <span className="flex items-center justify-between px-3 py-2 text-xs text-muted">{f.name} <span>{fmtBytes(f.size_bytes)}</span></span>
                       </a>
                     ) : (
-                      <a href={f.url ?? undefined} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 rounded-2xl border border-line p-3 ${f.url ? 'hover:border-board/40' : 'pointer-events-none opacity-60'}`}>
-                        <span className="grid size-10 place-items-center rounded-xl bg-board/10 text-board"><Icon name="clip" className="size-5" /></span>
+                      <a href={f.url ?? undefined} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 rounded-2xl border border-line p-3 ${f.url ? 'hover:border-accent/40' : 'pointer-events-none opacity-60'}`}>
+                        <span className="grid size-10 place-items-center rounded-xl bg-accent/10 text-accent"><Icon name="clip" className="size-5" /></span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-semibold">{f.name}</span>
                           <span className="text-xs text-muted">{f.deleted_at ? 'حُذف بعد التصحيح' : fmtBytes(f.size_bytes)}</span>
@@ -319,7 +319,7 @@ function SubmissionSheet({
               <ul className="grid gap-2">
                 {sub.links.map((l) => (
                   <li key={l}>
-                    <a href={l} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="flex items-center gap-2 rounded-2xl border border-line p-3 text-sm font-semibold text-board hover:border-board/40">
+                    <a href={l} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="flex items-center gap-2 rounded-2xl border border-line p-3 text-sm font-semibold text-accent hover:border-accent/40">
                       <Icon name="link" className="size-4 shrink-0" /><span className="min-w-0 flex-1 truncate">{l}</span>
                     </a>
                   </li>
@@ -344,7 +344,7 @@ function SubmissionSheet({
           <div className="flex flex-wrap items-center gap-2">
             <input type="number" inputMode="decimal" min={0} max={max} step={0.25} value={score} onChange={(e) => setScore(e.target.value)} className="field w-28 py-3 text-center text-xl font-bold tabular-nums" dir="ltr" autoFocus />
             {[max, round(max * 0.75), round(max / 2), 0].map((v, i) => (
-              <button key={i} type="button" onClick={() => setScore(String(v))} className={`rounded-full px-3 py-1.5 text-sm tabular-nums transition-all ${score === String(v) ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+              <button key={i} type="button" onClick={() => setScore(String(v))} className={`rounded-full px-3 py-1.5 text-sm tabular-nums transition-all ${score === String(v) ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
                 {v}
               </button>
             ))}
@@ -356,7 +356,7 @@ function SubmissionSheet({
             <textarea value={feedback} onChange={(e) => setFeedback(e.target.value)} rows={3} maxLength={4000} className="field" placeholder="أحسنت… / راجع الفقرة الثانية…" />
             <div className="mt-1.5 flex flex-wrap gap-1">
               {['أحسنت، عمل متميز', 'إجابة جيدة', 'راجع الخطوات', 'ناقص — أكمل المطلوب'].map((t) => (
-                <button key={t} type="button" onClick={() => setFeedback(t)} className="rounded-full bg-paper px-2.5 py-1 text-xs hover:bg-board/10">{t}</button>
+                <button key={t} type="button" onClick={() => setFeedback(t)} className="rounded-full bg-paper px-2.5 py-1 text-xs hover:bg-accent/10">{t}</button>
               ))}
             </div>
           </div>
@@ -372,7 +372,7 @@ function Mini({ label, value, icon, tone, pct }: { label: string; value: string;
   return (
     <div className="rounded-[1.25rem] border border-line bg-surface p-4">
       <p className="flex items-center gap-2 text-xs font-medium text-muted sm:text-sm">
-        <span className={`grid size-8 place-items-center rounded-xl ${tone === 'gold' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+        <span className={`grid size-8 place-items-center rounded-xl ${tone === 'gold' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
           <Icon name={icon} className="size-[1.05rem]" />
         </span>
         {label}

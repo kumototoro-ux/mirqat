@@ -47,9 +47,9 @@ export default async function TimetablePage({ searchParams }: { searchParams: Pr
       />
       <section className="rounded-[1.4rem] border border-line bg-surface p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <PendingLink href="/staff/timetable" active={!classSlots} base="rounded-full px-4 py-2 text-sm font-semibold transition-colors" on="bg-board text-chalk" off="bg-paper hover:bg-board/10">جدولي</PendingLink>
+          <PendingLink href="/staff/timetable" active={!classSlots} base="rounded-full px-4 py-2 text-sm font-semibold transition-colors" on="bg-board text-chalk" off="bg-paper hover:bg-accent/10">جدولي</PendingLink>
           {myClasses.map(([id, label]) => (
-            <PendingLink key={id} href={`/staff/timetable?class=${id}`} active={!!(classId === id && classSlots)} base="rounded-full px-4 py-2 text-sm transition-colors" on="bg-board font-semibold text-chalk" off="bg-paper hover:bg-board/10">
+            <PendingLink key={id} href={`/staff/timetable?class=${id}`} active={!!(classId === id && classSlots)} base="rounded-full px-4 py-2 text-sm transition-colors" on="bg-board font-semibold text-chalk" off="bg-paper hover:bg-accent/10">
               {label}
             </PendingLink>
           ))}

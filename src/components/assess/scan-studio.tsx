@@ -172,7 +172,7 @@ function Studio({ data, initialStatus }: { data: PrintData; initialStatus: Paper
             <p className="truncate font-bold">تصحيح بالكاميرا — {form.title}</p>
             <p className="truncate text-xs text-muted">{form.class_label} · {choice.length} سؤال اختيار{written.length ? ` · ${written.length} مكتوب` : ''} · {total} درجة</p>
           </div>
-          <span className="shrink-0 rounded-full bg-board/10 px-3 py-1 text-xs font-bold text-board">{doneCount} / {roster.length}</span>
+          <span className="shrink-0 rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">{doneCount} / {roster.length}</span>
         </div>
       </header>
 
@@ -186,7 +186,7 @@ function Studio({ data, initialStatus }: { data: PrintData; initialStatus: Paper
 
         {busy && (
           <div className="grid place-items-center gap-3 rounded-2xl border border-line bg-surface p-10 text-center">
-            <span className="size-8 animate-spin rounded-full border-4 border-board/20 border-t-board" />
+            <span className="size-8 animate-spin rounded-full border-4 border-accent/20 border-t-board" />
             <p className="font-semibold">{busy}</p>
             {queue.length > 1 && <p className="text-xs text-muted">بقي {queue.length - 1} صورة في الطابور</p>}
           </div>
@@ -200,7 +200,7 @@ function Studio({ data, initialStatus }: { data: PrintData; initialStatus: Paper
               <button type="button" onClick={() => camRef.current?.click()} className="flex min-h-20 items-center justify-center gap-2 rounded-2xl bg-board text-base font-bold text-chalk active:scale-[.99]">
                 <Icon name="camera" className="size-6" /> تصوير الورقة
               </button>
-              <button type="button" onClick={() => upRef.current?.click()} className="flex min-h-20 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line text-base font-bold hover:border-board/40">
+              <button type="button" onClick={() => upRef.current?.click()} className="flex min-h-20 items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line text-base font-bold hover:border-accent/40">
                 <Icon name="upload" className="size-6" /> رفع صور (عدة أوراق)
               </button>
             </div>
@@ -318,7 +318,7 @@ function ReviewPanel({ rev, setRev, choice, written, roster, byStudent, score, t
                       key={o.id}
                       type="button"
                       onClick={() => setRev((r) => (r ? { ...r, picks: r.picks.map((x, j) => (j === i ? (x === k ? null : k) : x)) } : r))}
-                      className={`min-h-10 min-w-10 rounded-xl border-[1.5px] px-2 text-[15px] font-bold transition ${p === k ? 'border-ink bg-ink text-chalk' : 'border-line bg-surface'} ${o.is_correct ? 'ring-2 ring-inset ring-ok' : ''}`}
+                      className={`min-h-10 min-w-10 rounded-xl border-[1.5px] px-2 text-[15px] font-bold transition ${p === k ? 'border-inverse bg-inverse text-chalk' : 'border-line bg-surface'} ${o.is_correct ? 'ring-2 ring-inset ring-ok' : ''}`}
                       dir={rev.rtl ? undefined : 'ltr'}
                       title={o.body}
                     >
@@ -417,7 +417,7 @@ function RosterStatus({ roster, byStudent }: { roster: PrintData['roster']; bySt
                 <span className="min-w-0 flex-1 truncate">{s.name_ar}</span>
                 {st ? (
                   <>
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.source === 'paper' ? 'bg-board/10 text-board' : 'bg-paper text-muted'}`}>{st.source === 'paper' ? 'ورقية' : 'إلكترونية'}</span>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${st.source === 'paper' ? 'bg-accent/10 text-accent' : 'bg-paper text-muted'}`}>{st.source === 'paper' ? 'ورقية' : 'إلكترونية'}</span>
                     {st.pending_review > 0 && <span className="rounded-full bg-brass-soft px-2 py-0.5 text-[11px] font-semibold text-brass">{st.pending_review} للتصحيح</span>}
                     <span className="w-16 text-left font-bold tabular-nums">{st.score} / {st.max_score}</span>
                   </>

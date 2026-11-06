@@ -72,17 +72,17 @@ function TakeTab({ ctx, statuses, initialPeriods, session, setSession, className
     <div className="space-y-4">
       <section className="rounded-[1.4rem] border border-line bg-surface p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="grid size-11 place-items-center rounded-2xl bg-board/10 text-board"><Icon name="calendar" className="size-5" /></span>
+          <span className="grid size-11 place-items-center rounded-2xl bg-accent/10 text-accent"><Icon name="calendar" className="size-5" /></span>
           <div className="min-w-0 flex-1">
             <p className="text-lg font-bold">{date === today ? 'حصصي اليوم' : 'حصصي'} <span className="text-sm font-normal text-muted">· {fmtDay(date)}</span></p>
             <p className="text-xs text-muted">{ctx.isAdmin ? 'تستطيع تحضير أي يوم سابق' : 'تستطيع التحضير لليوم وحتى 3 أيام سابقة'}</p>
           </div>
           <div className="flex w-full items-center gap-1 sm:w-auto">
-            <button type="button" onClick={() => setDate(addDays(date, -1))} disabled={date <= minDate} className="grid size-9 place-items-center rounded-xl border border-line hover:border-board/40 disabled:opacity-30" aria-label="اليوم السابق">
+            <button type="button" onClick={() => setDate(addDays(date, -1))} disabled={date <= minDate} className="grid size-9 place-items-center rounded-xl border border-line hover:border-accent/40 disabled:opacity-30" aria-label="اليوم السابق">
               <Icon name="chevron" className="size-4 rotate-180" />
             </button>
             <input type="date" value={date} min={minDate} max={today} onChange={(e) => e.target.value && setDate(e.target.value)} className="field min-w-0 flex-1 py-1.5 tabular-nums sm:w-auto sm:flex-none" dir="ltr" aria-label="تاريخ التحضير" />
-            <button type="button" onClick={() => setDate(addDays(date, 1))} disabled={date >= today} className="grid size-9 place-items-center rounded-xl border border-line hover:border-board/40 disabled:opacity-30" aria-label="اليوم التالي">
+            <button type="button" onClick={() => setDate(addDays(date, 1))} disabled={date >= today} className="grid size-9 place-items-center rounded-xl border border-line hover:border-accent/40 disabled:opacity-30" aria-label="اليوم التالي">
               <Icon name="chevron" className="size-4" />
             </button>
           </div>
@@ -105,7 +105,7 @@ function TakeTab({ ctx, statuses, initialPeriods, session, setSession, className
                     <button
                       type="button"
                       onClick={() => setSession({ class_id: p.class_id, subject_id: p.subject_id, period_no: p.period_no, date })}
-                      className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-start transition-all hover:-translate-y-0.5 ${active ? 'border-board bg-board/[0.06] shadow-[0_0_0_3px_rgb(53_104_84/0.12)]' : 'border-line hover:border-board/40'}`}
+                      className={`flex w-full items-center gap-3 rounded-2xl border p-3 text-start transition-all hover:-translate-y-0.5 ${active ? 'border-accent bg-board/[0.06] shadow-[0_0_0_3px_rgb(53_104_84/0.12)]' : 'border-line hover:border-accent/40'}`}
                     >
                       <span className={`grid size-12 shrink-0 place-items-center rounded-xl text-lg font-bold ${done ? 'bg-ok-soft text-ok' : 'bg-brass-soft text-brass'}`}>{p.period_no}</span>
                       <span className="min-w-0 flex-1">
@@ -123,7 +123,7 @@ function TakeTab({ ctx, statuses, initialPeriods, session, setSession, className
           )}
         </div>
 
-        <button type="button" onClick={() => setShowManual((v) => !v)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-board hover:underline">
+        <button type="button" onClick={() => setShowManual((v) => !v)} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:underline">
           <Icon name="plus" className="size-4" /> حصة أخرى (اختيار يدوي)
         </button>
         <AnimatePresence>
@@ -213,7 +213,7 @@ function Roster({ k, statuses, title, onClose, onSaved }: { k: SessionKey; statu
   };
 
   return (
-    <motion.section id="roster" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="scroll-mt-24 rounded-[1.4rem] border border-board/25 bg-surface shadow-[0_18px_40px_-30px_rgb(53_104_84/0.8)]">
+    <motion.section id="roster" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="scroll-mt-24 rounded-[1.4rem] border border-accent/25 bg-surface shadow-[0_18px_40px_-30px_rgb(53_104_84/0.8)]">
       <header className="flex flex-wrap items-center gap-3 border-b border-line p-4">
         <span className="grid size-11 place-items-center rounded-2xl bg-board text-lg font-bold text-chalk">{k.period_no}</span>
         <div className="min-w-0 flex-1">
@@ -227,7 +227,7 @@ function Roster({ k, statuses, title, onClose, onSaved }: { k: SessionKey; statu
       <div className="flex flex-wrap items-center gap-2 border-b border-line bg-paper/40 px-4 py-2.5">
         <span className="text-xs font-semibold text-muted">الكل:</span>
         {statuses.map((s) => (
-          <button key={s.id} type="button" onClick={() => all(s.id)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-line transition-colors hover:ring-board/40 ${ATT_STYLE[attKind(s.name)].soft}`}>
+          <button key={s.id} type="button" onClick={() => all(s.id)} className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 ring-line transition-colors hover:ring-accent/40 ${ATT_STYLE[attKind(s.name)].soft}`}>
             {s.name}
           </button>
         ))}
@@ -274,7 +274,7 @@ function Roster({ k, statuses, title, onClose, onSaved }: { k: SessionKey; statu
                         </button>
                       );
                     })}
-                    <button type="button" onClick={() => setNotes((n) => { const x = new Set(n); if (x.has(r.id)) x.delete(r.id); else x.add(r.id); return x; })} className={`grid size-9 shrink-0 place-items-center rounded-xl ${cur?.note ? 'text-board' : 'text-muted'} hover:bg-board/10`} aria-label="ملاحظة">
+                    <button type="button" onClick={() => setNotes((n) => { const x = new Set(n); if (x.has(r.id)) x.delete(r.id); else x.add(r.id); return x; })} className={`grid size-9 shrink-0 place-items-center rounded-xl ${cur?.note ? 'text-accent' : 'text-muted'} hover:bg-accent/10`} aria-label="ملاحظة">
                       <Icon name="edit" className="size-4" />
                     </button>
                   </span>
@@ -326,7 +326,7 @@ function RecordsTab({ ctx, classNames, subjectNames, onOpen }: { ctx: AuthorCont
       ]}
       columns={[
         { key: 'date', label: 'اليوم', render: (r) => <span className="whitespace-nowrap font-semibold">{fmtDay(r.occurred_on)}</span> },
-        { key: 'period', label: 'الحصة', render: (r) => <span className="grid size-8 place-items-center rounded-lg bg-board/10 font-bold text-board">{r.period_no}</span> },
+        { key: 'period', label: 'الحصة', render: (r) => <span className="grid size-8 place-items-center rounded-lg bg-accent/10 font-bold text-accent">{r.period_no}</span> },
         { key: 'class', label: 'الفصل والمادة', render: (r) => <span className="text-sm">{classNames[r.class_id]}<span className="block text-xs text-muted">{r.subject ?? (r.subject_id ? subjectNames[r.subject_id] : '—')}</span></span> },
         {
           key: 'counts',
@@ -336,7 +336,7 @@ function RecordsTab({ ctx, classNames, subjectNames, onOpen }: { ctx: AuthorCont
               <span className="rounded-full bg-ok-soft px-2 py-0.5 text-ok">{r.present} حاضر</span>
               {r.absent > 0 && <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">{r.absent} غائب</span>}
               {r.late > 0 && <span className="rounded-full bg-brass-soft px-2 py-0.5 text-brass">{r.late} متأخر</span>}
-              {r.excused > 0 && <span className="rounded-full bg-[#e1eef3] px-2 py-0.5 text-[#2a6f8a]">{r.excused} مستأذن</span>}
+              {r.excused > 0 && <span className="rounded-full bg-info-soft px-2 py-0.5 text-info">{r.excused} مستأذن</span>}
             </span>
           ),
         },
@@ -399,7 +399,7 @@ function AbsenceTab({ ctx }: { ctx: AuthorContext }) {
               <span className="flex gap-1 text-xs font-bold tabular-nums">
                 {r.absent > 0 && <span className="rounded-full bg-danger-soft px-2 py-0.5 text-danger">{r.absent} غياب</span>}
                 {r.late > 0 && <span className="rounded-full bg-brass-soft px-2 py-0.5 text-brass">{r.late} تأخر</span>}
-                {r.excused > 0 && <span className="rounded-full bg-[#e1eef3] px-2 py-0.5 text-[#2a6f8a]">{r.excused} استئذان</span>}
+                {r.excused > 0 && <span className="rounded-full bg-info-soft px-2 py-0.5 text-info">{r.excused} استئذان</span>}
               </span>
               <span className="w-full sm:w-44">
                 {r.pct == null ? (

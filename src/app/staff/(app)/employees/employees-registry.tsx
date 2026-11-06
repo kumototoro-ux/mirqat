@@ -128,7 +128,7 @@ export function EmployeesRegistry({
         toolbar={
           <>
             {isAdmin && (
-              <Link href="/staff/reports/employees" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              <Link href="/staff/reports/employees" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent">
                 <Icon name="results" className="size-4" />
                 التقرير
               </Link>
@@ -193,7 +193,7 @@ export function EmployeesRegistry({
         )}
       />
       <p className="mt-4 text-center text-xs text-muted">
-        حسابات دخول الموظفين تُدار من <Link href="/staff/employee-accounts" className="text-board hover:underline">حسابات الموظفين</Link>
+        حسابات دخول الموظفين تُدار من <Link href="/staff/employee-accounts" className="text-accent hover:underline">حسابات الموظفين</Link>
       </p>
       <EmployeeFormSheet
         open={editing !== null}
@@ -226,7 +226,7 @@ function SubjectChips({ r }: { r: EmployeeRow }) {
 
 function Avatar({ r, loading }: { r: EmployeeRow; loading?: boolean }) {
   return (
-    <span className={`grid size-10 shrink-0 place-items-center rounded-full font-bold ${r.user_type === 'admin' ? 'bg-gold/25 text-brass' : 'bg-board/10 text-board'}`}>
+    <span className={`grid size-10 shrink-0 place-items-center rounded-full font-bold ${r.user_type === 'admin' ? 'bg-gold/25 text-brass' : 'bg-accent/10 text-accent'}`}>
       {loading ? <span className="spinner" /> : r.name_ar.trim().charAt(0)}
     </span>
   );

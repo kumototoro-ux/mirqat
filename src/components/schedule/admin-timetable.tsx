@@ -79,7 +79,7 @@ export function AdminTimetable({ slots, classes }: { slots: ViewSlot[]; classes:
               {(['class', 'teacher'] as const).map((m) => (
                 <button key={m} type="button" onClick={() => setMode(m)} className="relative rounded-lg px-4 py-2 text-sm font-semibold">
                   {mode === m && <motion.span layoutId="tt-mode-pill" className="absolute inset-0 rounded-lg bg-surface shadow-sm" transition={{ type: 'spring', stiffness: 480, damping: 36 }} />}
-                  <span className={`relative ${mode === m ? 'text-board' : 'text-muted'}`}>{m === 'class' ? 'حسب الفصل' : 'حسب المعلم'}</span>
+                  <span className={`relative ${mode === m ? 'text-accent' : 'text-muted'}`}>{m === 'class' ? 'حسب الفصل' : 'حسب المعلم'}</span>
                 </button>
               ))}
             </div>
@@ -93,7 +93,7 @@ export function AdminTimetable({ slots, classes }: { slots: ViewSlot[]; classes:
               {teachers.map((t) => <option key={t.id} value={t.id}>{t.name} · {t.periods} حصة</option>)}
             </select>
           )}
-          <Link href="/staff/settings?s=timetable" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board sm:ms-auto">
+          <Link href="/staff/settings?s=timetable" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent sm:ms-auto">
             <Icon name="edit" className="size-4" /> تعديل الجدول
           </Link>
         </div>

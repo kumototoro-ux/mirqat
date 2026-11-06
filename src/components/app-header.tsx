@@ -20,7 +20,7 @@ export function AppHeader({
     <header className="border-b border-line bg-surface">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-8 gap-y-2 px-5 py-3">
         <Brand>
-          <Link href={home} className="font-display text-2xl font-bold text-board">
+          <Link href={home} className="font-display text-2xl font-bold text-accent">
             مِرقاة
           </Link>
         </Brand>

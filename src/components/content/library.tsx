@@ -102,7 +102,7 @@ export function ContentLibrary({ initial }: { initial: StudentContent[] }) {
             <p className="mt-1 text-sm text-chalk/75">{unseen ? `${unseen} لم تشاهدها بعد` : 'شاهدت كل المحتوى المنشور 👏'}</p>
           </div>
           {unseen > 0 && (
-            <button type="button" onClick={() => { setTab('unseen'); setSubject(null); }} className="w-full rounded-xl bg-gold px-4 py-2.5 text-sm font-bold text-ink transition-transform active:scale-95 sm:w-auto">
+            <button type="button" onClick={() => { setTab('unseen'); setSubject(null); }} className="w-full rounded-xl bg-gold px-4 py-2.5 text-sm font-bold text-on-gold transition-transform active:scale-95 sm:w-auto">
               ابدأ بالجديد
             </button>
           )}
@@ -130,11 +130,11 @@ export function ContentLibrary({ initial }: { initial: StudentContent[] }) {
       {/* المواد */}
       {subjects.length > 1 && (
         <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-          <button type="button" onClick={() => { setSubject(null); setLimit(STEP); }} className={`shrink-0 rounded-2xl px-4 py-2 text-sm font-semibold transition-colors ${subject == null ? 'bg-ink text-chalk' : 'bg-surface ring-1 ring-line'}`}>كل المواد</button>
+          <button type="button" onClick={() => { setSubject(null); setLimit(STEP); }} className={`shrink-0 rounded-2xl px-4 py-2 text-sm font-semibold transition-colors ${subject == null ? 'bg-inverse text-chalk' : 'bg-surface ring-1 ring-line'}`}>كل المواد</button>
           {subjects.map((s) => {
             const on = subject === s.id;
             return (
-              <button key={s.id} type="button" onClick={() => { setSubject(on ? null : s.id); setLimit(STEP); }} className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-sm transition-colors ${on ? 'bg-ink text-chalk' : 'bg-surface ring-1 ring-line hover:ring-board/40'}`}>
+              <button key={s.id} type="button" onClick={() => { setSubject(on ? null : s.id); setLimit(STEP); }} className={`flex shrink-0 items-center gap-2 rounded-2xl px-3.5 py-2 text-sm transition-colors ${on ? 'bg-inverse text-chalk' : 'bg-surface ring-1 ring-line hover:ring-accent/40'}`}>
                 <span className="size-2.5 rounded-full" style={{ background: subjectColor(s.name) }} />
                 <span className="font-semibold">{s.name}</span>
                 <span className={`text-xs tabular-nums ${on ? 'text-chalk/70' : 'text-muted'}`}>{s.done}/{s.total}</span>
@@ -170,11 +170,11 @@ export function ContentLibrary({ initial }: { initial: StudentContent[] }) {
                   <MediaThumb kind={c.kind} url={c.url} subject={c.subject} minutes={c.minutes} className="aspect-[16/8.5]">
                     <div className="absolute start-2 top-2 flex gap-1.5">
                       {c.completed_at ? (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-ok px-2 py-0.5 text-[0.7rem] font-bold text-chalk"><Icon name="check" className="size-3" /> مكتمل</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-ok px-2 py-0.5 text-[0.7rem] font-bold text-on-ok"><Icon name="check" className="size-3" /> مكتمل</span>
                       ) : !c.opened_at && isNew(c.published_at) ? (
-                        <span className="rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-bold text-ink">جديد</span>
+                        <span className="rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-bold text-on-gold">جديد</span>
                       ) : null}
-                      {c.is_pinned && <span className="rounded-full bg-white/90 px-2 py-0.5 text-[0.7rem] font-semibold text-ink">مثبّت</span>}
+                      {c.is_pinned && <span className="rounded-full bg-white/90 px-2 py-0.5 text-[0.7rem] font-semibold text-on-gold">مثبّت</span>}
                     </div>
                   </MediaThumb>
                   <span className="block p-4 pe-12">
@@ -182,7 +182,7 @@ export function ContentLibrary({ initial }: { initial: StudentContent[] }) {
                       <span className="size-2 rounded-full" style={{ background: subjectColor(c.subject) }} />
                       {c.subject} · {c.kind === 'video' ? (parseMedia(c.url)?.provider === 'link' ? 'رابط' : 'فيديو') : 'إثراء'}
                     </span>
-                    <span className="mt-1 line-clamp-2 block font-bold leading-snug group-hover:text-board">{c.title}</span>
+                    <span className="mt-1 line-clamp-2 block font-bold leading-snug group-hover:text-accent">{c.title}</span>
                     <span className="mt-1 block text-xs text-muted">{c.teacher ? `${c.teacher} · ` : ''}<TimeAgo iso={c.published_at} /></span>
                   </span>
                 </button>
@@ -215,7 +215,7 @@ export function ContentLibrary({ initial }: { initial: StudentContent[] }) {
                 )}
                 <span className="flex-1" />
                 {nextInSubject && (
-                  <button type="button" onClick={() => show(nextInSubject)} className="inline-flex items-center gap-1 text-sm font-semibold text-board">
+                  <button type="button" onClick={() => show(nextInSubject)} className="inline-flex items-center gap-1 text-sm font-semibold text-accent">
                     التالي: <span className="max-w-40 truncate">{nextInSubject.title}</span> <Icon name="chevron" className="size-4" />
                   </button>
                 )}

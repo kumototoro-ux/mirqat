@@ -30,7 +30,7 @@ export default async function PerfReportPage({ params }: { params: Promise<{ id:
   }
   return (
     <>
-      <Link href="/staff/performance" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">‹ تقارير الأداء</Link>
+      <Link href="/staff/performance" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">‹ تقارير الأداء</Link>
       <PageHeader title="تقرير أداء" lead={r.branch} actions={<Link href={`/staff/perf-print/${r.id}`} target="_blank" className="btn-quiet">طباعة / PDF</Link>} />
       <div className="space-y-5">
         <PerfReportView r={r} />

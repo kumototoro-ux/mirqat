@@ -102,11 +102,11 @@ export function Hero({ eyebrow, title, lead, children, aside }: { eyebrow: React
 
 export type Tile = { label: string; value: number; suffix?: string; hint?: React.ReactNode; icon: IconName; tone?: 'board' | 'gold' | 'danger' | 'ok' | 'sky'; href?: string; of?: number };
 const TONE: Record<NonNullable<Tile['tone']>, string> = {
-  board: 'bg-board/10 text-board',
+  board: 'bg-accent/10 text-accent',
   gold: 'bg-brass-soft text-brass',
   danger: 'bg-danger-soft text-danger',
   ok: 'bg-ok-soft text-ok',
-  sky: 'bg-[#e1eef3] text-[#2a6f8a]',
+  sky: 'bg-info-soft text-info',
 };
 
 export function Tiles({ items }: { items: Tile[] }) {
@@ -134,7 +134,7 @@ export function Tiles({ items }: { items: Tile[] }) {
         return (
           <motion.div key={t.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 + i * 0.05 }}>
             {t.href ? (
-              <Link href={t.href} className="block h-full rounded-[1.4rem] border border-line bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-board/30 hover:shadow-[0_14px_30px_-24px_rgb(53_104_84/0.8)]">{inner}</Link>
+              <Link href={t.href} className="block h-full rounded-[1.4rem] border border-line bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-accent/30 hover:shadow-[0_14px_30px_-24px_rgb(53_104_84/0.8)]">{inner}</Link>
             ) : (
               <div className="h-full rounded-[1.4rem] border border-line bg-surface p-4">{inner}</div>
             )}
@@ -150,8 +150,8 @@ export function QuickActions({ items }: { items: { href: string; label: string; 
     <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-6">
       {items.map((a, i) => (
         <motion.div key={a.href + a.label} initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.12 + i * 0.03 }}>
-          <Link href={a.href} className="group flex h-full flex-col items-center gap-2 rounded-2xl border border-line bg-surface px-2 py-3.5 text-center transition-all hover:-translate-y-0.5 hover:border-board/30 hover:bg-board/[0.03] active:scale-95">
-            <span className="grid size-11 place-items-center rounded-2xl bg-paper text-board transition-colors group-hover:bg-board group-hover:text-chalk">
+          <Link href={a.href} className="group flex h-full flex-col items-center gap-2 rounded-2xl border border-line bg-surface px-2 py-3.5 text-center transition-all hover:-translate-y-0.5 hover:border-accent/30 hover:bg-board/[0.03] active:scale-95">
+            <span className="grid size-11 place-items-center rounded-2xl bg-paper text-accent transition-colors group-hover:bg-board group-hover:text-chalk">
               <Icon name={a.icon} className="size-5" />
             </span>
             <span className="text-[0.8rem] font-semibold leading-tight">{a.label}</span>
@@ -175,7 +175,7 @@ export function Panel({ title, action, children, className = '', pad = true }: {
 }
 
 export const MoreLink = ({ href, children = 'الكل' }: { href: string; children?: React.ReactNode }) => (
-  <Link href={href} className="inline-flex items-center gap-0.5 text-sm font-medium text-board hover:underline">
+  <Link href={href} className="inline-flex items-center gap-0.5 text-sm font-medium text-accent hover:underline">
     {children} <Icon name="chevron" className="size-3.5" />
   </Link>
 );

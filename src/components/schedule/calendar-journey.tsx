@@ -119,13 +119,13 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
               {terms.map((t) => (
                 <button key={t.id} type="button" onClick={() => setTermId(t.id)} className="relative rounded-lg px-3.5 py-2 text-sm font-semibold">
                   {termId === t.id && <motion.span layoutId="term-pill" className="absolute inset-0 rounded-lg bg-surface shadow-sm" transition={{ type: 'spring', stiffness: 480, damping: 36 }} />}
-                  <span className={`relative ${termId === t.id ? 'text-board' : 'text-muted'}`}>{t.name} <span className="font-normal">{t.year}</span></span>
+                  <span className={`relative ${termId === t.id ? 'text-accent' : 'text-muted'}`}>{t.name} <span className="font-normal">{t.year}</span></span>
                 </button>
               ))}
             </div>
           </LayoutGroup>
           {admin && (
-            <Link href="/staff/settings?s=calendar" className="btn h-10 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board sm:ms-auto">
+            <Link href="/staff/settings?s=calendar" className="btn h-10 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent sm:ms-auto">
               <Icon name="edit" className="size-4" /> تعديل التقويم
             </Link>
           )}
@@ -158,7 +158,7 @@ export function CalendarJourney({ terms, weeks, admin }: { terms: Term[]; weeks:
                           {w.period && <span className="ms-2 text-sm font-normal text-muted">{w.period}</span>}
                         </p>
                         <div className="flex items-center gap-1.5">
-                          {isCurrent && <span className="rounded-full bg-gold px-2.5 py-0.5 text-xs font-bold text-ink">الأسبوع الحالي</span>}
+                          {isCurrent && <span className="rounded-full bg-gold px-2.5 py-0.5 text-xs font-bold text-on-gold">الأسبوع الحالي</span>}
                           {w.week && notable(w) && (
                             <span className={`rounded-full px-2.5 py-0.5 text-xs ${isHoliday(w) ? 'bg-danger-soft text-danger' : 'bg-brass-soft text-brass'}`}>{w.event}</span>
                           )}

@@ -107,7 +107,7 @@ export default async function StudentProfile({
 
   return (
     <>
-      <Link href="/staff/students" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+      <Link href="/staff/students" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <svg viewBox="0 0 16 16" className="size-4" aria-hidden><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
         الطلاب
       </Link>

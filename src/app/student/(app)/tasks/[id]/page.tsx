@@ -54,13 +54,13 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
 
   return (
     <div className="mx-auto max-w-3xl">
-      <Link href="/student/tasks" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+      <Link href="/student/tasks" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <Icon name="chevron" className="size-4 rotate-180" /> مهامي ونماذجي
       </Link>
 
       <section className="mb-4 rounded-[1.6rem] border border-line bg-surface p-5 sm:p-6">
         <div className="flex items-start gap-4">
-          <span className={`grid size-14 shrink-0 place-items-center rounded-2xl ${item.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+          <span className={`grid size-14 shrink-0 place-items-center rounded-2xl ${item.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
             <Icon name={item.kind === 'form' ? 'forms' : 'tasks'} className="size-7" />
           </span>
           <div className="min-w-0 flex-1">
@@ -101,10 +101,10 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
       {item.kind === 'task' && (
         <>
           {submission?.feedback && (
-            <div className="mb-4 flex items-start gap-3 rounded-[1.4rem] border border-board/20 bg-board/[0.05] p-4">
+            <div className="mb-4 flex items-start gap-3 rounded-[1.4rem] border border-accent/20 bg-board/[0.05] p-4">
               <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-board text-chalk"><Icon name="edit" className="size-4" /></span>
               <div>
-                <p className="text-xs font-semibold text-board">ملاحظة المعلم</p>
+                <p className="text-xs font-semibold text-accent">ملاحظة المعلم</p>
                 <p className="mt-0.5 leading-relaxed">{submission.feedback}</p>
               </div>
             </div>
@@ -132,7 +132,7 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
                     </li>
                   ) : (
                     <li key={f.id} className="flex items-center gap-3 rounded-xl border border-line p-2.5 text-sm">
-                      <Icon name={f.mime.startsWith('image/') ? 'image' : 'clip'} className="size-5 text-board" />
+                      <Icon name={f.mime.startsWith('image/') ? 'image' : 'clip'} className="size-5 text-accent" />
                       {urls[f.storage_path] ? <a href={urls[f.storage_path]} target="_blank" rel="noopener noreferrer" className="min-w-0 flex-1 truncate font-semibold hover:underline">{f.name}</a> : <span className="min-w-0 flex-1 truncate text-muted">{f.name}</span>}
                       <span className="text-xs text-muted">{f.deleted_at ? 'حُذف بعد التصحيح' : fmtBytes(f.size_bytes)}</span>
                     </li>
@@ -142,7 +142,7 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
               {(submission.links ?? []).length > 0 && (
                 <ul className="mt-3 grid gap-2">
                   {submission.links!.map((l) => (
-                    <li key={l}><a href={l} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="flex items-center gap-2 rounded-xl border border-line p-2.5 text-sm font-semibold text-board hover:underline"><Icon name="link" className="size-4 shrink-0" /><span className="min-w-0 truncate">{l}</span></a></li>
+                    <li key={l}><a href={l} target="_blank" rel="noopener noreferrer nofollow" dir="ltr" className="flex items-center gap-2 rounded-xl border border-line p-2.5 text-sm font-semibold text-accent hover:underline"><Icon name="link" className="size-4 shrink-0" /><span className="min-w-0 truncate">{l}</span></a></li>
                   ))}
                 </ul>
               )}
@@ -159,7 +159,7 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
       {item.kind === 'form' && (
         <>
           {(state === 'todo' || state === 'in_progress' || canRetry(item)) && (
-            <section className="mb-4 rounded-[1.4rem] border border-board/25 bg-gradient-to-br from-[#e6f0ea] to-surface p-5 text-center sm:p-6">
+            <section className="mb-4 rounded-[1.4rem] border border-accent/25 bg-gradient-to-br from-tint to-surface p-5 text-center sm:p-6">
               <p className="text-lg font-bold">{state === 'in_progress' ? 'لديك محاولة لم تُسلَّم' : canRetry(item) ? `يمكنك محاولة أخرى (بقي ${attemptsLeft})` : 'جاهز للحل؟'}</p>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted">
                 {state === 'in_progress'
@@ -175,7 +175,7 @@ export default async function StudentItemPage({ params }: { params: Promise<{ id
           )}
           {state === 'upcoming' && item.opens_at && (
             <section className="rounded-[1.4rem] border border-line bg-surface p-6 text-center">
-              <Icon name="clock" className="mx-auto size-8 text-board" />
+              <Icon name="clock" className="mx-auto size-8 text-accent" />
               <p className="mt-2 font-bold">يُفتح {fmtFull(item.opens_at)}</p>
               <p className="text-sm text-muted">{relTime(item.opens_at)}</p>
             </section>

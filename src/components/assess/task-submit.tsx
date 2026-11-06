@@ -108,7 +108,7 @@ export function TaskSubmit({
   };
 
   return (
-    <section className="rounded-[1.4rem] border border-board/25 bg-surface shadow-[0_18px_40px_-30px_rgb(53_104_84/0.8)]">
+    <section className="rounded-[1.4rem] border border-accent/25 bg-surface shadow-[0_18px_40px_-30px_rgb(53_104_84/0.8)]">
       <header className="flex items-center gap-3 border-b border-line px-4 py-3.5 sm:px-5">
         <span className="grid size-9 place-items-center rounded-xl bg-board text-chalk"><Icon name="send" className="size-[1.1rem]" /></span>
         <div className="min-w-0 flex-1">
@@ -148,11 +148,11 @@ export function TaskSubmit({
             <input ref={pick} type="file" accept={ACCEPT_FILES} multiple hidden onChange={(e) => { add(e.target.files); e.target.value = ''; }} />
             <input ref={camera} type="file" accept="image/*" capture="environment" hidden onChange={(e) => { add(e.target.files); e.target.value = ''; }} />
             <div className="grid grid-cols-2 gap-2">
-              <button type="button" onClick={() => camera.current?.click()} className="flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-line px-3 py-5 text-sm font-semibold transition-colors hover:border-board/50 hover:bg-board/[0.03] sm:hidden">
-                <Icon name="image" className="size-7 text-board" /> تصوير
+              <button type="button" onClick={() => camera.current?.click()} className="flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-line px-3 py-5 text-sm font-semibold transition-colors hover:border-accent/50 hover:bg-board/[0.03] sm:hidden">
+                <Icon name="image" className="size-7 text-accent" /> تصوير
               </button>
-              <button type="button" onClick={() => pick.current?.click()} className="col-span-1 flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-line px-3 py-5 text-sm font-semibold transition-colors hover:border-board/50 hover:bg-board/[0.03] sm:col-span-2">
-                <Icon name="upload" className="size-7 text-board" /> اختر صورًا أو ملفات
+              <button type="button" onClick={() => pick.current?.click()} className="col-span-1 flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-line px-3 py-5 text-sm font-semibold transition-colors hover:border-accent/50 hover:bg-board/[0.03] sm:col-span-2">
+                <Icon name="upload" className="size-7 text-accent" /> اختر صورًا أو ملفات
                 <span className="text-[0.7rem] font-normal text-muted">حتى {MAX_SUBMISSION_FILES} · 1 ميقا لكل ملف · الصور تُضغط تلقائيًا</span>
               </button>
             </div>
@@ -165,7 +165,7 @@ export function TaskSubmit({
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={f.url} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
                       ) : (
-                        <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-board/10 text-board">
+                        <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-accent/10 text-accent">
                           {f.state === 'compressing' || f.state === 'uploading' ? <span className="spinner" /> : <Icon name={f.mime.startsWith('image/') ? 'image' : 'clip'} className="size-5" />}
                         </span>
                       )}
@@ -230,7 +230,7 @@ export function TaskSubmit({
               </div>
             ))}
             {links.length < MAX_SUBMISSION_LINKS && (
-              <button type="button" onClick={() => setLinks((ls) => [...ls, ''])} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-board hover:bg-board/10"><Icon name="plus" className="size-4" /> إضافة رابط</button>
+              <button type="button" onClick={() => setLinks((ls) => [...ls, ''])} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-accent hover:bg-accent/10"><Icon name="plus" className="size-4" /> إضافة رابط</button>
             )}
           </div>
         )}

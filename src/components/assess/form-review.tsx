@@ -27,11 +27,11 @@ export function FormReview({ questions }: { questions: ReviewQuestion[] }) {
         const full = q.status !== 'pending' && Number(q.earned) >= Number(q.points) && Number(q.points) > 0;
         const some = Number(q.earned) > 0;
         return (
-          <li key={q.id} className={`rounded-[1.25rem] border bg-surface p-4 ${q.status === 'pending' ? 'border-gold/50' : full ? 'border-ok/30' : some ? 'border-board/25' : 'border-danger/25'}`}>
+          <li key={q.id} className={`rounded-[1.25rem] border bg-surface p-4 ${q.status === 'pending' ? 'border-gold/50' : full ? 'border-ok/30' : some ? 'border-accent/25' : 'border-danger/25'}`}>
             <div className="mb-2 flex items-center gap-2 text-xs">
-              <span className="rounded-full bg-ink px-2 py-0.5 font-bold tabular-nums text-chalk">{i + 1}</span>
+              <span className="rounded-full bg-inverse px-2 py-0.5 font-bold tabular-nums text-chalk">{i + 1}</span>
               <span className="text-muted">{QTYPE_LABEL[q.qtype]}</span>
-              <span className={`ms-auto inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-bold tabular-nums ${q.status === 'pending' ? 'bg-gold/25 text-brass' : full ? 'bg-ok-soft text-ok' : some ? 'bg-board/10 text-board' : 'bg-danger-soft text-danger'}`} dir="ltr">
+              <span className={`ms-auto inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 font-bold tabular-nums ${q.status === 'pending' ? 'bg-gold/25 text-brass' : full ? 'bg-ok-soft text-ok' : some ? 'bg-accent/10 text-accent' : 'bg-danger-soft text-danger'}`} dir="ltr">
                 {q.status === 'pending' ? 'بانتظار التصحيح' : `${Number(q.earned)} / ${Number(q.points)}`}
               </span>
             </div>
@@ -94,7 +94,7 @@ export function FormReview({ questions }: { questions: ReviewQuestion[] }) {
                 </ul>
               )}
             </div>
-            {q.feedback && <p className="mt-3 flex items-start gap-2 rounded-xl bg-board/[0.06] px-3 py-2 text-sm text-board"><Icon name="edit" className="mt-0.5 size-4 shrink-0" /> {q.feedback}</p>}
+            {q.feedback && <p className="mt-3 flex items-start gap-2 rounded-xl bg-board/[0.06] px-3 py-2 text-sm text-accent"><Icon name="edit" className="mt-0.5 size-4 shrink-0" /> {q.feedback}</p>}
             {q.explanation && <p className="mt-2 flex items-start gap-2 rounded-xl bg-brass-soft/60 px-3 py-2 text-sm text-brass"><Icon name="sparkle" className="mt-0.5 size-4 shrink-0" /> {q.explanation}</p>}
           </li>
         );
