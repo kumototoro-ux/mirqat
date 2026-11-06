@@ -69,13 +69,13 @@ export function Switch({ checked, onChange, label, disabled }: { checked: boolea
 export function VisibilityLock({ isPublic }: { isPublic: boolean }) {
   return (
     <span className="group relative">
-      <span className={`grid size-11 place-items-center rounded-xl border transition-colors ${isPublic ? 'border-board bg-board text-chalk' : 'border-line bg-surface text-muted'}`}>
+      <span className={`grid size-11 place-items-center rounded-xl border transition-colors ${isPublic ? 'border-accent bg-board text-chalk' : 'border-line bg-surface text-muted'}`}>
         <svg viewBox="0 0 24 24" className="size-[1.1rem]" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
           <rect x="5" y="10.5" width="14" height="9.5" rx="2" />
           <path d={isPublic ? 'M8.5 10.5V7.5a3.5 3.5 0 0 1 6.8-1.2' : 'M8.5 10.5V7.5a3.5 3.5 0 0 1 7 0v3'} />
         </svg>
       </span>
-      <span className="pointer-events-none absolute end-full top-1/2 z-20 me-2 w-52 -translate-y-1/2 rounded-xl bg-ink px-3 py-2 text-xs leading-relaxed text-chalk opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
+      <span className="pointer-events-none absolute end-full top-1/2 z-20 me-2 w-52 -translate-y-1/2 rounded-xl bg-inverse px-3 py-2 text-xs leading-relaxed text-chalk opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
         {isPublic ? 'ظاهر للجميع في الصفحة الرئيسية قبل تسجيل الدخول' : 'داخلي: لا يراه إلا المسجلون'}
       </span>
     </span>
@@ -201,10 +201,10 @@ export function BrandingEditor({ name, logo }: { name: string; logo: string }) {
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="mb-3 flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-line px-4 py-6 text-sm transition-colors hover:border-board/50 hover:bg-board/[0.03] disabled:opacity-60"
+          className="mb-3 flex w-full flex-col items-center gap-2 rounded-2xl border-2 border-dashed border-line px-4 py-6 text-sm transition-colors hover:border-accent/50 hover:bg-board/[0.03] disabled:opacity-60"
         >
-          {uploading ? <span className="spinner size-6 text-board" /> : (
-            <span className="grid size-11 place-items-center rounded-xl bg-board/10 text-board">
+          {uploading ? <span className="spinner size-6 text-accent" /> : (
+            <span className="grid size-11 place-items-center rounded-xl bg-accent/10 text-accent">
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 16v3.5h16V16" /></svg>
             </span>
           )}
@@ -263,7 +263,7 @@ export function AnnouncementsEditor({ items }: { items: Ann[] }) {
         ))}
       </AnimatePresence>
       {list.length < 12 && (
-        <button type="button" onClick={() => setList((l) => [...l, { title: '', body: '' }])} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line py-4 text-sm font-semibold text-muted transition-colors hover:border-board/40 hover:text-board">
+        <button type="button" onClick={() => setList((l) => [...l, { title: '', body: '' }])} className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line py-4 text-sm font-semibold text-muted transition-colors hover:border-accent/40 hover:text-accent">
           <Icon name="plus" className="size-4" /> إضافة إعلان
         </button>
       )}
@@ -292,7 +292,7 @@ function ScopeChips({ value, options, onChange }: { value: string[]; options: { 
                 const on = value.includes(x);
                 return (
                   <button key={x} type="button" aria-pressed={on} onClick={() => toggle(x)}
-                    className={`rounded-full px-3 py-1.5 text-sm transition-all active:scale-95 ${on ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+                    className={`rounded-full px-3 py-1.5 text-sm transition-all active:scale-95 ${on ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
                     {x}
                   </button>
                 );
@@ -522,7 +522,7 @@ export function RefListEditor({
                       disabled={pending}
                     />
                   )}
-                  <button type="button" onClick={() => startEdit(it)} aria-label="إعادة تسمية" className="grid size-9 place-items-center rounded-lg text-muted hover:bg-board/10 hover:text-board">
+                  <button type="button" onClick={() => startEdit(it)} aria-label="إعادة تسمية" className="grid size-9 place-items-center rounded-lg text-muted hover:bg-accent/10 hover:text-accent">
                     <Icon name="edit" className="size-4" />
                   </button>
                   <button type="button" onClick={() => remove(it)} aria-label="حذف" className="grid size-9 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger">
@@ -587,7 +587,7 @@ export function WeightsEditor({
             type="button"
             onClick={() => { setSubjectId(s.id); setVals(initial(s.id)); }}
             aria-pressed={s.id === subjectId}
-            className={`relative rounded-full px-3 py-1.5 text-sm transition-colors ${s.id === subjectId ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}
+            className={`relative rounded-full px-3 py-1.5 text-sm transition-colors ${s.id === subjectId ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}
           >
             {s.name}
             {!configured.has(s.id) && <span className="absolute -top-0.5 end-0 size-2 rounded-full bg-danger" title="بلا توزيع" />}

@@ -45,12 +45,12 @@ export async function LoginScreen({ portal, reason }: { portal: Portal; reason?:
 
       <section className="relative isolate flex flex-col overflow-hidden px-5 py-6 sm:px-10">
         {/* نقطتان ضوئيتان خلف البطاقة تعطيان عمقًا هادئًا */}
-        <div aria-hidden className="absolute -end-24 -top-24 -z-10 size-80 rounded-full bg-board/10 blur-3xl" />
+        <div aria-hidden className="absolute -end-24 -top-24 -z-10 size-80 rounded-full bg-accent/10 blur-3xl" />
         <div aria-hidden className="absolute -bottom-32 start-10 -z-10 size-96 rounded-full bg-gold/10 blur-3xl" />
 
         <Link
           href="/"
-          className="group inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-board"
+          className="group inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-muted transition-colors hover:bg-surface hover:text-accent"
         >
           <svg viewBox="0 0 16 16" className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" aria-hidden>
             <path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -67,7 +67,7 @@ export async function LoginScreen({ portal, reason }: { portal: Portal; reason?:
                 </span>
                 <div>
                   <h1 className="text-[1.75rem] font-bold leading-tight text-ink">{copy.title}</h1>
-                  <p className="text-sm font-medium text-board">{copy.portal}</p>
+                  <p className="text-sm font-medium text-accent">{copy.portal}</p>
                 </div>
               </div>
               <p className="mt-4 text-muted">{copy.lead}</p>

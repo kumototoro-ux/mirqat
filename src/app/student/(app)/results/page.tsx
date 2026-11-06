@@ -75,8 +75,8 @@ export default async function StudentResultsPage({ searchParams }: { searchParam
                 href={`/student/results?term=${t.id}`}
                 active={on}
                 base="group flex shrink-0 items-center gap-2 rounded-2xl border px-4 py-2.5 text-sm font-semibold transition-colors"
-                on="is-on border-board bg-board text-chalk"
-                off="border-line bg-surface hover:border-board/40"
+                on="is-on border-accent bg-board text-chalk"
+                off="border-line bg-surface hover:border-accent/40"
               >
                 {!t.access.visible && <Icon name="key" className="size-4 text-muted group-[.is-on]:text-gold" />}
                 {t.name}

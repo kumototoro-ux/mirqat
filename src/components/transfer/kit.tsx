@@ -17,9 +17,9 @@ export function Dropzone({ busy, label, onFile, accept = '.xlsx', hint = 'xlsx �
         onDragOver={(e) => { e.preventDefault(); setOver(true); }}
         onDragLeave={() => setOver(false)}
         onDrop={(e) => { e.preventDefault(); setOver(false); const f = e.dataTransfer.files[0]; if (f) onFile(f); }}
-        className={`flex w-full flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed px-4 py-9 text-center transition-colors ${over ? 'border-board bg-board/5' : 'border-line bg-paper/50 hover:border-board/50'}`}
+        className={`flex w-full flex-col items-center justify-center gap-2.5 rounded-2xl border-2 border-dashed px-4 py-9 text-center transition-colors ${over ? 'border-accent bg-accent/5' : 'border-line bg-paper/50 hover:border-accent/50'}`}
       >
-        <span className="grid size-12 place-items-center rounded-2xl bg-surface text-board shadow-sm">
+        <span className="grid size-12 place-items-center rounded-2xl bg-surface text-accent shadow-sm">
           {busy ? <span className="spinner" /> : <Icon name="upload" className="size-6" />}
         </span>
         <span className="text-sm font-semibold">{busy ? 'جارٍ قراءة الملف وتدقيقه…' : label}</span>
@@ -31,7 +31,7 @@ export function Dropzone({ busy, label, onFile, accept = '.xlsx', hint = 'xlsx �
 }
 
 export function Stat({ label, value, tone }: { label: string; value: number | string; tone?: 'ok' | 'danger' | 'gold' | 'board' }) {
-  const c = tone === 'ok' ? 'bg-ok-soft text-ok' : tone === 'danger' ? 'bg-danger/10 text-danger' : tone === 'gold' ? 'bg-brass-soft text-brass' : tone === 'board' ? 'bg-board/10 text-board' : 'bg-paper text-ink';
+  const c = tone === 'ok' ? 'bg-ok-soft text-ok' : tone === 'danger' ? 'bg-danger/10 text-danger' : tone === 'gold' ? 'bg-brass-soft text-brass' : tone === 'board' ? 'bg-accent/10 text-accent' : 'bg-paper text-ink';
   return (
     <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className={`rounded-2xl px-3.5 py-3 ${c}`}>
       <p className="text-xs opacity-80">{label}</p>
@@ -65,7 +65,7 @@ export function Steps({ items, current }: { items: string[]; current: number }) 
     <ol className="flex flex-wrap items-center gap-1.5 text-xs">
       {items.map((t, i) => (
         <li key={t} className="flex items-center gap-1.5">
-          <span className={`grid size-6 place-items-center rounded-full font-bold transition-colors ${i < current ? 'bg-ok text-white' : i === current ? 'bg-board text-chalk' : 'bg-paper text-muted'}`}>
+          <span className={`grid size-6 place-items-center rounded-full font-bold transition-colors ${i < current ? 'bg-ok text-on-ok' : i === current ? 'bg-board text-on-ok' : 'bg-paper text-muted'}`}>
             {i < current ? <Icon name="check" className="size-3.5" /> : i + 1}
           </span>
           <span className={i === current ? 'font-semibold text-ink' : 'text-muted'}>{t}</span>

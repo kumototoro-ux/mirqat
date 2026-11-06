@@ -82,7 +82,7 @@ export function TimetableGrid({ slots }: { slots: Slot[] }) {
         {DAYS.map((day, d) => {
           const list = slots.filter((s) => s.day === d).sort((a, b) => a.period - b.period);
           return (
-            <section key={day} className={`rounded-2xl border bg-surface p-4 ${d === today ? 'border-board/40' : 'border-line'}`}>
+            <section key={day} className={`rounded-2xl border bg-surface p-4 ${d === today ? 'border-accent/40' : 'border-line'}`}>
               <h3 className="mb-2.5 flex items-center gap-2 font-semibold">
                 {day}
                 {d === today && <span className="rounded-full bg-board px-1.5 py-px text-[0.65rem] font-medium text-chalk">اليوم</span>}
@@ -117,7 +117,7 @@ function SlotChip({ slot }: { slot: Slot }) {
       className="rounded-xl px-2.5 py-2 leading-tight transition-transform duration-200 hover:-translate-y-0.5"
       style={{ background: `${c}14`, boxShadow: `inset -3px 0 0 ${c}` }}
     >
-      <p className="truncate text-[0.82rem] font-semibold" style={{ color: c }}>{slot.subject}</p>
+      <p className="truncate text-[0.82rem] font-semibold" style={{ color: `color-mix(in oklab, ${c} var(--subj-mix), var(--color-ink))` }}>{slot.subject}</p>
       {slot.sub && <p className="mt-0.5 truncate text-xs text-muted">{slot.sub}</p>}
       {slot.mode && <p className="mt-0.5 truncate text-[0.7rem] text-muted/80">{slot.mode}</p>}
     </div>

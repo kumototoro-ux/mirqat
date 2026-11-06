@@ -14,7 +14,7 @@ import { APPRECIATION_TYPES, ad, certDates, typeMeta, type AppreciationBrand, ty
 import { AppreciationViewer, exportCertsPdf } from './appreciation-sheet';
 
 const chip = (on: boolean, dark = false) =>
-  `rounded-full px-3.5 py-1.5 text-sm transition-colors ${on ? `${dark ? 'bg-ink' : 'bg-board'} font-semibold text-chalk` : 'bg-paper hover:bg-board/10'}`;
+  `rounded-full px-3.5 py-1.5 text-sm transition-colors ${on ? `${dark ? 'bg-inverse' : 'bg-board'} font-semibold text-chalk` : 'bg-paper hover:bg-accent/10'}`;
 
 export function CertsHub({ ctx, brand, branches }: { ctx: AuthorContext; brand: AppreciationBrand; branches: Opt[] }) {
   const [tab, setTab] = useState<'issue' | 'issued'>('issue');
@@ -94,7 +94,7 @@ function IssuePanel({ ctx, branches, onOpen }: { ctx: AuthorContext; branches: O
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {types.map((t) => (
             <button key={t.value} type="button" onClick={() => { setType(t.value); setStudent(null); }}
-              className={`relative overflow-hidden rounded-2xl border p-3 text-start transition-colors ${type === t.value ? 'border-transparent text-white' : 'border-line hover:border-board/40'}`}
+              className={`relative overflow-hidden rounded-2xl border p-3 text-start transition-colors ${type === t.value ? 'border-transparent text-white' : 'border-line hover:border-accent/40'}`}
               style={type === t.value ? { background: `linear-gradient(135deg, ${t.pal.a}, ${t.pal.b})` } : undefined}>
               <span className="flex items-center gap-2 font-bold"><span className="size-2.5 rotate-45 rounded-[2px]" style={{ background: type === t.value ? '#fff' : t.pal.b }} />{t.label}</span>
               <span className={`mt-1 block text-xs leading-relaxed ${type === t.value ? 'text-white/80' : 'text-muted'}`}>{t.hint}</span>
@@ -187,7 +187,7 @@ function RankRow({ r, type, busy, onOpen }: { r: TopRow; type: AppreciationType;
         <span className="block truncate font-semibold">{r.name}</span>
         <span className="block text-xs text-muted">{r.code} · {r.class_label}{type === 'attendance' ? ` · غياب ${r.absent ?? 0} · تأخر ${r.late ?? 0}` : ` · ${r.n} درجة`}</span>
       </span>
-      <span className="text-lg font-bold tabular-nums text-board" dir="ltr">{r.pct}%</span>
+      <span className="text-lg font-bold tabular-nums text-accent" dir="ltr">{r.pct}%</span>
       {r.issued && <Badge tone="ok">صدرت</Badge>}
       <button type="button" onClick={onOpen} disabled={busy} className="btn-quiet px-3" aria-label={r.issued ? 'عرض وتحديث' : 'معاينة'}>{busy ? <span className="spinner" /> : <Icon name="eye" className="size-4" />}<span className="hidden sm:inline">{r.issued ? 'عرض وتحديث' : 'معاينة'}</span></button>
     </li>
@@ -214,7 +214,7 @@ function StudentSearch({ label, picked, onPick }: { label: string; picked: Stude
         <Icon name="search" className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted" />
         <input value={picked ? `${picked.name_ar} — ${picked.class_label}` : q} onChange={(e) => { setQ(e.target.value); if (picked) onPick(null); }} onFocus={(e) => picked && e.target.select()}
           placeholder="اكتب اسم الطالب أو رقمه" className="field ps-10" autoComplete="off" />
-        {searching && <span className="spinner absolute inset-y-0 end-3 my-auto text-board" />}
+        {searching && <span className="spinner absolute inset-y-0 end-3 my-auto text-accent" />}
       </div>
       <AnimatePresence>
         {hits.length > 0 && (
@@ -222,7 +222,7 @@ function StudentSearch({ label, picked, onPick }: { label: string; picked: Stude
             {hits.map((h) => (
               <li key={h.id}>
                 <button type="button" onClick={() => { setHits([]); onPick(h); }} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start hover:bg-board/[0.06]">
-                  <span className="grid size-9 place-items-center rounded-full bg-board/10 font-bold text-board">{h.name_ar.trim().charAt(0)}</span>
+                  <span className="grid size-9 place-items-center rounded-full bg-accent/10 font-bold text-accent">{h.name_ar.trim().charAt(0)}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold">{h.name_ar}</span>
                     <span className="block text-xs text-muted">{h.code} · {h.class_label}</span>
@@ -378,7 +378,7 @@ function CertSheet({ state, brand, onClose, onIssued, onRevoked }: {
       {v && (
         <>
           {draft ? (
-            <p className="mb-4 flex items-start gap-2 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-board">
+            <p className="mb-4 flex items-start gap-2 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-accent">
               <Icon name="check" className="mt-0.5 size-4 shrink-0" /> الطالب مستحق — راجع الشهادة ثم أصدرها. الأرقام محسوبة من الرصد الآن.
             </p>
           ) : (

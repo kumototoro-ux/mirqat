@@ -90,7 +90,7 @@ export function PositionsBoardView({ initial }: { initial: PositionBoard }) {
         <div className="flex flex-wrap gap-2">
           {initial.branches.map((b) => (
             <button key={b.id} type="button" role="switch" aria-checked={buildings[b.id]} onClick={() => toggleBuilding(b.id)}
-              className={`rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 ring-inset transition ${buildings[b.id] ? 'bg-board text-chalk ring-board' : 'bg-surface text-muted ring-line hover:ring-board/40'}`}>
+              className={`rounded-full px-3.5 py-1.5 text-sm font-medium ring-1 ring-inset transition ${buildings[b.id] ? 'bg-board text-chalk ring-accent' : 'bg-surface text-muted ring-line hover:ring-accent/40'}`}>
               {b.name}{buildings[b.id] ? ' · له مبنى' : ''}
             </button>
           ))}
@@ -117,14 +117,14 @@ export function PositionsBoardView({ initial }: { initial: PositionBoard }) {
               <div className="mt-2 flex flex-wrap gap-2">
                 {e.assigned.length === 0 && <span className="text-xs text-muted">بلا منصب</span>}
                 {e.assigned.map((a) => (
-                  <span key={`${a.position}:${a.branchId}`} className="inline-flex items-center gap-1.5 rounded-full bg-board/10 py-1 ps-3 pe-1 text-xs font-semibold text-board">
+                  <span key={`${a.position}:${a.branchId}`} className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 py-1 ps-3 pe-1 text-xs font-semibold text-accent">
                     {posName(a.position)} · {branchName(a.branchId)}
                     <button
                       type="button"
                       aria-label={`سحب ${posName(a.position)}`}
                       disabled={busy === `${e.id}:${a.position}:${a.branchId}`}
                       onClick={() => apply(e, a.position, a.branchId, false)}
-                      className="grid size-5 place-items-center rounded-full hover:bg-board/20 disabled:opacity-50"
+                      className="grid size-5 place-items-center rounded-full hover:bg-accent/20 disabled:opacity-50"
                     >×</button>
                   </span>
                 ))}

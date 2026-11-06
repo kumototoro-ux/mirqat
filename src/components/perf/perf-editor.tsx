@@ -162,7 +162,7 @@ export function PerfEditor({
                         role="radio"
                         aria-checked={v?.rating === r.v}
                         onClick={() => setScores((m) => ({ ...m, [i.code]: { rating: r.v, note: m[i.code]?.note ?? '' } }))}
-                        className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset transition ${v?.rating === r.v ? r.cls + ' ring-2' : 'bg-surface text-muted ring-line hover:ring-board/40'}`}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ring-1 ring-inset transition ${v?.rating === r.v ? r.cls + ' ring-2' : 'bg-surface text-muted ring-line hover:ring-accent/40'}`}
                       >
                         {r.label}
                       </button>

@@ -43,7 +43,7 @@ export function ManualEdit({ m, ctx }: { m: ManualDetail; ctx: AuthorContext }) 
 
   return (
     <>
-      <Link href="/staff/grading?mode=records" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+      <Link href="/staff/grading?mode=records" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <Icon name="chevron" className="size-4 rotate-180" /> سجلات الرصد
       </Link>
       <section className="mb-4 flex flex-wrap items-start gap-4 rounded-[1.6rem] border border-line bg-surface p-5">

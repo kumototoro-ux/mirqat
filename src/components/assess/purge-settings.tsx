@@ -95,7 +95,7 @@ export function PurgeSettings() {
           <div className="flex flex-wrap items-center gap-2 px-1">
             <span className="text-sm text-muted">بعد</span>
             {HOURS.map((h) => (
-              <button key={h} type="button" onClick={() => h !== hours && save(true, h)} className={`rounded-full px-3.5 py-1.5 text-sm transition-all ${h === hours ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+              <button key={h} type="button" onClick={() => h !== hours && save(true, h)} className={`rounded-full px-3.5 py-1.5 text-sm transition-all ${h === hours ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
                 {label(h)}
               </button>
             ))}

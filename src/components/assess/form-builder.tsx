@@ -308,9 +308,9 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
                   key={t.value}
                   type="button"
                   onClick={() => add(t.value)}
-                  className="group flex items-center gap-2.5 rounded-xl border border-line bg-surface px-3 py-2.5 text-start transition-all hover:-translate-y-0.5 hover:border-board/40 hover:shadow-[0_10px_24px_-18px_rgb(53_104_84/0.8)] active:scale-[0.98]"
+                  className="group flex items-center gap-2.5 rounded-xl border border-line bg-surface px-3 py-2.5 text-start transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:shadow-[0_10px_24px_-18px_rgb(53_104_84/0.8)] active:scale-[0.98]"
                 >
-                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-board/10 text-xs font-bold text-board transition-colors group-hover:bg-board group-hover:text-chalk" dir="ltr">{t.icon}</span>
+                  <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent/10 text-xs font-bold text-accent transition-colors group-hover:bg-board group-hover:text-chalk" dir="ltr">{t.icon}</span>
                   <span className="min-w-0 text-sm font-semibold leading-tight">{t.label}</span>
                 </button>
               ))}
@@ -336,7 +336,7 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
                   <div className="flex flex-wrap items-center gap-1.5 px-1 pt-1">
                     {[10, 15, 20, 30, 45, 60, 90].map((m) => (
-                      <button key={m} type="button" onClick={() => touch(setMinutes)(m)} className={`rounded-full px-3 py-1.5 text-sm tabular-nums transition-all ${minutes === m ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+                      <button key={m} type="button" onClick={() => touch(setMinutes)(m)} className={`rounded-full px-3 py-1.5 text-sm tabular-nums transition-all ${minutes === m ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
                         {m}
                       </button>
                     ))}
@@ -353,9 +353,9 @@ export function FormBuilder({ ctx, form }: { ctx: AuthorContext; form?: FormDeta
               <span className="block text-xs text-muted">آخر محاولة هي المعتمدة في الرصد</span>
             </span>
             <span className="flex items-center gap-1">
-              <button type="button" onClick={() => touch(setAttempts)(Math.max(1, attempts - 1))} className="grid size-9 place-items-center rounded-lg border border-line text-lg hover:border-board/40">−</button>
+              <button type="button" onClick={() => touch(setAttempts)(Math.max(1, attempts - 1))} className="grid size-9 place-items-center rounded-lg border border-line text-lg hover:border-accent/40">−</button>
               <span className="w-8 text-center text-lg font-bold tabular-nums">{attempts}</span>
-              <button type="button" onClick={() => touch(setAttempts)(Math.min(20, attempts + 1))} className="grid size-9 place-items-center rounded-lg border border-line text-lg hover:border-board/40">+</button>
+              <button type="button" onClick={() => touch(setAttempts)(Math.min(20, attempts + 1))} className="grid size-9 place-items-center rounded-lg border border-line text-lg hover:border-accent/40">+</button>
             </span>
           </div>
           <Switch checked={shuffleQ} onChange={touch(setShuffleQ)} label="خلط ترتيب الأسئلة لكل طالب" hint="كل طالب يرى ترتيبًا مختلفًا ثابتًا طوال محاولته." />

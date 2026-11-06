@@ -77,7 +77,7 @@ export function ReleaseRules({ ref_, rules }: { ref_: RefData; rules: ReleaseRul
               عند التعارض <b className="text-gold">يغلب الأخص</b>: قاعدة الطالب ← الفصل ← الصف ← المرحلة ← الفرع ← الكل.
             </p>
           </div>
-          <button type="button" onClick={() => setEditing({ id: null, v: EMPTY })} className="btn-primary w-full bg-gold text-ink hover:bg-gold/90 sm:w-auto">
+          <button type="button" onClick={() => setEditing({ id: null, v: EMPTY })} className="btn-primary w-full bg-gold text-on-gold hover:bg-gold/90 sm:w-auto">
             <Icon name="plus" className="size-4" /> قاعدة جديدة
           </button>
         </div>
@@ -122,7 +122,7 @@ export function ReleaseRules({ ref_, rules }: { ref_: RefData; rules: ReleaseRul
                         {r.kind === 'allow' ? 'إتاحة استثنائية' : 'حجب'} · <span className="font-semibold text-muted">{lvl ? `مستوى ${lvl.label}` : 'كل الطلاب'}</span>
                       </p>
                       <div className="mt-1.5 flex flex-wrap gap-1.5 text-xs">
-                        {(r.term_ids.length ? r.term_ids.map(termName) : ['كل الفصول الدراسية']).map((t) => <span key={t} className="rounded-full bg-ink px-2.5 py-1 text-chalk">{t}</span>)}
+                        {(r.term_ids.length ? r.term_ids.map(termName) : ['كل الفصول الدراسية']).map((t) => <span key={t} className="rounded-full bg-inverse px-2.5 py-1 text-chalk">{t}</span>)}
                         {targets.slice(0, 6).map((t, i) => <span key={`${t}-${i}`} className="rounded-full bg-paper px-2.5 py-1">{t}</span>)}
                         {targets.length > 6 && <span className="rounded-full bg-paper px-2.5 py-1">+{targets.length - 6}</span>}
                         {r.student_ids.length > 0 && <span className="rounded-full bg-paper px-2.5 py-1">{r.student_ids.length} طالب</span>}
@@ -132,7 +132,7 @@ export function ReleaseRules({ ref_, rules }: { ref_: RefData; rules: ReleaseRul
                     </div>
                     <div className="flex items-center gap-1">
                       <Switch checked={r.is_active} onChange={(v) => toggle(r, v)} label="تفعيل القاعدة" />
-                      <button type="button" onClick={() => setEditing({ id: r.id, v: { kind: r.kind, term_ids: r.term_ids, branch_ids: r.branch_ids, stage_ids: r.stage_ids, grade_ids: r.grade_ids, class_ids: r.class_ids, student_ids: r.student_ids, opens_at: r.opens_at, closes_at: r.closes_at, note: r.note } })} className="grid size-9 place-items-center rounded-lg text-muted hover:bg-board/10 hover:text-board" aria-label="تعديل">
+                      <button type="button" onClick={() => setEditing({ id: r.id, v: { kind: r.kind, term_ids: r.term_ids, branch_ids: r.branch_ids, stage_ids: r.stage_ids, grade_ids: r.grade_ids, class_ids: r.class_ids, student_ids: r.student_ids, opens_at: r.opens_at, closes_at: r.closes_at, note: r.note } })} className="grid size-9 place-items-center rounded-lg text-muted hover:bg-accent/10 hover:text-accent" aria-label="تعديل">
                         <Icon name="edit" className="size-4" />
                       </button>
                       <button type="button" onClick={() => remove(r)} className="grid size-9 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger" aria-label="حذف">
@@ -266,7 +266,7 @@ function RuleEditor({ id, initial, ref_, onClose }: { id: number | null; initial
             <Field label="يُغلق العرض في"><DateTime value={v.closes_at} onChange={(x) => set('closes_at', x)} quick="none" allowEmpty emptyLabel="بلا إغلاق" /></Field>
           </div>
         )}
-        <p className="flex items-start gap-2 rounded-xl bg-board/[0.06] px-3.5 py-2.5 text-sm text-board"><Icon name="sparkle" className="mt-0.5 size-4 shrink-0" /> {explain}</p>
+        <p className="flex items-start gap-2 rounded-xl bg-board/[0.06] px-3.5 py-2.5 text-sm text-accent"><Icon name="sparkle" className="mt-0.5 size-4 shrink-0" /> {explain}</p>
         <Field label="ملاحظة داخلية"><input value={v.note ?? ''} onChange={(e) => set('note', e.target.value.slice(0, 200))} placeholder="مثال: حتى سداد الرسوم، أو إعلان نتائج الترم الأول" className="field" /></Field>
       </div>
     </Sheet>

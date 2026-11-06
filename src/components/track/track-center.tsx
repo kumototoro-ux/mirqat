@@ -82,7 +82,7 @@ export function TrackCenter({ initialSummary, initialEvents }: { initialSummary:
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <div className="flex gap-1 overflow-x-auto rounded-2xl bg-paper p-1">
           {RANGES.map((r) => (
-            <button key={r.h} type="button" onClick={() => setRange(r.h)} className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-sm ${hours === r.h ? 'bg-surface font-semibold text-board shadow-sm' : 'text-muted hover:text-ink'}`}>{r.label}</button>
+            <button key={r.h} type="button" onClick={() => setRange(r.h)} className={`whitespace-nowrap rounded-xl px-3 py-1.5 text-sm ${hours === r.h ? 'bg-surface font-semibold text-accent shadow-sm' : 'text-muted hover:text-ink'}`}>{r.label}</button>
           ))}
         </div>
         <button type="button" onClick={() => load(f, true)} className="btn-quiet ms-auto px-3 py-2 text-sm" aria-label="تحديث">
@@ -106,7 +106,7 @@ export function TrackCenter({ initialSummary, initialEvents }: { initialSummary:
           <h2 className="mb-3 text-lg font-bold">أبرز المشاكل <span className="text-sm font-normal text-muted">· {RANGES.find((r) => r.h === hours)?.label}</span></h2>
           {!summary?.groups.length ? (
             <div className="flex items-center gap-3 rounded-2xl border border-ok/25 bg-ok-soft/40 p-5 text-sm">
-              <span className="grid size-9 place-items-center rounded-full bg-ok text-chalk"><Icon name="check" className="size-5" /></span>
+              <span className="grid size-9 place-items-center rounded-full bg-ok text-on-ok"><Icon name="check" className="size-5" /></span>
               لا مشاكل في هذه الفترة. كل شيء يعمل بشكل طبيعي.
             </div>
           ) : (
@@ -122,7 +122,7 @@ export function TrackCenter({ initialSummary, initialEvents }: { initialSummary:
         <div className="mb-4 space-y-3">
           <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-line bg-surface p-3">
             <Icon name="filter" className="size-4 text-muted" />
-            <span className="rounded-full bg-board/10 px-3 py-1 text-sm font-semibold text-board">
+            <span className="rounded-full bg-accent/10 px-3 py-1 text-sm font-semibold text-accent">
               {f.actor_id ? `كل أحداث ${events.rows[0]?.actor_name ?? 'المستخدم'}` : focusedGroup ? diagnose(asInput(focusedGroup.sample)).group : 'مشكلة محددة'}
             </span>
             <button type="button" onClick={clearFocus} className="ms-auto text-sm text-muted hover:text-ink">عرض الكل ✕</button>
@@ -169,7 +169,7 @@ function Kpi({ label, value, icon, hint, tone, onClick }: { label: string; value
   const cls = tone === 'danger' ? 'border-danger/30 bg-danger-soft/50' : tone === 'ok' ? 'border-ok/25 bg-ok-soft/30' : 'border-line bg-surface';
   const Tag = onClick ? 'button' : 'div';
   return (
-    <Tag type={onClick ? 'button' : undefined} onClick={onClick} className={`rounded-2xl border p-4 text-start transition ${cls} ${onClick ? 'hover:-translate-y-0.5 hover:border-board/30' : ''}`}>
+    <Tag type={onClick ? 'button' : undefined} onClick={onClick} className={`rounded-2xl border p-4 text-start transition ${cls} ${onClick ? 'hover:-translate-y-0.5 hover:border-accent/30' : ''}`}>
       <span className="flex items-center gap-2 text-sm text-muted"><Icon name={icon} className={`size-4 ${tone === 'danger' ? 'text-danger' : ''}`} />{label}</span>
       <span className={`mt-1.5 block text-[1.8rem] font-bold leading-none tabular-nums ${tone === 'danger' ? 'text-danger' : ''}`}>{value.toLocaleString('en')}</span>
       {hint && <span className="mt-1.5 block text-xs text-muted">{hint}</span>}
@@ -238,7 +238,7 @@ function GroupCard({ g, onShow, onResolve }: { g: TrackGroup; onShow: () => void
         <button type="button" onClick={() => setOpen(!open)} className="btn-quiet px-3 py-1.5 text-xs"><Icon name="sparkle" className="size-3.5" /> {open ? 'إخفاء الشرح' : 'لماذا وما الحل؟'}</button>
         <button type="button" onClick={onShow} className="btn-quiet px-3 py-1.5 text-xs"><Icon name="eye" className="size-3.5" /> الأحداث</button>
         {dg.kind !== 'ok' && (
-          <button type="button" onClick={onResolve} className={`ms-auto rounded-xl px-3 py-1.5 text-xs font-semibold ${g.resolved ? 'bg-paper text-muted hover:text-ink' : 'bg-ok-soft text-ok hover:bg-ok hover:text-chalk'}`}>
+          <button type="button" onClick={onResolve} className={`ms-auto rounded-xl px-3 py-1.5 text-xs font-semibold ${g.resolved ? 'bg-paper text-muted hover:text-ink' : 'bg-ok-soft text-ok hover:bg-ok hover:text-on-ok'}`}>
             {g.resolved ? 'إعادة فتح' : '✓ تم الحل'}
           </button>
         )}
@@ -258,7 +258,7 @@ export function Explain({ cause, fix, className = '' }: { cause?: string; fix?: 
       )}
       {fix && (
         <div className="rounded-xl bg-board/[0.06] px-3 py-2.5 text-sm leading-relaxed">
-          <p className="mb-0.5 flex items-center gap-1.5 text-xs font-bold text-board"><Icon name="check" className="size-3.5" /> ما الحل؟</p>{fix}
+          <p className="mb-0.5 flex items-center gap-1.5 text-xs font-bold text-accent"><Icon name="check" className="size-3.5" /> ما الحل؟</p>{fix}
         </div>
       )}
     </div>

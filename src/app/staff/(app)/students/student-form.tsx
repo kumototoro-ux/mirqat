@@ -168,7 +168,7 @@ export function StudentFormSheet({
     >
       <div className="space-y-6">
         <fieldset className="space-y-4">
-          <legend className="mb-3 text-xs font-bold text-board">البيانات الشخصية</legend>
+          <legend className="mb-3 text-xs font-bold text-accent">البيانات الشخصية</legend>
           <Field label="الاسم بالعربي" required hint={errors.name_ar && <span className="text-danger">{errors.name_ar}</span>}>
             <input value={f.name_ar} onChange={(e) => set('name_ar', e.target.value)} className={`field ${err('name_ar')}`} />
           </Field>
@@ -193,7 +193,7 @@ export function StudentFormSheet({
                     type="button"
                     onClick={() => set('gender', g)}
                     aria-pressed={f.gender === g}
-                    className={`h-[2.85rem] rounded-md border text-sm transition-all ${f.gender === g ? 'border-board bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}
+                    className={`h-[2.85rem] rounded-md border text-sm transition-all ${f.gender === g ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}
                   >
                     {g}
                   </button>
@@ -204,7 +204,7 @@ export function StudentFormSheet({
         </fieldset>
 
         <fieldset className="space-y-4">
-          <legend className="mb-3 text-xs font-bold text-board">الفصل الدراسي</legend>
+          <legend className="mb-3 text-xs font-bold text-accent">الفصل الدراسي</legend>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="الفرع" required>
               <select value={f.branch_id ?? ''} onChange={(e) => set('branch_id', Number(e.target.value) || null)} className={`field ${err('branch_id')}`}>
@@ -230,7 +230,7 @@ export function StudentFormSheet({
           </div>
           <div
             className={`rounded-xl px-3.5 py-3 text-sm transition-colors ${
-              f.grade_id && f.section_id ? (subjects.length ? 'bg-board/[0.07] text-board' : 'bg-danger-soft text-danger') : 'bg-paper text-muted'
+              f.grade_id && f.section_id ? (subjects.length ? 'bg-board/[0.07] text-accent' : 'bg-danger-soft text-danger') : 'bg-paper text-muted'
             }`}
           >
             <p className="mb-1 text-xs font-semibold opacity-80">المواد (تُشتق تلقائيًا من توزيع المواد)</p>
@@ -243,7 +243,7 @@ export function StudentFormSheet({
         </fieldset>
 
         <fieldset className="space-y-4">
-          <legend className="mb-3 text-xs font-bold text-board">الرسوم والحالة</legend>
+          <legend className="mb-3 text-xs font-bold text-accent">الرسوم والحالة</legend>
           <Field label="حالة الرسوم">
             <div className="grid grid-cols-4 gap-2">
               {FEES.map((x) => (
@@ -252,7 +252,7 @@ export function StudentFormSheet({
                   type="button"
                   onClick={() => set('fee_status', f.fee_status === x ? '' : x)}
                   aria-pressed={f.fee_status === x}
-                  className={`h-10 rounded-md border text-sm transition-all ${f.fee_status === x ? 'border-board bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}
+                  className={`h-10 rounded-md border text-sm transition-all ${f.fee_status === x ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}
                 >
                   {x}
                 </button>

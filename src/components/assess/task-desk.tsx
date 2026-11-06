@@ -169,7 +169,7 @@ export function TaskDesk({ task }: { task: TaskDetail }) {
                   <button type="button" onClick={() => setMobileOpen(false)} className="grid size-9 place-items-center rounded-xl text-muted hover:bg-paper lg:hidden" aria-label="رجوع للقائمة">
                     <Icon name="chevron" className="size-5 rotate-180" />
                   </button>
-                  <span className="grid size-11 place-items-center rounded-full bg-board/10 text-lg font-bold text-board">{row.st.name_ar.trim().charAt(0)}</span>
+                  <span className="grid size-11 place-items-center rounded-full bg-accent/10 text-lg font-bold text-accent">{row.st.name_ar.trim().charAt(0)}</span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-lg font-bold">{row.st.name_ar}</p>
                     <p className="text-xs text-muted">
@@ -197,8 +197,8 @@ export function TaskDesk({ task }: { task: TaskDetail }) {
                             <span className="flex items-center justify-between px-3 py-2 text-xs text-muted">{f.name} <span>{fmtBytes(f.size_bytes)} · فتح بالحجم الكامل</span></span>
                           </a>
                         ) : (
-                          <a key={f.id} href={f.url ?? undefined} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 rounded-2xl border border-line p-3 ${f.url ? 'hover:border-board/40' : 'pointer-events-none opacity-60'}`}>
-                            <span className="grid size-10 place-items-center rounded-xl bg-board/10 text-board"><Icon name="clip" className="size-5" /></span>
+                          <a key={f.id} href={f.url ?? undefined} target="_blank" rel="noopener noreferrer" className={`flex items-center gap-3 rounded-2xl border border-line p-3 ${f.url ? 'hover:border-accent/40' : 'pointer-events-none opacity-60'}`}>
+                            <span className="grid size-10 place-items-center rounded-xl bg-accent/10 text-accent"><Icon name="clip" className="size-5" /></span>
                             <span className="min-w-0 flex-1">
                               <span className="block truncate text-sm font-semibold">{f.name}</span>
                               <span className="text-xs text-muted">{f.deleted_at ? 'حُذف بعد التصحيح' : fmtBytes(f.size_bytes)}</span>
@@ -235,7 +235,7 @@ export function TaskDesk({ task }: { task: TaskDetail }) {
                     />
                     <span className="text-sm text-muted">/ {max}</span>
                     {[max, round(max * 0.75), round(max / 2), 0].filter((v, i, a) => a.indexOf(v) === i).map((v) => (
-                      <button key={v} type="button" onClick={() => setScore(String(v))} className={`rounded-full px-3 py-1.5 text-sm tabular-nums transition-all ${score === String(v) ? 'bg-board text-chalk' : 'bg-surface ring-1 ring-line hover:ring-board/40'}`}>
+                      <button key={v} type="button" onClick={() => setScore(String(v))} className={`rounded-full px-3 py-1.5 text-sm tabular-nums transition-all ${score === String(v) ? 'bg-board text-chalk' : 'bg-surface ring-1 ring-line hover:ring-accent/40'}`}>
                         {v}
                       </button>
                     ))}
@@ -246,7 +246,7 @@ export function TaskDesk({ task }: { task: TaskDetail }) {
                       {row.sub && (
                         <div className="mt-1.5 flex flex-wrap gap-1">
                           {PHRASES.map((t) => (
-                            <button key={t} type="button" onClick={() => setFeedback((f) => (f ? `${f} ${t}` : t))} className="rounded-full bg-surface px-2.5 py-1 text-xs ring-1 ring-line hover:ring-board/40">{t}</button>
+                            <button key={t} type="button" onClick={() => setFeedback((f) => (f ? `${f} ${t}` : t))} className="rounded-full bg-surface px-2.5 py-1 text-xs ring-1 ring-line hover:ring-accent/40">{t}</button>
                           ))}
                         </div>
                       )}

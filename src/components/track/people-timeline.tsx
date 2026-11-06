@@ -68,7 +68,7 @@ export function PeopleTimeline({ initialUser, initialTimeline, initialPeople }: 
         <ul className="space-y-1.5">
           {people.map((p) => (
             <li key={p.id}>
-              <button type="button" onClick={() => open(p.id)} className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-start transition ${user === p.id ? 'border-board bg-board/[0.06]' : 'border-line bg-surface hover:border-board/30'}`}>
+              <button type="button" onClick={() => open(p.id)} className={`flex w-full items-center gap-3 rounded-2xl border px-3 py-2.5 text-start transition ${user === p.id ? 'border-accent bg-board/[0.06]' : 'border-line bg-surface hover:border-accent/30'}`}>
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brass-soft font-bold text-brass">{p.name.trim().charAt(0)}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">{p.name}</span>
@@ -111,7 +111,7 @@ export function PeopleTimeline({ initialUser, initialTimeline, initialPeople }: 
 
             <div className="mb-3 flex gap-1 overflow-x-auto rounded-2xl bg-paper p-1 text-sm">
               {([['all', 'الكل'], ['change', 'التعديلات'], ['event', 'المشاكل والأحداث'], ['login', 'الدخول']] as const).map(([k, l]) => (
-                <button key={k} type="button" onClick={() => setOnly(k)} className={`whitespace-nowrap rounded-xl px-3 py-1.5 ${only === k ? 'bg-surface font-semibold text-board shadow-sm' : 'text-muted'}`}>{l}</button>
+                <button key={k} type="button" onClick={() => setOnly(k)} className={`whitespace-nowrap rounded-xl px-3 py-1.5 ${only === k ? 'bg-surface font-semibold text-accent shadow-sm' : 'text-muted'}`}>{l}</button>
               ))}
             </div>
 
@@ -147,7 +147,7 @@ function Mini({ label, value, warn }: { label: string; value: number; warn?: boo
 }
 
 function Item({ i, name }: { i: Row; name: string }) {
-  let icon: IconName = 'edit', tone = 'bg-board/10 text-board', title = '', sub = i.details ?? '';
+  let icon: IconName = 'edit', tone = 'bg-accent/10 text-accent', title = '', sub = i.details ?? '';
   if (i.src === 'login') {
     const ok = i.action === 'auth.login';
     icon = 'logout'; tone = ok ? 'bg-ok-soft text-ok' : 'bg-danger-soft text-danger';

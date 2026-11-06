@@ -20,7 +20,7 @@ const when = (iso: string) => new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-lat
 function band(cur: number, w: number) {
   const p = w > 0 ? cur / w : 1;
   if (p < 0.5) return { tone: 'text-danger bg-danger/10', text: 'دون نصف الوزن: يُرفع بنسبة التحسين × الوزن، حتى نصف الوزن كحد أعلى' };
-  if (p < 0.99) return { tone: 'text-board bg-board/10', text: 'بين النصف و99%: يُضاف 20% من الوزن × نسبة التحسين' };
+  if (p < 0.99) return { tone: 'text-accent bg-accent/10', text: 'بين النصف و99%: يُضاف 20% من الوزن × نسبة التحسين' };
   return { tone: 'text-ok bg-ok-soft', text: 'مرتفعة (99% فأكثر): لا تحتاج تحسينًا' };
 }
 
@@ -145,7 +145,7 @@ export function ImproveMode({ ctx }: { ctx: AuthorContext }) {
           <div className="relative">
             <Icon name="search" className="pointer-events-none absolute inset-y-0 start-3.5 my-auto size-4 text-muted" />
             <input ref={box} value={q} onChange={(ev) => { setQ(ev.target.value); setStudent(null); setType(null); }} placeholder="اكتب اسم الطالب أو رقمه" className="field ps-10 text-[1.05rem]" autoComplete="off" />
-            {searching && <span className="spinner absolute inset-y-0 end-3 my-auto text-board" />}
+            {searching && <span className="spinner absolute inset-y-0 end-3 my-auto text-accent" />}
           </div>
           <AnimatePresence>
             {hits.length > 0 && (
@@ -153,7 +153,7 @@ export function ImproveMode({ ctx }: { ctx: AuthorContext }) {
                 {hits.map((h) => (
                   <li key={h.id}>
                     <button type="button" onClick={() => pick(h)} className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-start hover:bg-board/[0.06]">
-                      <span className="grid size-9 place-items-center rounded-full bg-board/10 font-bold text-board">{h.name_ar.trim().charAt(0)}</span>
+                      <span className="grid size-9 place-items-center rounded-full bg-accent/10 font-bold text-accent">{h.name_ar.trim().charAt(0)}</span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate font-semibold">{h.name_ar}</span>
                         <span className="block text-xs text-muted">{h.code} · {h.class_label}</span>
@@ -174,7 +174,7 @@ export function ImproveMode({ ctx }: { ctx: AuthorContext }) {
               {subs.length ? (
                 <div className="flex flex-wrap gap-1.5">
                   {subs.map((id) => (
-                    <button key={id} type="button" onClick={() => { setSubject(id); setType(null); }} className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${subject === id ? 'bg-board font-semibold text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+                    <button key={id} type="button" onClick={() => { setSubject(id); setType(null); }} className={`rounded-full px-3.5 py-1.5 text-sm transition-colors ${subject === id ? 'bg-board font-semibold text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
                       {ctx.subjects.find((x) => x.value === id)?.label ?? id}
                     </button>
                   ))}
@@ -186,7 +186,7 @@ export function ImproveMode({ ctx }: { ctx: AuthorContext }) {
             {ctx.terms.length > 1 && (
               <div className="flex flex-wrap gap-1.5">
                 {ctx.terms.map((t) => (
-                  <button key={t.value} type="button" onClick={() => { setTerm(Number(t.value)); setType(null); }} className={`rounded-full px-3 py-1 text-xs transition-colors ${term === t.value ? 'bg-ink font-semibold text-chalk' : 'bg-paper hover:bg-board/10'}`}>{t.label}</button>
+                  <button key={t.value} type="button" onClick={() => { setTerm(Number(t.value)); setType(null); }} className={`rounded-full px-3 py-1 text-xs transition-colors ${term === t.value ? 'bg-inverse font-semibold text-chalk' : 'bg-paper hover:bg-accent/10'}`}>{t.label}</button>
                 ))}
               </div>
             )}
@@ -212,7 +212,7 @@ export function ImproveMode({ ctx }: { ctx: AuthorContext }) {
                   const on = type?.eval_type_id === t.eval_type_id;
                   return (
                     <button key={t.eval_type_id} type="button" disabled={done || !remaining} onClick={() => { setType(t); setAfter(null); }}
-                      className={`rounded-2xl border p-3 text-start transition-all disabled:opacity-55 ${on ? 'border-board bg-board/5 ring-2 ring-board/20' : 'border-line hover:border-board/40'}`}>
+                      className={`rounded-2xl border p-3 text-start transition-all disabled:opacity-55 ${on ? 'border-accent bg-accent/5 ring-2 ring-accent/20' : 'border-line hover:border-accent/40'}`}>
                       <span className="flex items-center justify-between gap-2">
                         <span className="text-sm font-semibold">{t.name}</span>
                         <span className="text-xs tabular-nums text-muted" dir="ltr"><b className="text-ink">{fmt(t.current)}</b> / {fmt(t.weight)}</span>

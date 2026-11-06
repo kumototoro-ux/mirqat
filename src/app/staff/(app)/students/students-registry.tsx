@@ -150,7 +150,7 @@ export function StudentsRegistry({
         toolbar={
           <>
             {isAdmin && (
-              <Link href="/staff/reports/students" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              <Link href="/staff/reports/students" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent">
                 <Icon name="results" className="size-4" />
                 التقرير
               </Link>
@@ -221,7 +221,7 @@ export function StudentsRegistry({
 
       <p className="mt-4 text-center text-xs text-muted">
         حسابات دخول الطلاب تُدار من{' '}
-        <Link href="/staff/student-accounts" className="text-board hover:underline">حسابات الطلاب</Link>
+        <Link href="/staff/student-accounts" className="text-accent hover:underline">حسابات الطلاب</Link>
       </p>
 
       <StudentFormSheet
@@ -238,7 +238,7 @@ export function StudentsRegistry({
 
 function Avatar({ name, loading }: { name: string; loading?: boolean }) {
   return (
-    <span className="relative grid size-10 shrink-0 place-items-center rounded-full bg-board/10 font-bold text-board">
+    <span className="relative grid size-10 shrink-0 place-items-center rounded-full bg-accent/10 font-bold text-accent">
       {loading ? <span className="spinner" /> : name.trim().charAt(0)}
     </span>
   );

@@ -90,7 +90,7 @@ export function ContentStudio({ ctx, initial, initialStats, myEmployeeId }: { ct
             </p>
           </div>
           <div className="flex w-full gap-2 sm:w-auto">
-            <button type="button" onClick={() => setEditor({ kind: 'video' })} className="btn-primary flex-1 bg-gold text-ink hover:bg-gold/90 sm:flex-none">
+            <button type="button" onClick={() => setEditor({ kind: 'video' })} className="btn-primary flex-1 bg-gold text-on-gold hover:bg-gold/90 sm:flex-none">
               <Icon name="play" className="size-4" /> فيديو
             </button>
             <button type="button" onClick={() => setEditor({ kind: 'enrichment' })} className="inline-flex flex-1 items-center justify-center gap-2 rounded-md bg-chalk/10 px-4 py-2.5 text-sm font-semibold text-chalk ring-1 ring-chalk/20 hover:bg-chalk/20 sm:flex-none">
@@ -122,20 +122,20 @@ export function ContentStudio({ ctx, initial, initialStats, myEmployeeId }: { ct
         </select>
       </div>
       <div className="flex gap-2 overflow-x-auto pb-1">
-        <select value={cls} onChange={(e) => set(() => setCls(e.target.value))} className={`field w-auto shrink-0 py-2 text-sm ${cls ? 'border-board text-board' : ''}`} aria-label="الفصل">
+        <select value={cls} onChange={(e) => set(() => setCls(e.target.value))} className={`field w-auto shrink-0 py-2 text-sm ${cls ? 'border-accent text-accent' : ''}`} aria-label="الفصل">
           <option value="">كل الفصول</option>
           {ctx.classes.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
-        <select value={subj} onChange={(e) => set(() => setSubj(e.target.value))} className={`field w-auto shrink-0 py-2 text-sm ${subj ? 'border-board text-board' : ''}`} aria-label="المادة">
+        <select value={subj} onChange={(e) => set(() => setSubj(e.target.value))} className={`field w-auto shrink-0 py-2 text-sm ${subj ? 'border-accent text-accent' : ''}`} aria-label="المادة">
           <option value="">كل المواد</option>
           {ctx.subjects.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
         </select>
         {(['', 'published', 'scheduled', 'draft', 'expired'] as const).map((k) => (
-          <button key={k} type="button" onClick={() => set(() => setStatus(k))} className={`shrink-0 rounded-full px-3.5 py-2 text-sm transition-colors ${status === k ? 'bg-ink text-chalk' : 'bg-surface ring-1 ring-line hover:ring-board/40'}`}>
+          <button key={k} type="button" onClick={() => set(() => setStatus(k))} className={`shrink-0 rounded-full px-3.5 py-2 text-sm transition-colors ${status === k ? 'bg-inverse text-chalk' : 'bg-surface ring-1 ring-line hover:ring-accent/40'}`}>
             {k ? STATUS_LABEL[k].label : 'كل الحالات'}
           </button>
         ))}
-        <button type="button" onClick={() => set(() => setMine((v) => !v))} aria-pressed={mine} className={`shrink-0 rounded-full px-3.5 py-2 text-sm transition-colors ${mine ? 'bg-board text-chalk' : 'bg-surface ring-1 ring-line hover:ring-board/40'}`}>
+        <button type="button" onClick={() => set(() => setMine((v) => !v))} aria-pressed={mine} className={`shrink-0 rounded-full px-3.5 py-2 text-sm transition-colors ${mine ? 'bg-board text-chalk' : 'bg-surface ring-1 ring-line hover:ring-accent/40'}`}>
           محتواي فقط
         </button>
         {activeFilters > 0 && (
@@ -149,7 +149,7 @@ export function ContentStudio({ ctx, initial, initialStats, myEmployeeId }: { ct
           <GridSkeleton />
         ) : !data.rows.length ? (
           <div className="grid place-items-center rounded-[1.6rem] border border-dashed border-line bg-surface px-6 py-16 text-center">
-            <span className="grid size-16 place-items-center rounded-2xl bg-board/10 text-board"><Icon name="content" className="size-8" /></span>
+            <span className="grid size-16 place-items-center rounded-2xl bg-accent/10 text-accent"><Icon name="content" className="size-8" /></span>
             <p className="mt-4 text-lg font-semibold">{q || activeFilters || kind ? 'لا نتائج مطابقة' : 'المكتبة فارغة'}</p>
             <p className="mt-1 max-w-sm text-sm text-muted">{q || activeFilters || kind ? 'جرّب تغيير البحث أو الفلاتر.' : 'ابدأ بنشر أول فيديو أو إثراء لطلابك — يظهر لهم فورًا في بوابتهم.'}</p>
           </div>
@@ -165,7 +165,7 @@ export function ContentStudio({ ctx, initial, initialStats, myEmployeeId }: { ct
                       <MediaThumb kind={r.kind} url={r.url} subject={subjectName(r.subject_id)} minutes={r.minutes} className="aspect-[16/8.5]">
                         <div className="absolute start-2 top-2 flex gap-1.5">
                           {r.status !== 'published' && <span className={`rounded-full px-2 py-0.5 text-[0.7rem] font-semibold ${st.tone}`}>{st.label}</span>}
-                          {r.is_pinned && <span className="grid size-6 place-items-center rounded-full bg-gold text-ink" title="مثبّت"><svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor"><path d="M12.5 2.5 17.5 7.5l-3 1-3.2 3.2.7 4-1.5 1.5-3-3-4 4-.7-.7 4-4-3-3L5.3 9l4 .7L12.5 6.5z" /></svg></span>}
+                          {r.is_pinned && <span className="grid size-6 place-items-center rounded-full bg-gold text-on-gold" title="مثبّت"><svg viewBox="0 0 20 20" className="size-3.5" fill="currentColor"><path d="M12.5 2.5 17.5 7.5l-3 1-3.2 3.2.7 4-1.5 1.5-3-3-4 4-.7-.7 4-4-3-3L5.3 9l4 .7L12.5 6.5z" /></svg></span>}
                         </div>
                       </MediaThumb>
                     </button>
@@ -243,7 +243,7 @@ export function ContentStudio({ ctx, initial, initialStats, myEmployeeId }: { ct
 
 function IconBtn({ icon, label, onClick, danger, active }: { icon: 'edit' | 'copy' | 'flag' | 'trash' | 'eye'; label: string; onClick: () => void; danger?: boolean; active?: boolean }) {
   return (
-    <button type="button" onClick={onClick} title={label} aria-label={label} className={`grid size-9 place-items-center rounded-lg transition-colors ${active ? 'bg-gold/20 text-brass' : danger ? 'text-muted hover:bg-danger-soft hover:text-danger' : 'text-muted hover:bg-board/10 hover:text-board'}`}>
+    <button type="button" onClick={onClick} title={label} aria-label={label} className={`grid size-9 place-items-center rounded-lg transition-colors ${active ? 'bg-gold/20 text-brass' : danger ? 'text-muted hover:bg-danger-soft hover:text-danger' : 'text-muted hover:bg-accent/10 hover:text-accent'}`}>
       <Icon name={icon} className="size-4" />
     </button>
   );
@@ -271,7 +271,7 @@ export function ContentView({ item, footer }: { item: { kind: 'video' | 'enrichm
   return (
     <div>
       {item.kind === 'video' ? (
-        <div className="bg-ink p-0 sm:p-0">
+        <div className="bg-black p-0 sm:p-0">
           <Player url={item.url} title={item.title} />
         </div>
       ) : (
@@ -318,13 +318,13 @@ function ViewersSheet({ item, onClose, label }: { item: StaffContent | null; onC
           <div className="flex items-center gap-4 rounded-2xl bg-paper/70 p-4">
             <div className="relative grid size-20 shrink-0 place-items-center">
               <svg viewBox="0 0 80 80" className="absolute inset-0 -rotate-90">
-                <circle cx="40" cy="40" r="34" fill="none" stroke="#dfe5e2" strokeWidth="8" />
-                <motion.circle cx="40" cy="40" r="34" fill="none" stroke="#356854" strokeWidth="8" strokeLinecap="round" strokeDasharray={213.6} initial={{ strokeDashoffset: 213.6 }} animate={{ strokeDashoffset: 213.6 - (213.6 * pct) / 100 }} transition={{ duration: 0.9 }} />
+                <circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-line)" strokeWidth="8" />
+                <motion.circle cx="40" cy="40" r="34" fill="none" stroke="var(--color-accent)" strokeWidth="8" strokeLinecap="round" strokeDasharray={213.6} initial={{ strokeDashoffset: 213.6 }} animate={{ strokeDashoffset: 213.6 - (213.6 * pct) / 100 }} transition={{ duration: 0.9 }} />
               </svg>
               <span className="text-lg font-bold tabular-nums">{pct}%</span>
             </div>
             <dl className="grid flex-1 grid-cols-3 gap-2 text-center">
-              {[['أكمل', done, 'text-ok'], ['فتح فقط', opened, 'text-board'], ['لم يشاهد', not, 'text-danger']].map(([l, n, t]) => (
+              {[['أكمل', done, 'text-ok'], ['فتح فقط', opened, 'text-accent'], ['لم يشاهد', not, 'text-danger']].map(([l, n, t]) => (
                 <div key={l as string}>
                   <dd className={`text-xl font-bold tabular-nums ${t}`}>{n}</dd>
                   <dt className="text-xs text-muted">{l}</dt>

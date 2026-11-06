@@ -21,7 +21,7 @@ function FloatCard({
         className="flex animate-float items-center gap-3 rounded-2xl bg-surface/95 px-4 py-3 text-ink shadow-[0_20px_40px_-18px_rgb(0_0_0/0.55)] ring-1 ring-black/5"
         style={{ animationDelay: `${delay + 600}ms` }}
       >
-        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-board/10 text-board">{icon}</span>
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-accent/10 text-accent">{icon}</span>
         <span className="leading-tight">
           <span className="block text-sm font-semibold">{title}</span>
           <span className="block text-xs text-muted">{sub}</span>
@@ -59,7 +59,7 @@ export function Hero({ schoolName }: { schoolName: string }) {
             <div className="mt-9 flex animate-fade-up flex-wrap gap-3 [animation-delay:360ms]">
               <a
                 href="#beneficiaries"
-                className="btn rounded-full bg-gold px-7 py-3.5 text-base text-ink hover:bg-[#e3b25a] hover:shadow-[0_10px_28px_-10px_rgb(217_164_65/0.9)]"
+                className="btn rounded-full bg-gold px-7 py-3.5 text-base text-on-gold hover:bg-[#e3b25a] hover:shadow-[0_10px_28px_-10px_rgb(217_164_65/0.9)]"
               >
                 ادخل من بوابتك
               </a>

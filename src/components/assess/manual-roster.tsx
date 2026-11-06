@@ -132,15 +132,15 @@ export function ManualRoster({
     <section className="rounded-[1.4rem] border border-line bg-surface">
       <div className="flex flex-wrap items-center gap-2 border-b border-line p-4">
         {header ?? <h3 className="font-bold">كشف الرصد</h3>}
-        <span className="rounded-full bg-board/10 px-2.5 py-1 text-xs font-semibold tabular-nums text-board">
+        <span className="rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold tabular-nums text-accent">
           {filled.length}/{roster.length} مرصود{avg != null ? ` · متوسط ${round(avg)}` : ''}
         </span>
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="ابحث عن طالب" className="field ms-auto w-full py-2 sm:w-48" />
       </div>
       <div className="flex flex-wrap gap-1.5 border-b border-line bg-paper/40 px-4 py-2.5">
-        <button type="button" onClick={() => fill(String(max), true)} className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-line hover:ring-board/40">الدرجة الكاملة للفارغين</button>
-        <button type="button" onClick={() => fill('0', true)} className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-line hover:ring-board/40">صفر للفارغين</button>
-        <button type="button" onClick={() => setPaste(true)} className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-line hover:ring-board/40">
+        <button type="button" onClick={() => fill(String(max), true)} className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-line hover:ring-accent/40">الدرجة الكاملة للفارغين</button>
+        <button type="button" onClick={() => fill('0', true)} className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-line hover:ring-accent/40">صفر للفارغين</button>
+        <button type="button" onClick={() => setPaste(true)} className="rounded-full bg-surface px-3 py-1.5 text-xs font-semibold ring-1 ring-line hover:ring-accent/40">
           لصق من Excel
         </button>
         {canClear && (
@@ -161,7 +161,7 @@ export function ManualRoster({
             <li key={s.id} className={`px-4 py-2.5 transition-colors ${dirty ? 'bg-brass-soft/25' : ''}`}>
               <div className="flex items-center gap-3">
                 <span className="hidden w-6 shrink-0 text-center text-xs tabular-nums text-muted sm:block">{roster.indexOf(s) + 1}</span>
-                <span className={`hidden size-9 shrink-0 place-items-center rounded-full text-sm font-bold sm:grid ${pct == null ? 'bg-paper text-muted' : pct >= 0.85 ? 'bg-ok-soft text-ok' : pct >= 0.5 ? 'bg-board/10 text-board' : 'bg-danger-soft text-danger'}`}>
+                <span className={`hidden size-9 shrink-0 place-items-center rounded-full text-sm font-bold sm:grid ${pct == null ? 'bg-paper text-muted' : pct >= 0.85 ? 'bg-ok-soft text-ok' : pct >= 0.5 ? 'bg-accent/10 text-accent' : 'bg-danger-soft text-danger'}`}>
                   {s.name_ar.trim().charAt(0)}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -195,7 +195,7 @@ export function ManualRoster({
                     }
                   }}
                   onFocus={(e) => e.target.select()}
-                  className={`h-10 w-[4.5rem] shrink-0 rounded-xl border bg-surface text-center text-base font-bold tabular-nums focus:outline-none focus:ring-4 ${bad ? 'border-danger text-danger focus:ring-danger/15' : dirty ? 'border-gold focus:ring-gold/20' : 'border-line focus:border-board focus:ring-gold/20'}`}
+                  className={`h-10 w-[4.5rem] shrink-0 rounded-xl border bg-surface text-center text-base font-bold tabular-nums focus:outline-none focus:ring-4 ${bad ? 'border-danger text-danger focus:ring-danger/15' : dirty ? 'border-gold focus:ring-gold/20' : 'border-line focus:border-accent focus:ring-gold/20'}`}
                   dir="ltr"
                   aria-label={`درجة ${s.name_ar}`}
                 />
@@ -204,7 +204,7 @@ export function ManualRoster({
                   type="button"
                   tabIndex={-1}
                   onClick={() => setNotes((n) => { const x = new Set(n); if (x.has(s.id)) x.delete(s.id); else x.add(s.id); return x; })}
-                  className={`grid size-9 shrink-0 place-items-center rounded-lg transition-colors ${c.note ? 'text-board' : 'text-muted'} hover:bg-board/10`}
+                  className={`grid size-9 shrink-0 place-items-center rounded-lg transition-colors ${c.note ? 'text-accent' : 'text-muted'} hover:bg-accent/10`}
                   title="ملاحظة"
                   aria-label="ملاحظة"
                 >
@@ -219,7 +219,7 @@ export function ManualRoster({
                     </div>
                     <div className="flex flex-wrap gap-1 pb-1 sm:ps-[4.25rem]">
                       {['أحسنت', 'متميز', 'يحتاج متابعة', 'لم يحضر', 'أعاد المحاولة'].map((t) => (
-                        <button key={t} type="button" onClick={() => set(s.id, { note: t })} className="rounded-full bg-paper px-2.5 py-0.5 text-[0.7rem] hover:bg-board/10">{t}</button>
+                        <button key={t} type="button" onClick={() => set(s.id, { note: t })} className="rounded-full bg-paper px-2.5 py-0.5 text-[0.7rem] hover:bg-accent/10">{t}</button>
                       ))}
                     </div>
                   </motion.div>

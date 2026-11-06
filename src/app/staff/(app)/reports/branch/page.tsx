@@ -55,7 +55,7 @@ export default async function BranchReportPage({ searchParams }: { searchParams:
     <div className="mx-auto max-w-5xl">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div className="flex items-center gap-3">
-          <Link href="/staff/reports" className="text-sm text-muted hover:text-board">← التقارير</Link>
+          <Link href="/staff/reports" className="text-sm text-muted hover:text-accent">← التقارير</Link>
           <BranchSwitch branches={branches} value={branch.id} />
         </div>
         <PrintButton />
@@ -109,7 +109,7 @@ export default async function BranchReportPage({ searchParams }: { searchParams:
             </div>
           </div>
           <h3 className="mb-2 mt-6 text-sm font-semibold text-muted">التسجيل خلال ستة أشهر</h3>
-          <GroupedBars data={s.monthly.map((m) => ({ label: monthName(m.month), enrolled: m.enrolled }))} series={[{ key: 'enrolled', label: 'تسجيل جديد', color: '#356854' }]} height={220} />
+          <GroupedBars data={s.monthly.map((m) => ({ label: monthName(m.month), enrolled: m.enrolled }))} series={[{ key: 'enrolled', label: 'تسجيل جديد', color: 'var(--color-accent)' }]} height={220} />
         </Section>
 
         <Section n={2} title="المعلمون">

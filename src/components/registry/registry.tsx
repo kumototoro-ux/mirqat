@@ -128,8 +128,8 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
       <div className="flex flex-wrap items-center gap-2 p-4 sm:p-5">
         <h2 className="flex basis-full items-center gap-2.5 text-lg font-bold sm:me-auto sm:basis-auto">
           {props.title}
-          <span className="rounded-full bg-board/10 px-2.5 py-0.5 text-sm font-semibold tabular-nums text-board">{data.total}</span>
-          <AnimatePresence>{fetching && !firstLoad && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="spinner text-board" />}</AnimatePresence>
+          <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-sm font-semibold tabular-nums text-accent">{data.total}</span>
+          <AnimatePresence>{fetching && !firstLoad && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="spinner text-accent" />}</AnimatePresence>
         </h2>
         {props.searchPlaceholder && (
         <div className="relative basis-full sm:basis-auto sm:w-72">
@@ -139,7 +139,7 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
               onChange={(e) => setQInput(e.target.value)}
               placeholder={props.searchPlaceholder}
               aria-label="بحث"
-              className="h-11 w-full rounded-xl border border-line bg-paper/70 pe-9 ps-10 text-[0.95rem] transition-[border-color,background-color,box-shadow] focus:border-board focus:bg-surface focus:outline-none focus:ring-4 focus:ring-gold/20"
+              className="h-11 w-full rounded-xl border border-line bg-paper/70 pe-9 ps-10 text-[0.95rem] transition-[border-color,background-color,box-shadow] focus:border-accent focus:bg-surface focus:outline-none focus:ring-4 focus:ring-gold/20"
             />
             {qInput && (
               <button type="button" onClick={() => setQInput('')} aria-label="مسح البحث" className="absolute inset-y-0 end-2 my-auto grid size-7 place-items-center rounded-lg text-muted hover:bg-paper hover:text-ink">
@@ -153,7 +153,7 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
             type="button"
             onClick={() => setShowFilters((v) => !v)}
             aria-expanded={showFilters}
-            className={`btn h-11 rounded-xl border px-3.5 ${showFilters || activeFilters ? 'border-board/30 bg-board/10 text-board' : 'border-line bg-surface hover:border-muted'}`}
+            className={`btn h-11 rounded-xl border px-3.5 ${showFilters || activeFilters ? 'border-accent/30 bg-accent/10 text-accent' : 'border-line bg-surface hover:border-muted'}`}
           >
             <Icon name="filter" className="size-4" />
             تصفية
@@ -295,7 +295,7 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
 
       {!firstLoad && data.rows.length === 0 && (
         <div className="grid place-items-center border-t border-line px-6 py-16 text-center">
-          <span className="grid size-16 place-items-center rounded-2xl bg-board/10 text-board">
+          <span className="grid size-16 place-items-center rounded-2xl bg-accent/10 text-accent">
             <Icon name={props.icon ?? 'search'} className="size-8" />
           </span>
           <p className="mt-4 text-lg font-semibold">{props.emptyTitle}</p>
@@ -308,7 +308,7 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-4 py-3.5 text-sm sm:px-5">
           <div className="flex items-center gap-2 text-muted">
             <span>عرض</span>
-            <select value={size} onChange={(e) => set({ size: Number(e.target.value) })} aria-label="عدد الصفوف" className="h-9 rounded-lg border border-line bg-surface px-2 font-semibold text-ink focus:border-board focus:outline-none">
+            <select value={size} onChange={(e) => set({ size: Number(e.target.value) })} aria-label="عدد الصفوف" className="h-9 rounded-lg border border-line bg-surface px-2 font-semibold text-ink focus:border-accent focus:outline-none">
               {PAGE_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
             <span>
@@ -347,7 +347,7 @@ function RegistryInner<T>(props: Props<T>, ref: React.Ref<RegistryHandle>) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 24, scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="fixed inset-x-3 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-xl flex-wrap items-center gap-2 rounded-2xl bg-ink px-4 py-3 text-chalk shadow-[0_20px_50px_-15px_rgb(0_0_0/0.5)] lg:bottom-6"
+            className="fixed inset-x-3 bottom-[calc(6rem+env(safe-area-inset-bottom))] z-40 mx-auto flex max-w-xl flex-wrap items-center gap-2 rounded-2xl bg-inverse px-4 py-3 text-chalk shadow-[0_20px_50px_-15px_rgb(0_0_0/0.5)] lg:bottom-6"
           >
             <span className="me-auto text-sm font-semibold">
               تم تحديد <span className="tabular-nums text-gold">{selectedRows.length}</span>
@@ -388,7 +388,7 @@ function Check({ checked, indeterminate, onChange, label }: { checked: boolean; 
       aria-checked={indeterminate ? 'mixed' : checked}
       aria-label={label}
       onClick={onChange}
-      className={`grid size-5 place-items-center rounded-md border-2 transition-all duration-150 ${checked || indeterminate ? 'border-board bg-board text-chalk' : 'border-line bg-surface hover:border-board/60'}`}
+      className={`grid size-5 place-items-center rounded-md border-2 transition-all duration-150 ${checked || indeterminate ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-accent/60'}`}
     >
       {checked && <svg viewBox="0 0 16 16" className="size-3.5"><path d="m3.5 8.5 3 3 6-6.5" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>}
       {!checked && indeterminate && <span className="h-0.5 w-2.5 rounded bg-chalk" />}
@@ -407,7 +407,7 @@ function PageBtn({ children, onClick, onHover, disabled, active, label }: { chil
       aria-label={label}
       aria-current={active ? 'page' : undefined}
       className={`grid h-9 min-w-9 place-items-center rounded-lg px-2 text-sm font-medium tabular-nums transition-all duration-200 disabled:pointer-events-none disabled:opacity-35 ${
-        active ? 'bg-board text-chalk shadow-[0_8px_16px_-8px_rgb(53_104_84/0.9)]' : 'border border-line bg-surface hover:-translate-y-0.5 hover:border-board/40 hover:text-board'
+        active ? 'bg-board text-chalk shadow-[0_8px_16px_-8px_rgb(53_104_84/0.9)]' : 'border border-line bg-surface hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent'
       }`}
     >
       {children}
@@ -418,8 +418,8 @@ function PageBtn({ children, onClick, onHover, disabled, active, label }: { chil
 function SortMark({ state }: { state: 'asc' | 'desc' | null }) {
   return (
     <svg viewBox="0 0 10 14" className="h-3 w-2.5" aria-hidden>
-      <path d="M5 1 1.5 5h7z" className={state === 'asc' ? 'fill-board' : 'fill-muted/35'} />
-      <path d="M5 13 1.5 9h7z" className={state === 'desc' ? 'fill-board' : 'fill-muted/35'} />
+      <path d="M5 1 1.5 5h7z" className={state === 'asc' ? 'fill-accent' : 'fill-muted/35'} />
+      <path d="M5 13 1.5 9h7z" className={state === 'desc' ? 'fill-accent' : 'fill-muted/35'} />
     </svg>
   );
 }
@@ -454,7 +454,7 @@ export function RowButton({ icon, label, onClick, tone = 'plain' }: { icon: Icon
       onClick={onClick}
       title={label}
       aria-label={label}
-      className={`grid size-9 place-items-center rounded-lg transition-colors ${tone === 'danger' ? 'text-muted hover:bg-danger-soft hover:text-danger' : 'text-muted hover:bg-board/10 hover:text-board'}`}
+      className={`grid size-9 place-items-center rounded-lg transition-colors ${tone === 'danger' ? 'text-muted hover:bg-danger-soft hover:text-danger' : 'text-muted hover:bg-accent/10 hover:text-accent'}`}
     >
       <Icon name={icon} className="size-[1.15rem]" />
     </button>

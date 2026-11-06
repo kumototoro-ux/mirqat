@@ -20,7 +20,7 @@ export function PerfFileLink({ a, onRemove }: { a: PerfAttachment; onRemove?: ()
   };
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-surface px-3 py-1 text-xs ring-1 ring-line">
-      <button type="button" onClick={open} disabled={busy} className="max-w-48 truncate font-medium text-board hover:underline" title={a.name}>
+      <button type="button" onClick={open} disabled={busy} className="max-w-48 truncate font-medium text-accent hover:underline" title={a.name}>
         {busy ? '…' : a.name}
       </button>
       <span className="text-muted">{kb(a.size)}</span>

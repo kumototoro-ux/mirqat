@@ -41,7 +41,7 @@ const TONE: Record<ToastTone, { box: string; icon: React.ReactNode; bar: string 
     box: 'border-ok/25 bg-surface text-ink',
     bar: 'bg-ok/50',
     icon: (
-      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ok text-chalk">
+      <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ok text-on-ok">
         <svg viewBox="0 0 20 20" className="size-4"><path d="m5 10.5 3.2 3.2L15 7" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" /></svg>
       </span>
     ),
@@ -56,7 +56,7 @@ const TONE: Record<ToastTone, { box: string; icon: React.ReactNode; bar: string 
     ),
   },
   info: {
-    box: 'border-board/25 bg-surface text-ink',
+    box: 'border-accent/25 bg-surface text-ink',
     bar: 'bg-board/40',
     icon: (
       <span className="grid size-7 shrink-0 place-items-center rounded-full bg-board text-chalk">
@@ -191,11 +191,11 @@ function ConfirmDialog({
 
   return (
     <div className="fixed inset-0 z-[60] grid place-items-end p-3 sm:place-items-center" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
-      <div onClick={cancel} className={`absolute inset-0 bg-ink/45 backdrop-blur-[3px] ${closing ? 'animate-fade-out' : 'animate-fade-in'}`} />
+      <div onClick={cancel} className={`absolute inset-0 bg-black/45 backdrop-blur-[3px] ${closing ? 'animate-fade-out' : 'animate-fade-in'}`} />
       <div
         className={`relative w-full max-w-md rounded-3xl bg-surface p-6 shadow-[0_30px_80px_-24px_rgb(0_0_0/0.5)] ${closing ? 'animate-sheet-out' : 'animate-sheet-in'}`}
       >
-        <span className={`grid size-12 place-items-center rounded-2xl ${danger ? 'bg-danger-soft text-danger' : 'bg-board/10 text-board'}`}>
+        <span className={`grid size-12 place-items-center rounded-2xl ${danger ? 'bg-danger-soft text-danger' : 'bg-accent/10 text-accent'}`}>
           {danger ? (
             <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"><path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13" /></svg>
           ) : (

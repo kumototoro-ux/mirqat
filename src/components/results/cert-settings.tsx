@@ -216,7 +216,7 @@ export function CertSettingsForm({
         initial={false}
         animate={{ y: dirty ? 0 : 90, opacity: dirty ? 1 : 0 }}
         transition={{ type: 'spring', stiffness: 420, damping: 34 }}
-        className="sticky bottom-24 z-20 flex items-center gap-3 rounded-2xl border border-board/20 bg-surface/95 p-3 shadow-[0_18px_40px_-20px_rgb(31_42_36/0.5)] backdrop-blur lg:bottom-4"
+        className="sticky bottom-24 z-20 flex items-center gap-3 rounded-2xl border border-accent/20 bg-surface/95 p-3 shadow-[0_18px_40px_-20px_rgb(31_42_36/0.5)] backdrop-blur lg:bottom-4"
         aria-hidden={!dirty}
       >
         <span className="flex-1 text-sm font-semibold">لديك تعديلات غير محفوظة</span>
@@ -282,7 +282,7 @@ function CertPreview({ settings, images, schoolLogo, stage, grade }: { settings:
   return (
     <section className="overflow-hidden rounded-[1.4rem] border border-line bg-surface">
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="flex w-full items-center gap-3 px-5 py-4 text-start">
-        <span className="grid size-10 place-items-center rounded-xl bg-board/10 text-board"><Icon name="eye" className="size-5" /></span>
+        <span className="grid size-10 place-items-center rounded-xl bg-accent/10 text-accent"><Icon name="eye" className="size-5" /></span>
         <span className="flex-1">
           <span className="block font-bold">معاينة حية</span>
           <span className="block text-xs text-muted">تتغير مع كل تعديل قبل الحفظ — ببيانات نموذجية</span>

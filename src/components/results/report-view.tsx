@@ -47,7 +47,7 @@ export function ReportSummary({ s }: { s: ReportStudent }) {
           <Ring pct={s.average} />
           <div className="absolute inset-0 grid place-items-center text-center">
             <div>
-              <p className="text-[1.9rem] font-bold leading-none tabular-nums" dir="ltr">{s.average == null ? '—' : n2(s.average)}<span className="text-base text-chalk/60">%</span></p>
+              <p className="text-[1.9rem] font-bold leading-none tabular-nums" dir="ltr">{s.average == null ? '—' : n2(s.average)}<span className="text-base text-chalk/70">%</span></p>
               <p className="mt-1 text-xs text-chalk/70">المعدل · Average</p>
             </div>
           </div>
@@ -62,7 +62,7 @@ export function ReportSummary({ s }: { s: ReportStudent }) {
           {s.progress != null && s.recorded_max != null && s.max_total != null && Number(s.recorded_max) < Number(s.max_total) && (
             <p className="mt-2 inline-flex flex-wrap items-center gap-1.5 rounded-full bg-chalk/10 px-3 py-1 text-xs text-chalk/85" title="المجموع مقسومًا على درجات التقييمات التي رُصدت حتى الآن">
               أداؤك فيما رُصد حتى الآن <b className="text-sm tabular-nums text-gold" dir="ltr">{n2(s.progress)}%</b>
-              <span className="text-chalk/60">({rating(s.progress)?.ar}) — يكتمل المجموع برصد بقية التقييمات</span>
+              <span className="text-chalk/70">({rating(s.progress)?.ar}) — يكتمل المجموع برصد بقية التقييمات</span>
             </p>
           )}
         </div>
@@ -74,13 +74,13 @@ export function ReportSummary({ s }: { s: ReportStudent }) {
             ) : (
               <p className="mt-1 text-lg font-bold tabular-nums" dir="ltr">{n2(att.pct)}% <span className="text-xs font-medium text-chalk/70">{attR?.en}</span></p>
             )}
-            {att.granted && <p className="text-[0.7rem] text-chalk/60">ممنوحة من الإدارة</p>}
-            {!att.granted && att.pct != null && att.total > 0 && <p className="text-[0.7rem] text-chalk/60">{att.absent} غياب · {att.late} تأخر</p>}
+            {att.granted && <p className="text-[0.7rem] text-chalk/70">ممنوحة من الإدارة</p>}
+            {!att.granted && att.pct != null && att.total > 0 && <p className="text-[0.7rem] text-chalk/70">{att.absent} غياب · {att.late} تأخر</p>}
           </div>
           <div className="rounded-2xl bg-chalk/10 px-3.5 py-3">
             <p className="text-xs text-chalk/70">السلوك · Behavior</p>
             <p className="mt-1 text-lg font-bold tabular-nums" dir="ltr">{n2(s.behavior.score)} <span className="text-xs font-medium text-chalk/70">{behR?.en}</span></p>
-            <p className="text-[0.7rem] text-chalk/60">{s.behavior.positive} إيجابي · {s.behavior.negative} ملاحظة</p>
+            <p className="text-[0.7rem] text-chalk/70">{s.behavior.positive} إيجابي · {s.behavior.negative} ملاحظة</p>
           </div>
         </div>
       </div>

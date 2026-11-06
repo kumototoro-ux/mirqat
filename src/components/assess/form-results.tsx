@@ -110,7 +110,7 @@ export function FormResults({ form }: { form: FormDetail }) {
               ['focus', 'خروج متكرر', flagged],
             ] as const
           ).map(([k, label, n]) => (
-            <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all ${filter === k ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+            <button key={k} type="button" onClick={() => setFilter(k)} className={`rounded-full px-3 py-1.5 text-sm font-medium transition-all ${filter === k ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
               {label} <span className="tabular-nums opacity-70">{n}</span>
             </button>
           ))}
@@ -124,7 +124,7 @@ export function FormResults({ form }: { form: FormDetail }) {
             return (
               <li key={st.id}>
                 <button type="button" onClick={() => s.kind === 'done' && setOpenId(st.id)} className={`flex w-full flex-wrap items-center gap-3 px-4 py-3 text-start transition-colors sm:flex-nowrap ${s.kind === 'done' ? 'hover:bg-board/[0.03]' : 'cursor-default'}`}>
-                  <span className={`grid size-10 shrink-0 place-items-center rounded-full font-bold ${s.kind === 'done' ? 'bg-ok-soft text-ok' : s.kind === 'live' ? 'bg-board/10 text-board' : s.kind === 'absent' ? 'bg-danger-soft text-danger' : 'bg-paper text-muted'}`}>
+                  <span className={`grid size-10 shrink-0 place-items-center rounded-full font-bold ${s.kind === 'done' ? 'bg-ok-soft text-ok' : s.kind === 'live' ? 'bg-accent/10 text-accent' : s.kind === 'absent' ? 'bg-danger-soft text-danger' : 'bg-paper text-muted'}`}>
                     {s.kind === 'live' ? <span className="size-2.5 animate-pulse rounded-full bg-board" /> : st.name_ar.trim().charAt(0)}
                   </span>
                   <span className="min-w-0 flex-1">
@@ -174,7 +174,7 @@ export function FormResults({ form }: { form: FormDetail }) {
 function ScorePill({ score, max }: { score: number; max: number }) {
   const p = pctOf(score, max);
   return (
-    <span className={`min-w-20 rounded-xl px-2.5 py-1.5 text-center text-sm font-bold tabular-nums ${p >= 85 ? 'bg-ok-soft text-ok' : p >= 65 ? 'bg-board/10 text-board' : p >= 50 ? 'bg-brass-soft text-brass' : 'bg-danger-soft text-danger'}`} dir="ltr">
+    <span className={`min-w-20 rounded-xl px-2.5 py-1.5 text-center text-sm font-bold tabular-nums ${p >= 85 ? 'bg-ok-soft text-ok' : p >= 65 ? 'bg-accent/10 text-accent' : p >= 50 ? 'bg-brass-soft text-brass' : 'bg-danger-soft text-danger'}`} dir="ltr">
       {Math.round(score * 100) / 100} / {max}
     </span>
   );
@@ -258,15 +258,15 @@ function AnswerReview({ q, n, a, paper = false, onGrade }: { q: ServerQuestion; 
   const [busy, setBusy] = useState(false);
   const earned = a?.points ?? 0;
   const full = earned >= q.points && q.points > 0;
-  const tone = a?.status === 'pending' ? 'border-gold/50 bg-brass-soft/30' : full ? 'border-ok/30' : earned > 0 ? 'border-board/20' : 'border-danger/25';
+  const tone = a?.status === 'pending' ? 'border-gold/50 bg-brass-soft/30' : full ? 'border-ok/30' : earned > 0 ? 'border-accent/20' : 'border-danger/25';
   const resp = a?.response;
 
   return (
     <li className={`rounded-2xl border p-3.5 ${tone}`}>
       <div className="mb-2 flex items-center gap-2 text-xs">
-        <span className="rounded-full bg-ink px-2 py-0.5 font-bold text-chalk tabular-nums">{n}</span>
+        <span className="rounded-full bg-inverse px-2 py-0.5 font-bold text-chalk tabular-nums">{n}</span>
         <span className="text-muted">{QTYPE_LABEL[q.qtype]}</span>
-        <span className={`ms-auto rounded-full px-2 py-0.5 font-bold tabular-nums ${a?.status === 'pending' ? 'bg-gold/25 text-brass' : full ? 'bg-ok-soft text-ok' : earned > 0 ? 'bg-board/10 text-board' : 'bg-danger-soft text-danger'}`} dir="ltr">
+        <span className={`ms-auto rounded-full px-2 py-0.5 font-bold tabular-nums ${a?.status === 'pending' ? 'bg-gold/25 text-brass' : full ? 'bg-ok-soft text-ok' : earned > 0 ? 'bg-accent/10 text-accent' : 'bg-danger-soft text-danger'}`} dir="ltr">
           {a?.status === 'pending' ? '?' : Math.round(earned * 100) / 100} / {q.points}
         </span>
       </div>
@@ -325,7 +325,7 @@ function AnswerReview({ q, n, a, paper = false, onGrade }: { q: ServerQuestion; 
         </>)}
       </div>
 
-      {a?.feedback && !edit && <p className="mt-2 rounded-lg bg-board/[0.06] px-2.5 py-1.5 text-xs text-board">ملاحظتك: {a.feedback}</p>}
+      {a?.feedback && !edit && <p className="mt-2 rounded-lg bg-board/[0.06] px-2.5 py-1.5 text-xs text-accent">ملاحظتك: {a.feedback}</p>}
       {edit ? (
         <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border border-line bg-surface p-2.5">
           <input type="number" inputMode="decimal" min={0} max={q.points} step={0.25} value={pts} onChange={(e) => setPts(e.target.value)} className="field w-20 py-2 text-center font-bold tabular-nums" dir="ltr" aria-label="الدرجة" />
@@ -351,7 +351,7 @@ function AnswerReview({ q, n, a, paper = false, onGrade }: { q: ServerQuestion; 
           </button>
         </div>
       ) : (
-        <button type="button" onClick={() => setEdit(true)} className="mt-2 text-xs font-semibold text-board hover:underline">
+        <button type="button" onClick={() => setEdit(true)} className="mt-2 text-xs font-semibold text-accent hover:underline">
           {a?.status === 'manual' ? 'تعديل درجتك' : 'تعديل الدرجة يدويًا'}
         </button>
       )}
@@ -370,7 +370,7 @@ export function FormAnalytics({ form }: { form: FormDetail }) {
   if (!latest.length)
     return (
       <div className="grid place-items-center rounded-[1.4rem] border border-line bg-surface px-6 py-16 text-center">
-        <span className="grid size-16 place-items-center rounded-2xl bg-board/10 text-board"><Icon name="results" className="size-8" /></span>
+        <span className="grid size-16 place-items-center rounded-2xl bg-accent/10 text-accent"><Icon name="results" className="size-8" /></span>
         <p className="mt-4 text-lg font-semibold">لا تسليمات بعد</p>
         <p className="mt-1 text-sm text-muted">يظهر التحليل بعد أول تسليم.</p>
       </div>
@@ -415,7 +415,7 @@ export function FormAnalytics({ form }: { form: FormDetail }) {
               <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: '#5f6e66' }} tickLine={false} axisLine={false} />
               <Tooltip cursor={{ fill: 'rgb(53 104 84 / 0.06)' }} formatter={(v) => [`${v} طالب`, 'العدد']} labelFormatter={(l) => `${l}%`} contentStyle={{ borderRadius: 12, border: '1px solid #dfe5e2', fontFamily: 'inherit', direction: 'rtl', fontSize: 13 }} />
               <Bar dataKey="n" radius={[6, 6, 0, 0]} animationDuration={800}>
-                {buckets.map((_, i) => <Cell key={i} fill={i < 5 ? '#d9a441' : i < 7 ? '#5d9478' : '#356854'} />)}
+                {buckets.map((_, i) => <Cell key={i} fill={i < 5 ? '#d9a441' : i < 7 ? '#5d9478' : 'var(--color-accent)'} />)}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
@@ -443,12 +443,12 @@ export function FormAnalytics({ form }: { form: FormDetail }) {
           {perQ.map((x) => (
             <li key={x.q.id} className="px-5 py-4">
               <div className="flex items-start gap-3">
-                <span className="mt-0.5 rounded-full bg-ink px-2 py-0.5 text-xs font-bold tabular-nums text-chalk">{x.n}</span>
+                <span className="mt-0.5 rounded-full bg-inverse px-2 py-0.5 text-xs font-bold tabular-nums text-chalk">{x.n}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold leading-relaxed"><RichText text={x.q.body.replace(/\[\[\d+\]\]/g, '…')} /></p>
                   <p className="mt-0.5 text-xs text-muted">{QTYPE_LABEL[x.q.qtype]} · {x.q.points} درجة · أجاب {x.answered}/{latest.length}{x.pending ? ` · ${x.pending} بانتظار التصحيح` : ''}</p>
                 </div>
-                <span className={`shrink-0 text-lg font-bold tabular-nums ${x.rate >= 75 ? 'text-ok' : x.rate >= 50 ? 'text-board' : x.rate >= 30 ? 'text-brass' : 'text-danger'}`}>{x.rate}%</span>
+                <span className={`shrink-0 text-lg font-bold tabular-nums ${x.rate >= 75 ? 'text-ok' : x.rate >= 50 ? 'text-accent' : x.rate >= 30 ? 'text-brass' : 'text-danger'}`}>{x.rate}%</span>
               </div>
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper">
                 <div className={`h-full origin-right animate-grow rounded-full ${x.rate >= 75 ? 'bg-ok' : x.rate >= 50 ? 'bg-board' : x.rate >= 30 ? 'bg-gold' : 'bg-danger'}`} style={{ width: `${x.rate}%` }} />

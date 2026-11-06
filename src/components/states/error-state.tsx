@@ -43,7 +43,7 @@ export function NotFoundState({ home, label = 'الرئيسية' }: { home: stri
   return (
     <div className="relative mx-auto mt-6 grid max-w-xl place-items-center overflow-hidden rounded-[1.75rem] border border-line bg-surface px-6 py-14 text-center">
       <div aria-hidden className="absolute -top-24 size-72 rounded-full bg-gold/10 blur-3xl" />
-      <p className="relative font-display text-6xl font-bold text-board/20">404</p>
+      <p className="relative font-display text-6xl font-bold text-accent/20">404</p>
       <h1 className="relative mt-2 text-xl font-bold">الصفحة غير موجودة</h1>
       <p className="relative mt-1.5 max-w-sm text-sm text-muted">ربما نُقلت أو حُذفت، أو أن الرابط غير صحيح.</p>
       <Link href={home} className="btn-primary relative mt-6"><Icon name="home" className="size-4" /> {label}</Link>

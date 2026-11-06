@@ -88,8 +88,8 @@ export type NoticeSettings = { principal: string; note: string };
 export function rating(p: number | null | undefined): { ar: string; en: string; tone: string; bar: string; text: string } | null {
   if (p == null || Number.isNaN(p)) return null;
   if (p >= 90) return { ar: 'ممتاز', en: 'Excellent', tone: 'text-ok', bar: '#11734b', text: '#11734b' };
-  if (p >= 80) return { ar: 'جيد جدًا', en: 'Very Good', tone: 'text-board', bar: '#356854', text: '#356854' };
-  if (p >= 70) return { ar: 'جيد', en: 'Good', tone: 'text-[#2a6f8a]', bar: '#2a6f8a', text: '#2a6f8a' };
+  if (p >= 80) return { ar: 'جيد جدًا', en: 'Very Good', tone: 'text-accent', bar: '#356854', text: '#356854' };
+  if (p >= 70) return { ar: 'جيد', en: 'Good', tone: 'text-info', bar: '#2a6f8a', text: '#2a6f8a' };
   if (p >= 60) return { ar: 'مقبول', en: 'Pass', tone: 'text-brass', bar: '#d9a441', text: '#8a6116' };
   return { ar: 'ضعيف', en: 'Weak', tone: 'text-danger', bar: '#b03a2e', text: '#b03a2e' };
 }

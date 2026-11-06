@@ -67,7 +67,7 @@ function PasswordChoice({ manual, setManual, pwd, setPwd }: { manual: boolean; s
             role="radio"
             aria-checked={manual === o.v}
             onClick={() => setManual(o.v)}
-            className={`rounded-xl border px-3 py-2.5 text-start transition ${manual === o.v ? 'border-board bg-board/10' : 'border-line bg-surface'}`}
+            className={`rounded-xl border px-3 py-2.5 text-start transition ${manual === o.v ? 'border-accent bg-accent/10' : 'border-line bg-surface'}`}
           >
             <span className="block text-sm font-semibold">{o.t}</span>
             <span className="block text-xs text-muted">{o.d}</span>
@@ -233,13 +233,13 @@ export function AccountsRegistry({
           setManual(false);
           setPwd('');
         }}
-        className="btn h-9 bg-board/10 px-3 text-board hover:bg-board hover:text-chalk"
+        className="btn h-9 bg-accent/10 px-3 text-accent hover:bg-board hover:text-chalk"
       >
         <Icon name="plus" className="size-4" />
         إنشاء حساب
       </button>
     ) : busy === r.account.id ? (
-      <span className="grid size-9 place-items-center"><span className="spinner text-board" /></span>
+      <span className="grid size-9 place-items-center"><span className="spinner text-accent" /></span>
     ) : (
       <>
         <RowButton icon="key" label="كلمة مؤقتة جديدة" onClick={() => { setManual(false); setPwd(''); setResetting(r); }} />
@@ -288,7 +288,7 @@ export function AccountsRegistry({
         toolbar={
           <>
             {isAdmin && (
-              <Link href="/staff/reports/accounts" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+              <Link href="/staff/reports/accounts" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent">
                 <Icon name="results" className="size-4" />
                 التقرير
               </Link>
@@ -317,7 +317,7 @@ export function AccountsRegistry({
             sort: 'name',
             render: (r) => (
               <div className="flex items-center gap-3">
-                <span className={`grid size-10 shrink-0 place-items-center rounded-full font-bold ${r.isAdmin ? 'bg-gold/25 text-brass' : 'bg-board/10 text-board'}`}>
+                <span className={`grid size-10 shrink-0 place-items-center rounded-full font-bold ${r.isAdmin ? 'bg-gold/25 text-brass' : 'bg-accent/10 text-accent'}`}>
                   {r.name.trim().charAt(0)}
                 </span>
                 <div className="min-w-0">

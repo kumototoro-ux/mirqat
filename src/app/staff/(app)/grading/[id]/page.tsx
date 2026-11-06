@@ -26,7 +26,7 @@ export default async function GradingDeskPage({ params }: { params: Promise<{ id
   }
 
   const back = (
-    <Link href="/staff/grading" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+    <Link href="/staff/grading" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
       <Icon name="chevron" className="size-4 rotate-180" /> الرصد اليومي
     </Link>
   );
@@ -55,7 +55,7 @@ export default async function GradingDeskPage({ params }: { params: Promise<{ id
 function Header({ kind, title, meta, id }: { kind: 'task' | 'form'; title: string; meta: string; id: number }) {
   return (
     <div className="mb-4 flex items-center gap-3">
-      <span className={`grid size-12 shrink-0 place-items-center rounded-2xl ${kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+      <span className={`grid size-12 shrink-0 place-items-center rounded-2xl ${kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
         <Icon name={kind === 'form' ? 'forms' : 'tasks'} className="size-6" />
       </span>
       <div className="min-w-0 flex-1">

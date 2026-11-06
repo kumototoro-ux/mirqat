@@ -4,7 +4,7 @@ import Link from 'next/link';
 export function Pager({ total, page, size, href }: { total: number; page: number; size: number; href: (page: number) => string }) {
   const pages = Math.max(1, Math.ceil(total / size));
   if (pages <= 1) return null;
-  const btn = 'rounded-lg border border-line bg-surface px-3 py-1.5 text-sm transition-colors hover:border-board/40';
+  const btn = 'rounded-lg border border-line bg-surface px-3 py-1.5 text-sm transition-colors hover:border-accent/40';
   return (
     <nav className="mt-4 flex items-center justify-between gap-3 text-sm" aria-label="الصفحات">
       {page > 1 ? <Link href={href(page - 1)} className={btn}>السابق</Link> : <span />}

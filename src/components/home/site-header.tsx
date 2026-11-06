@@ -78,7 +78,7 @@ export function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
   }, []);
 
   const navLink =
-    'relative rounded-md px-3 py-2 text-[0.95rem] text-ink/80 transition-colors duration-200 hover:text-board ' +
+    'relative rounded-md px-3 py-2 text-[0.95rem] text-ink/80 transition-colors duration-200 hover:text-accent ' +
     "after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-center after:scale-x-0 after:rounded-full after:bg-board after:transition-transform after:duration-300 hover:after:scale-x-100";
 
   return (
@@ -89,12 +89,12 @@ export function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
         <Link href="/" className="flex items-center gap-2" aria-label="مِرقاة — الرئيسية">
           <LogoMark className="h-8 w-9" />
           <Brand>
-            <span className="font-display text-2xl font-bold text-board">مِرقاة</span>
+            <span className="font-display text-2xl font-bold text-accent">مِرقاة</span>
           </Brand>
         </Link>
 
         <nav aria-label="التنقل الرئيسي" className="hidden items-center gap-1 md:flex">
-          <a href="#top" className={navLink + ' text-board after:scale-x-100'}>الرئيسية</a>
+          <a href="#top" className={navLink + ' text-accent after:scale-x-100'}>الرئيسية</a>
           <a href="#about" className={navLink}>عن مِرقاة</a>
           <Dropdown label="المستفيدون" buttonClassName={navLink + ' inline-flex items-center gap-1.5'}>
             {(close) =>
@@ -103,7 +103,7 @@ export function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
                   key={b.key}
                   href={b.href}
                   onClick={close}
-                  className="block rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-paper hover:text-board"
+                  className="block rounded-lg px-3 py-2.5 text-sm transition-colors hover:bg-paper hover:text-accent"
                 >
                   {b.label}
                 </Link>
@@ -128,7 +128,7 @@ export function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
                     onClick={close}
                     className="group flex flex-col rounded-lg px-3 py-2.5 transition-colors hover:bg-paper"
                   >
-                    <span className="text-sm font-semibold group-hover:text-board">{p.label}</span>
+                    <span className="text-sm font-semibold group-hover:text-accent">{p.label}</span>
                     <span className="text-xs text-muted">{p.hint}</span>
                   </Link>
                 ))

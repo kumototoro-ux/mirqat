@@ -98,7 +98,7 @@ export function QuickSearch() {
       <AnimatePresence>
         {open && (
           <Overlay onClose={() => setOpen(false)}>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-ink/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
             <motion.div
               initial={{ y: -30, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -114,13 +114,13 @@ export function QuickSearch() {
                     value={q}
                     onChange={(e) => setQ(e.target.value)}
                     placeholder="اسم الطالب أو رقمه أو هويته"
-                    className="h-12 w-full rounded-2xl bg-paper pe-10 ps-11 text-base focus:outline-none focus:ring-2 focus:ring-board/30"
+                    className="h-12 w-full rounded-2xl bg-paper pe-10 ps-11 text-base focus:outline-none focus:ring-2 focus:ring-accent/30"
                     enterKeyHint="search"
                     onKeyDown={(e) => e.key === 'Enter' && q.trim() && go(q.trim())}
                   />
-                  {isFetching && <span className="spinner absolute inset-y-0 end-3.5 my-auto text-board" />}
+                  {isFetching && <span className="spinner absolute inset-y-0 end-3.5 my-auto text-accent" />}
                 </div>
-                <button type="button" onClick={() => setOpen(false)} className="h-12 px-2 text-sm font-semibold text-board">إلغاء</button>
+                <button type="button" onClick={() => setOpen(false)} className="h-12 px-2 text-sm font-semibold text-accent">إلغاء</button>
               </div>
               <div className="max-h-[65dvh] overflow-y-auto p-2">
                 {term.length < 2 ? (
@@ -132,7 +132,7 @@ export function QuickSearch() {
                     {(data?.rows ?? []).map((r, i) => (
                       <motion.li key={r.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.025 }}>
                         <button type="button" onClick={() => go(r.code)} className="flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-start transition-colors active:bg-paper">
-                          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-board/10 font-bold text-board">{r.name_ar.trim().charAt(0)}</span>
+                          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent/10 font-bold text-accent">{r.name_ar.trim().charAt(0)}</span>
                           <span className="min-w-0 flex-1">
                             <span className="block truncate font-semibold">{r.name_ar}</span>
                             <span className="block truncate text-xs text-muted"><bdi>{r.code}</bdi> · {r.class_label}</span>
@@ -143,7 +143,7 @@ export function QuickSearch() {
                     ))}
                     {data && data.total > data.rows.length && (
                       <li>
-                        <button type="button" onClick={() => go(term)} className="w-full rounded-2xl px-3 py-3 text-center text-sm font-semibold text-board active:bg-paper">
+                        <button type="button" onClick={() => go(term)} className="w-full rounded-2xl px-3 py-3 text-center text-sm font-semibold text-accent active:bg-paper">
                           عرض كل النتائج ({data.total})
                         </button>
                       </li>
@@ -171,7 +171,7 @@ export function TodayButton({ today, week }: { today: { day: string; date: strin
       <AnimatePresence>
         {open && (
           <Overlay onClose={() => setOpen(false)}>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-ink/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm" onClick={() => setOpen(false)} />
             <motion.div
               initial={{ y: -24, opacity: 0, scale: 0.97 }}
               animate={{ y: 0, opacity: 1, scale: 1 }}
@@ -187,7 +187,7 @@ export function TodayButton({ today, week }: { today: { day: string; date: strin
               {week && (
                 <div className="relative mt-4 flex items-center justify-between rounded-2xl bg-chalk/10 px-4 py-3">
                   <span>
-                    <span className="block text-xs text-chalk/65">الأسبوع الدراسي</span>
+                    <span className="block text-xs text-chalk/70">الأسبوع الدراسي</span>
                     <span className="block font-bold">{week.label}</span>
                   </span>
                   <span className="text-sm text-chalk/75">{week.range}</span>

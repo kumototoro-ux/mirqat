@@ -73,16 +73,16 @@ export function QuestionCard({
       className={`rounded-[1.25rem] border bg-surface transition-[border-color,box-shadow] ${showIssues && issues.length ? 'border-danger/40 shadow-[0_0_0_3px_rgb(176_58_46/0.08)]' : 'border-line'}`}
     >
       {q.section_title && (
-        <div className="rounded-t-[1.25rem] border-b border-line bg-board/[0.05] px-4 py-2 text-sm font-bold text-board">{q.section_title}</div>
+        <div className="rounded-t-[1.25rem] border-b border-line bg-board/[0.05] px-4 py-2 text-sm font-bold text-accent">{q.section_title}</div>
       )}
       <header className="flex flex-wrap items-center gap-2 px-3 py-2.5 sm:px-4">
-        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-ink text-sm font-bold tabular-nums text-chalk">{index + 1}</span>
+        <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-inverse text-sm font-bold tabular-nums text-chalk">{index + 1}</span>
         <label className="relative">
           <select
             value={q.qtype}
             disabled={structLocked}
             onChange={(e) => onChange(convertQuestion(q, e.target.value as QType))}
-            className="h-9 appearance-none rounded-lg border border-line bg-paper/60 pe-8 ps-3 text-sm font-semibold focus:border-board focus:outline-none disabled:opacity-70"
+            className="h-9 appearance-none rounded-lg border border-line bg-paper/60 pe-8 ps-3 text-sm font-semibold focus:border-accent focus:outline-none disabled:opacity-70"
             aria-label="نوع السؤال"
           >
             {QTYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
@@ -129,7 +129,7 @@ export function QuestionCard({
                 <div className="relative inline-block">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={assetUrl(q.image_url) ?? ''} alt="" className="max-h-56 rounded-xl border border-line object-contain" />
-                  <button type="button" onClick={() => set({ image_url: null })} className="absolute -top-2 -end-2 grid size-7 place-items-center rounded-full bg-ink text-chalk shadow" aria-label="إزالة الصورة">
+                  <button type="button" onClick={() => set({ image_url: null })} className="absolute -top-2 -end-2 grid size-7 place-items-center rounded-full bg-inverse text-chalk shadow" aria-label="إزالة الصورة">
                     <Icon name="close" className="size-4" />
                   </button>
                 </div>
@@ -145,10 +145,10 @@ export function QuestionCard({
 
               <div className="flex flex-wrap items-center gap-2 pt-1">
                 <input ref={imgRef} type="file" accept="image/*" hidden onChange={(e) => { uploadImage(e.target.files?.[0]); e.target.value = ''; }} />
-                <button type="button" onClick={() => imgRef.current?.click()} disabled={uploading} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-muted transition-colors hover:bg-board/10 hover:text-board">
+                <button type="button" onClick={() => imgRef.current?.click()} disabled={uploading} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-muted transition-colors hover:bg-accent/10 hover:text-accent">
                   {uploading ? <span className="spinner" /> : <Icon name="image" className="size-4" />} {q.image_url ? 'تغيير الصورة' : 'صورة'}
                 </button>
-                <button type="button" onClick={() => setMore((m) => !m)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-muted transition-colors hover:bg-board/10 hover:text-board">
+                <button type="button" onClick={() => setMore((m) => !m)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm text-muted transition-colors hover:bg-accent/10 hover:text-accent">
                   <Icon name="plus" className="size-4" /> عنوان قسم وشرح الإجابة
                 </button>
                 <span className="ms-auto text-xs text-muted">{meta.hint}</span>
@@ -187,7 +187,7 @@ function IconBtn({ icon, label, onClick, disabled, tone, rotate }: { icon: Param
       disabled={disabled}
       title={label}
       aria-label={label}
-      className={`grid size-8 place-items-center rounded-lg transition-colors disabled:pointer-events-none disabled:opacity-30 ${tone === 'danger' ? 'text-muted hover:bg-danger-soft hover:text-danger' : 'text-muted hover:bg-board/10 hover:text-board'}`}
+      className={`grid size-8 place-items-center rounded-lg transition-colors disabled:pointer-events-none disabled:opacity-30 ${tone === 'danger' ? 'text-muted hover:bg-danger-soft hover:text-danger' : 'text-muted hover:bg-accent/10 hover:text-accent'}`}
     >
       <span style={rotate ? { transform: `rotate(${rotate}deg)` } : undefined} className="transition-transform duration-200">
         <Icon name={icon} className="size-4" />
@@ -211,7 +211,7 @@ function McqEditor({ q, set, locked }: EditorProps) {
               onClick={() => update(i, { is_correct: true })}
               aria-label={`الإجابة الصحيحة: ${LETTERS[i]}`}
               aria-pressed={o.is_correct}
-              className={`mt-1.5 grid size-8 shrink-0 place-items-center rounded-full border-2 text-sm font-bold transition-all ${o.is_correct ? 'border-ok bg-ok text-chalk' : 'border-line text-muted hover:border-ok/60'}`}
+              className={`mt-1.5 grid size-8 shrink-0 place-items-center rounded-full border-2 text-sm font-bold transition-all ${o.is_correct ? 'border-ok bg-ok text-on-ok' : 'border-line text-muted hover:border-ok/60'}`}
             >
               {o.is_correct ? <Icon name="check" className="size-4" /> : LETTERS[i]}
             </button>
@@ -231,7 +231,7 @@ function McqEditor({ q, set, locked }: EditorProps) {
         ))}
       </ul>
       {!locked && q.options.length < 10 && (
-        <button type="button" onClick={() => set({ options: [...q.options, { body: '', is_correct: false }] })} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-board hover:bg-board/10">
+        <button type="button" onClick={() => set({ options: [...q.options, { body: '', is_correct: false }] })} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-accent hover:bg-accent/10">
           <Icon name="plus" className="size-4" /> خيار
         </button>
       )}
@@ -278,7 +278,7 @@ function ShortEditor({ q, set }: EditorProps) {
           </li>
         ))}
       </ul>
-      <button type="button" onClick={() => set({ answers: [...q.answers, ''] })} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-board hover:bg-board/10">
+      <button type="button" onClick={() => set({ answers: [...q.answers, ''] })} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-accent hover:bg-accent/10">
         <Icon name="plus" className="size-4" /> إجابة بديلة
       </button>
       <p className="mt-2 text-xs leading-relaxed text-muted">
@@ -302,7 +302,7 @@ function MatchEditor({ q, set, locked }: EditorProps) {
         {q.pairs.map((p, i) => (
           <li key={i} className="grid grid-cols-[1fr_auto_1fr_auto] items-start gap-2">
             <MathField value={p.l} onChange={(v) => upd(i, 'l', v)} multiline={false} placeholder={`${i + 1}`} />
-            <span className="mt-2.5 text-board">⇄</span>
+            <span className="mt-2.5 text-accent">⇄</span>
             <MathField value={p.r} onChange={(v) => upd(i, 'r', v)} multiline={false} placeholder="المقابل" />
             <button type="button" onClick={() => set({ pairs: q.pairs.filter((_, j) => j !== i) })} disabled={locked || q.pairs.length <= 2} className="mt-1.5 grid size-8 place-items-center rounded-lg text-muted hover:bg-danger-soft hover:text-danger disabled:opacity-25" aria-label="حذف">
               <Icon name="close" className="size-4" />
@@ -311,7 +311,7 @@ function MatchEditor({ q, set, locked }: EditorProps) {
         ))}
       </ul>
       {!locked && q.pairs.length < 12 && (
-        <button type="button" onClick={() => set({ pairs: [...q.pairs, { l: '', r: '' }] })} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-board hover:bg-board/10">
+        <button type="button" onClick={() => set({ pairs: [...q.pairs, { l: '', r: '' }] })} className="mt-2 inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold text-accent hover:bg-accent/10">
           <Icon name="plus" className="size-4" /> زوج
         </button>
       )}
@@ -327,7 +327,7 @@ function FillEditor({ q, set, locked }: EditorProps) {
       <MathField value={q.body} onChange={(v) => set({ body: v })} rows={3} placeholder="عاصمة المملكة العربية السعودية هي {{الرياض}} وتقع في منطقة {{نجد|الوسطى}}" ariaLabel="نص السؤال بالفراغات" />
       <div className="mt-2 flex flex-wrap items-center gap-2">
         {!locked && (
-          <button type="button" onClick={() => set({ body: `${q.body}${q.body && !q.body.endsWith(' ') ? ' ' : ''}{{}}` })} className="inline-flex items-center gap-1.5 rounded-lg bg-board/10 px-2.5 py-1.5 text-sm font-semibold text-board hover:bg-board/15">
+          <button type="button" onClick={() => set({ body: `${q.body}${q.body && !q.body.endsWith(' ') ? ' ' : ''}{{}}` })} className="inline-flex items-center gap-1.5 rounded-lg bg-accent/10 px-2.5 py-1.5 text-sm font-semibold text-accent hover:bg-accent/15">
           <Icon name="plus" className="size-4" /> فراغ
           </button>
         )}
@@ -337,11 +337,11 @@ function FillEditor({ q, set, locked }: EditorProps) {
       </div>
       {blanks.length > 0 && (
         <div className="mt-3 rounded-xl bg-paper/70 px-3 py-2.5 text-[0.95rem] leading-loose">
-          <span className="me-2 text-xs font-semibold text-board">يراها الطالب:</span>
+          <span className="me-2 text-xs font-semibold text-accent">يراها الطالب:</span>
           <RichText
             text={body}
             blank={(n) => (
-              <span className="mx-1 inline-flex min-w-16 items-center justify-center rounded-md border-b-2 border-board bg-surface px-2 text-xs text-ok" title={blanks[n - 1]?.join(' | ')}>
+              <span className="mx-1 inline-flex min-w-16 items-center justify-center rounded-md border-b-2 border-accent bg-surface px-2 text-xs text-ok" title={blanks[n - 1]?.join(' | ')}>
                 {blanks[n - 1]?.[0] || '؟'}
               </span>
             )}

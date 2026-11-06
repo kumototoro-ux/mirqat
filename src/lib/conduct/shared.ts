@@ -8,10 +8,10 @@ export const attKind = (name: string): AttKind =>
 export const behKind = (name: string): BehKind => (/سلب/.test(name) ? 'negative' : /إيجاب|ايجاب|تميز|متميز/.test(name) ? 'positive' : 'neutral');
 
 export const ATT_STYLE: Record<AttKind, { on: string; soft: string; dot: string; label: string }> = {
-  present: { on: 'bg-ok text-chalk border-ok', soft: 'bg-ok-soft text-ok', dot: 'bg-ok', label: 'حاضر' },
+  present: { on: 'bg-ok text-on-ok border-ok', soft: 'bg-ok-soft text-ok', dot: 'bg-ok', label: 'حاضر' },
   absent: { on: 'bg-danger text-chalk border-danger', soft: 'bg-danger-soft text-danger', dot: 'bg-danger', label: 'غائب' },
-  late: { on: 'bg-gold text-ink border-gold', soft: 'bg-brass-soft text-brass', dot: 'bg-gold', label: 'متأخر' },
-  excused: { on: 'bg-[#2a6f8a] text-chalk border-[#2a6f8a]', soft: 'bg-[#e1eef3] text-[#2a6f8a]', dot: 'bg-[#2a6f8a]', label: 'مستأذن' },
+  late: { on: 'bg-gold text-on-gold border-gold', soft: 'bg-brass-soft text-brass', dot: 'bg-gold', label: 'متأخر' },
+  excused: { on: 'bg-info text-on-gold border-info', soft: 'bg-info-soft text-info', dot: 'bg-info', label: 'مستأذن' },
 };
 
 export type Status = { id: number; name: string };

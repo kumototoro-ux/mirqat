@@ -33,7 +33,7 @@ export default async function BranchActivity({ searchParams }: { searchParams: P
       <PageHeader title="نشاط الفرع" lead="كل إضافة وتعديل وحذف على بيانات الفرع خلال آخر 90 يومًا: من فعل ماذا ومتى. للعرض فقط." actions={<BranchSwitch branches={branches} value={branch.id} />} />
       <form className="mb-4 flex flex-wrap items-center gap-2" action="/staff/branch-activity">
         <input type="hidden" name="branch" value={branch.id} />
-        <input name="q" defaultValue={q} placeholder="ابحث باسم الموظف أو الوصف" className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-board/30 sm:max-w-xs" />
+        <input name="q" defaultValue={q} placeholder="ابحث باسم الموظف أو الوصف" className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 sm:max-w-xs" />
         <select name="table" defaultValue={table} className="rounded-xl border border-line bg-surface px-3 py-2 text-sm">
           <option value="">كل الأقسام</option>
           {SHOWN.map((t) => <option key={t} value={t}>{TABLES[t] ?? t}</option>)}

@@ -114,7 +114,7 @@ export default async function ReportPage({ params }: { params: Promise<{ type: s
   return (
     <div className="mx-auto max-w-5xl">
       <div className="mb-4 flex items-center justify-between gap-3 print:hidden">
-        <Link href={back} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-board">
+        <Link href={back} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-accent">
           <svg viewBox="0 0 16 16" className="size-4"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
           رجوع
         </Link>
@@ -227,7 +227,7 @@ function Students({ r }: { r: StudentsReport }) {
         <GroupedBars
           data={r.monthly.map((m) => ({ label: monthName(m.month), enrolled: m.enrolled, withdrawn: m.withdrawn }))}
           series={[
-            { key: 'enrolled', label: 'تسجيل جديد', color: '#356854' },
+            { key: 'enrolled', label: 'تسجيل جديد', color: 'var(--color-accent)' },
             { key: 'withdrawn', label: 'انسحاب', color: '#d9a441' },
           ]}
         />
@@ -315,7 +315,7 @@ function Employees({ r }: { r: EmployeesReport }) {
         </div>
       </Section>
       <Section n={2} title="تغطية المواد" lead="عدد المعلمين المسندة إليهم كل مادة.">
-        <GroupedBars data={r.by_subject.slice(0, 14).map((s) => ({ label: s.name, teachers: s.teachers }))} series={[{ key: 'teachers', label: 'معلمون', color: '#356854' }]} height={280} />
+        <GroupedBars data={r.by_subject.slice(0, 14).map((s) => ({ label: s.name, teachers: s.teachers }))} series={[{ key: 'teachers', label: 'معلمون', color: 'var(--color-accent)' }]} height={280} />
       </Section>
       <Section n={3} title="التوزيعات">
         <div className="grid gap-6 md:grid-cols-2">
@@ -390,7 +390,7 @@ function Accounts({ r }: { r: AccountsReport }) {
       <Section n={2} title="الدخول اليومي خلال آخر 14 يومًا" lead="عدد المستخدمين المختلفين الذين دخلوا كل يوم.">
         <GroupedBars
           data={r.daily_logins.map((d) => ({ label: d.day.slice(5).replace('-', '/'), count: d.count }))}
-          series={[{ key: 'count', label: 'مستخدمون', color: '#356854' }]}
+          series={[{ key: 'count', label: 'مستخدمون', color: 'var(--color-accent)' }]}
         />
       </Section>
     </>
@@ -434,7 +434,7 @@ function Activity({ r }: { r: ActivityReport }) {
         <GroupedBars
           data={r.daily.map((d) => ({ label: d.day.slice(5).replace('-', '/'), changes: d.changes, logins: d.logins }))}
           series={[
-            { key: 'changes', label: 'تعديلات', color: '#356854' },
+            { key: 'changes', label: 'تعديلات', color: 'var(--color-accent)' },
             { key: 'logins', label: 'دخول', color: '#d9a441' },
           ]}
         />

@@ -240,7 +240,7 @@ export function MathField({
           onClick={() => setOpen((o) => !o)}
           title="رموز رياضية"
           aria-pressed={open}
-          className={`absolute end-1.5 top-1.5 grid size-8 place-items-center rounded-lg font-serif text-[0.95rem] italic transition-colors ${open ? 'bg-board text-chalk' : 'text-muted hover:bg-board/10 hover:text-board'}`}
+          className={`absolute end-1.5 top-1.5 grid size-8 place-items-center rounded-lg font-serif text-[0.95rem] italic transition-colors ${open ? 'bg-board text-chalk' : 'text-muted hover:bg-accent/10 hover:text-accent'}`}
         >
           ƒx
         </button>
@@ -253,7 +253,7 @@ export function MathField({
                 key={g.name}
                 type="button"
                 onClick={() => setGroup(i)}
-                className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${group === i ? 'bg-surface text-board shadow-sm' : 'text-muted hover:text-ink'}`}
+                className={`shrink-0 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${group === i ? 'bg-surface text-accent shadow-sm' : 'text-muted hover:text-ink'}`}
               >
                 {g.name}
               </button>
@@ -267,7 +267,7 @@ export function MathField({
                 title={s.title ?? s.tex}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => insert(s)}
-                className="h-8 min-w-9 rounded-lg border border-line bg-surface px-2 text-sm transition-all hover:-translate-y-0.5 hover:border-board/40 hover:text-board active:scale-95"
+                className="h-8 min-w-9 rounded-lg border border-line bg-surface px-2 text-sm transition-all hover:-translate-y-0.5 hover:border-accent/40 hover:text-accent active:scale-95"
               >
                 {s.label}
               </button>
@@ -279,13 +279,13 @@ export function MathField({
         </div>
       )}
       {hasMath(value) && !multiline && (
-        <div className="mt-1 px-1 text-sm text-board">
+        <div className="mt-1 px-1 text-sm text-accent">
           <RichText text={value} />
         </div>
       )}
       {hasMath(value) && multiline && (
-        <div className="mt-1.5 rounded-xl border border-dashed border-board/30 bg-board/[0.03] px-3 py-2 text-[0.95rem]">
-          <span className="me-2 text-[0.7rem] font-semibold text-board">معاينة</span>
+        <div className="mt-1.5 rounded-xl border border-dashed border-accent/30 bg-board/[0.03] px-3 py-2 text-[0.95rem]">
+          <span className="me-2 text-[0.7rem] font-semibold text-accent">معاينة</span>
           <RichText text={value} />
         </div>
       )}
@@ -304,7 +304,7 @@ export function SymbolBar({ onInsert }: { onInsert: (s: string) => void }) {
           type="button"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => onInsert(s)}
-          className="h-9 min-w-9 rounded-lg border border-line bg-surface px-2 text-base transition-all hover:border-board/40 hover:text-board active:scale-95"
+          className="h-9 min-w-9 rounded-lg border border-line bg-surface px-2 text-base transition-all hover:border-accent/40 hover:text-accent active:scale-95"
         >
           {s}
         </button>

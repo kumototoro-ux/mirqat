@@ -202,7 +202,7 @@ export function ContentEditor({ ctx, item, copyFrom, defaultKind, onClose, onSav
                   </div>
                 ))}
                 {atts.length < 5 && (
-                  <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading > 0} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line px-3 py-4 text-sm text-muted transition-colors hover:border-board/40 hover:text-board">
+                  <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading > 0} className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line px-3 py-4 text-sm text-muted transition-colors hover:border-accent/40 hover:text-accent">
                     {uploading ? <><span className="spinner" /> جارٍ الرفع…</> : <><Icon name="upload" className="size-4" /> رفع ملف (PDF، صورة، Word، PowerPoint)</>}
                   </button>
                 )}

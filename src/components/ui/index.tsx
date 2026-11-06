@@ -15,7 +15,7 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        {eyebrow && <p className="mb-1 text-sm font-medium text-board">{eyebrow}</p>}
+        {eyebrow && <p className="mb-1 text-sm font-medium text-accent">{eyebrow}</p>}
         <h1 className="text-[1.65rem] font-bold leading-tight">{title}</h1>
         {lead && <p className="mt-1.5 max-w-2xl text-muted">{lead}</p>}
       </div>
@@ -58,7 +58,7 @@ export function StatGrid({ items }: { items: { label: string; value: React.React
           <dt className="text-sm text-muted">{s.label}</dt>
           <dd
             className={`mt-1 text-[1.9rem] font-bold leading-none tabular-nums ${
-              s.tone === 'gold' ? 'text-brass' : s.tone === 'danger' ? 'text-danger' : 'text-board'
+              s.tone === 'gold' ? 'text-brass' : s.tone === 'danger' ? 'text-danger' : 'text-accent'
             }`}
           >
             {s.value}
@@ -72,7 +72,7 @@ export function StatGrid({ items }: { items: { label: string; value: React.React
 
 const BADGE_TONES = {
   neutral: 'bg-paper text-muted ring-line',
-  board: 'bg-board/10 text-board ring-board/20',
+  board: 'bg-accent/10 text-accent ring-accent/20',
   gold: 'bg-brass-soft text-brass ring-brass/25',
   danger: 'bg-danger-soft text-danger ring-danger/20',
   ok: 'bg-ok-soft text-ok ring-ok/20',
@@ -89,7 +89,7 @@ export function Badge({ children, tone = 'neutral' }: { children: React.ReactNod
 export function Empty({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
     <div className="grid place-items-center rounded-2xl border border-dashed border-line bg-surface/60 px-6 py-14 text-center">
-      <svg viewBox="0 0 48 40" className="h-10 w-12 text-board/30" aria-hidden>
+      <svg viewBox="0 0 48 40" className="h-10 w-12 text-accent/30" aria-hidden>
         <rect x="2" y="26" width="8" height="12" rx="1.5" fill="currentColor" />
         <rect x="12" y="20" width="8" height="18" rx="1.5" fill="currentColor" />
         <rect x="22" y="14" width="8" height="24" rx="1.5" fill="currentColor" />
@@ -195,7 +195,7 @@ export function Tabs({ items, active }: { items: { href: string; label: string; 
             key={t.key}
             href={t.href}
             aria-current={on ? 'page' : undefined}
-            className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors ${on ? 'text-board' : 'text-muted hover:text-ink'}`}
+            className={`relative whitespace-nowrap px-4 py-2.5 text-sm font-medium transition-colors ${on ? 'text-accent' : 'text-muted hover:text-ink'}`}
           >
             {t.label}
             {t.count !== undefined && <span className="ms-1.5 text-xs text-muted">({t.count})</span>}

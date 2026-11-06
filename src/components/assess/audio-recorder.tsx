@@ -114,7 +114,7 @@ export function AudioRecorder({ onReady, disabled }: { onReady: (file: File) => 
             <button type="button" onClick={stop} className="btn-primary bg-danger px-6 hover:bg-danger/90"><span className="size-3 rounded-sm bg-white" /> إيقاف</button>
           </motion.div>
         ) : state === 'review' && url ? (
-          <motion.div key="review" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3 rounded-2xl border border-board/25 bg-board/5 p-4">
+          <motion.div key="review" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3 rounded-2xl border border-accent/25 bg-accent/5 p-4">
             <p className="text-sm font-semibold">استمع لتسجيلك ({mmss(secs)}) قبل إرساله</p>
             <AudioPlayer src={url} />
             <div className="flex gap-2">
@@ -124,13 +124,13 @@ export function AudioRecorder({ onReady, disabled }: { onReady: (file: File) => 
           </motion.div>
         ) : (
           <motion.div key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid gap-2 sm:grid-cols-2">
-            <button type="button" onClick={start} disabled={disabled} className="flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-board/40 bg-board/[0.03] px-3 py-6 text-sm font-semibold transition-colors hover:border-board hover:bg-board/[0.06]">
+            <button type="button" onClick={start} disabled={disabled} className="flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-accent/40 bg-board/[0.03] px-3 py-6 text-sm font-semibold transition-colors hover:border-accent hover:bg-board/[0.06]">
               <span className="grid size-12 place-items-center rounded-full bg-board text-chalk"><svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" /></svg></span>
               ابدأ التسجيل
               <span className="text-[0.7rem] font-normal text-muted">حتى 5 دقائق</span>
             </button>
-            <button type="button" onClick={() => fileInput.current?.click()} disabled={disabled} className="flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-line px-3 py-6 text-sm font-semibold transition-colors hover:border-board/50">
-              <Icon name="upload" className="size-7 text-board" /> رفع ملف صوتي
+            <button type="button" onClick={() => fileInput.current?.click()} disabled={disabled} className="flex flex-col items-center gap-1.5 rounded-2xl border-2 border-dashed border-line px-3 py-6 text-sm font-semibold transition-colors hover:border-accent/50">
+              <Icon name="upload" className="size-7 text-accent" /> رفع ملف صوتي
               <span className="text-[0.7rem] font-normal text-muted">من مسجّل الجوال · حتى 6 ميقا</span>
             </button>
             <input ref={fileInput} type="file" accept="audio/*,.m4a,.mp3,.amr,.ogg,.wav,.webm" hidden onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; if (f) onReady(f); }} />

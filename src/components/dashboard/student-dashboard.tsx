@@ -116,7 +116,7 @@ export function StudentDashboard({ first, classLabel, code, greet, date, data, i
                         <span className="block truncate font-semibold">{s.subject}</span>
                         <span className="text-xs text-muted">{s.teacher ?? ''}{s.delivery_mode ? ` · ${s.delivery_mode}` : ''}</span>
                       </span>
-                      {live ? <span className="shrink-0 rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-ink">الآن</span> : <span className="shrink-0 text-xs text-muted">{fmtClock(s.starts_at)}</span>}
+                      {live ? <span className="shrink-0 rounded-full bg-gold px-2.5 py-1 text-xs font-bold text-on-gold">الآن</span> : <span className="shrink-0 text-xs text-muted">{fmtClock(s.starts_at)}</span>}
                     </div>
                   </motion.li>
                 );
@@ -132,7 +132,7 @@ export function StudentDashboard({ first, classLabel, code, greet, date, data, i
             <ul className="px-3 pb-3">
               {data.grades.map((g, i) => {
                 const pct = Number(g.max_score) ? (Number(g.score) / Number(g.max_score)) * 100 : 0;
-                const tone = pct >= 90 ? '#11734b' : pct >= 75 ? '#356854' : pct >= 60 ? '#d9a441' : '#b03a2e';
+                const tone = pct >= 90 ? '#11734b' : pct >= 75 ? 'var(--color-accent)' : pct >= 60 ? '#d9a441' : '#b03a2e';
                 return (
                   <li key={g.id} className="rounded-xl px-2.5 py-2">
                     <div className="flex items-center gap-3">
@@ -145,7 +145,7 @@ export function StudentDashboard({ first, classLabel, code, greet, date, data, i
                     <span className="mt-1.5 block h-1.5 overflow-hidden rounded-full bg-paper">
                       <motion.span className="block h-full rounded-full" style={{ background: tone }} initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, delay: 0.1 + i * 0.05 }} />
                     </span>
-                    {g.note && <p className="mt-1 text-xs text-board">✎ {g.note}</p>}
+                    {g.note && <p className="mt-1 text-xs text-accent">✎ {g.note}</p>}
                   </li>
                 );
               })}
@@ -160,10 +160,10 @@ export function StudentDashboard({ first, classLabel, code, greet, date, data, i
             {data.content.new.map((c) => (
               <Link key={c.id} href="/student/content" className="group w-56 shrink-0 snap-start overflow-hidden rounded-2xl border border-line transition-shadow hover:shadow-[0_14px_30px_-22px_rgb(31_42_36/0.7)] sm:w-auto">
                 <MediaThumb kind={c.kind} url={c.url} subject={c.subject} minutes={c.minutes} className="aspect-video">
-                  <span className="absolute start-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-bold text-ink">جديد</span>
+                  <span className="absolute start-2 top-2 rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-bold text-on-gold">جديد</span>
                 </MediaThumb>
                 <span className="block p-3">
-                  <span className="block truncate text-sm font-bold group-hover:text-board">{c.title}</span>
+                  <span className="block truncate text-sm font-bold group-hover:text-accent">{c.title}</span>
                   <span className="text-xs text-muted">{c.subject} · <TimeAgo iso={c.published_at} /></span>
                 </span>
               </Link>

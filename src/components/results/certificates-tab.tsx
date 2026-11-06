@@ -131,7 +131,7 @@ function StudentToggle({ settings }: { settings: CertSettings }) {
     if (ok) router.refresh();
   };
   return (
-    <button type="button" onClick={flip} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors sm:flex-none ${on ? 'bg-ok text-white hover:bg-ok/90' : 'bg-chalk text-board hover:bg-chalk/90'}`}>
+    <button type="button" onClick={flip} className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition-colors sm:flex-none ${on ? 'bg-ok text-on-ok hover:bg-ok/90' : 'bg-chalk text-board hover:bg-chalk/90'}`}>
       <Icon name={on ? 'eye' : 'key'} className="size-4" /> {on ? 'ظاهرة للطلاب' : 'غير ظاهرة للطلاب'}
     </button>
   );
@@ -223,7 +223,7 @@ function ClassCerts({ classId, label, terms, settings, brand }: { classId: numbe
             return (
               <motion.li key={c.student.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: Math.min(i, 10) * 0.025 }}>
                 <button type="button" onClick={() => setOpen(c)} className="flex w-full items-center gap-3 px-4 py-3 text-start transition-colors hover:bg-paper/60">
-                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-board/10 text-sm font-bold text-board">{c.student.name_ar.slice(0, 1)}</span>
+                  <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/10 text-sm font-bold text-accent">{c.student.name_ar.slice(0, 1)}</span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-semibold">{c.student.name_ar}</span>
                     <span className="block truncate text-xs text-muted">

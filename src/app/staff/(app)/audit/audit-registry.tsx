@@ -121,7 +121,7 @@ export function AuditRegistry({ initial, initialParams, report }: { initial: Pag
           { key: 'table', label: 'القسم', options: Object.entries(TABLES).map(([v, l]) => ({ value: v, label: l })) },
         ]}
         toolbar={
-          <Link href="/staff/reports/activity" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-board/40 hover:text-board">
+          <Link href="/staff/reports/activity" className="btn h-11 rounded-xl border border-line bg-surface px-3.5 hover:border-accent/40 hover:text-accent">
             <Icon name="results" className="size-4" /> التقرير
           </Link>
         }
@@ -136,7 +136,7 @@ export function AuditRegistry({ initial, initialParams, report }: { initial: Pag
             label: 'الشخص',
             render: (r) => (
               <div className="flex items-center gap-3">
-                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-board/10 font-bold text-board">{(r.actor_name ?? 'ن').trim().charAt(0)}</span>
+                <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent/10 font-bold text-accent">{(r.actor_name ?? 'ن').trim().charAt(0)}</span>
                 <div className="min-w-0">
                   <p className="max-w-52 truncate font-semibold">{r.actor_name ?? 'النظام'}</p>
                   <p className="text-xs text-muted"><bdi>{r.actor_code ?? '—'}</bdi></p>

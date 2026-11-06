@@ -16,7 +16,7 @@ function Switch({ on, busy, label, onClick }: { on: boolean; busy: boolean; labe
       aria-label={label}
       disabled={busy}
       onClick={onClick}
-      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-board disabled:opacity-50 ${on ? 'bg-board' : 'bg-line'}`}
+      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50 ${on ? 'bg-board' : 'bg-line'}`}
     >
       <span className={`inline-block size-5 rounded-full bg-white shadow transition-transform ${on ? '-translate-x-5' : '-translate-x-0.5'}`} />
     </button>

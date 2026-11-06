@@ -60,8 +60,8 @@ export function About({ schoolName }: { schoolName: string }) {
         <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f, i) => (
             <Reveal key={f.title} as="li" delay={i * 90}>
-              <div className="group h-full rounded-2xl border border-line bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out-soft hover:-translate-y-1 hover:border-board/30 hover:shadow-[0_22px_40px_-26px_rgb(53_104_84/0.55)]">
-                <span className="grid size-12 place-items-center rounded-xl bg-board/10 text-board transition-colors duration-300 group-hover:bg-board group-hover:text-chalk">
+              <div className="group h-full rounded-2xl border border-line bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 ease-out-soft hover:-translate-y-1 hover:border-accent/30 hover:shadow-[0_22px_40px_-26px_rgb(53_104_84/0.55)]">
+                <span className="grid size-12 place-items-center rounded-xl bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-board group-hover:text-chalk">
                   {f.icon}
                 </span>
                 <h3 className="mt-5 text-lg font-semibold">{f.title}</h3>
@@ -91,14 +91,14 @@ export function Beneficiaries() {
             <Reveal key={p.key} as="li" delay={i * 110}>
               <Link
                 href={p.href}
-                className="group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-line bg-paper/60 px-6 pb-7 pt-9 text-center transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out-soft hover:-translate-y-1.5 hover:border-board/40 hover:bg-surface hover:shadow-[0_26px_50px_-28px_rgb(53_104_84/0.6)]"
+                className="group relative flex h-full flex-col items-center overflow-hidden rounded-2xl border border-line bg-paper/60 px-6 pb-7 pt-9 text-center transition-[transform,box-shadow,border-color,background-color] duration-300 ease-out-soft hover:-translate-y-1.5 hover:border-accent/40 hover:bg-surface hover:shadow-[0_26px_50px_-28px_rgb(53_104_84/0.6)]"
               >
-                <span className="relative grid size-28 place-items-center rounded-full bg-board shadow-[inset_0_-10px_24px_rgb(0_0_0/0.18)] ring-8 ring-board/10 transition-transform duration-500 ease-out-soft group-hover:scale-105 group-hover:ring-board/20">
+                <span className="relative grid size-28 place-items-center rounded-full bg-board shadow-[inset_0_-10px_24px_rgb(0_0_0/0.18)] ring-8 ring-accent/10 transition-transform duration-500 ease-out-soft group-hover:scale-105 group-hover:ring-accent/20">
                   <svg viewBox="0 0 64 64" className="size-16">{AVATARS[p.key]}</svg>
                 </span>
                 <span className="mt-6 text-xl font-bold">{p.title}</span>
                 <span className="mt-1.5 text-muted">{p.body}</span>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-board">
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-accent">
                   {p.portal}
                   <svg viewBox="0 0 16 16" className="size-4 transition-transform duration-300 group-hover:-translate-x-1" aria-hidden>
                     <path d="M10 3.5 5.5 8l4.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
@@ -169,7 +169,7 @@ export function SiteFooter({ schoolName }: { schoolName: string }) {
         </Reveal>
       </div>
       <div className="relative border-t border-chalk/10">
-        <p className="mx-auto max-w-6xl px-5 py-5 text-sm text-chalk/55">
+        <p className="mx-auto max-w-6xl px-5 py-5 text-sm text-chalk/70">
           © {new Date().getFullYear()} مِرقاة، {schoolName}. جميع الحقوق محفوظة.
         </p>
       </div>

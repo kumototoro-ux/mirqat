@@ -114,7 +114,7 @@ export function PrintStudio({ data, brand }: { data: PrintData; brand: Appreciat
         <div className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-3 pb-2">
           {DOCS.map((d) => (
             <button key={d.key} type="button" onClick={() => setDoc(d.key)}
-              className={`shrink-0 rounded-xl px-3.5 py-2 text-start text-sm transition-colors ${doc === d.key ? 'bg-board text-chalk' : 'bg-paper hover:bg-board/10'}`}>
+              className={`shrink-0 rounded-xl px-3.5 py-2 text-start text-sm transition-colors ${doc === d.key ? 'bg-board text-chalk' : 'bg-paper hover:bg-accent/10'}`}>
               <span className="block font-semibold">{d.label}</span>
               <span className={`block text-[0.7rem] ${doc === d.key ? 'text-chalk/75' : 'text-muted'}`}>{d.hint}</span>
             </button>
@@ -146,7 +146,7 @@ export function PrintStudio({ data, brand }: { data: PrintData; brand: Appreciat
               <div>
                 <div className="mb-1 flex items-center justify-between">
                   <span className="label mb-0">الطلاب ({picked.size}/{roster.length})</span>
-                  <button type="button" onClick={() => setPicked(picked.size === roster.length ? new Set() : new Set(roster.map((s) => s.id)))} className="text-xs font-semibold text-board hover:underline">
+                  <button type="button" onClick={() => setPicked(picked.size === roster.length ? new Set() : new Set(roster.map((s) => s.id)))} className="text-xs font-semibold text-accent hover:underline">
                     {picked.size === roster.length ? 'إلغاء الكل' : 'تحديد الكل'}
                   </button>
                 </div>
@@ -165,7 +165,7 @@ export function PrintStudio({ data, brand }: { data: PrintData; brand: Appreciat
             </>
           )}
           {(doc === 'bubbles' || doc === 'key') && (
-            <p className={`rounded-xl px-3 py-2 text-xs leading-relaxed ${layout.fits ? 'bg-board/[0.06] text-board' : 'bg-danger-soft text-danger'}`}>
+            <p className={`rounded-xl px-3 py-2 text-xs leading-relaxed ${layout.fits ? 'bg-board/[0.06] text-accent' : 'bg-danger-soft text-danger'}`}>
               {!choiceCount ? 'لا أسئلة اختيار في هذا النموذج — أوراق الفقاعات للاختيار من متعدد وصح/خطأ.'
                 : layout.fits ? `${choiceCount} سؤال اختيار في ${layout.cols} ${layout.cols === 1 ? 'عمود' : 'أعمدة'}${choiceCount < questions.length ? ` — ${questions.length - choiceCount} سؤال آخر يُجاب في ورقة الأسئلة` : ''}. في كل ورقة رمز QR للطالب للتصحيح بالكاميرا لاحقًا.`
                 : 'أسئلة الاختيار أكثر مما تتسعه صفحة واحدة بوضوح — قسّم الاختبار إلى نموذجين.'}

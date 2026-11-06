@@ -107,7 +107,7 @@ export function AssessHub({
             className="rounded-[1.25rem] border border-line bg-surface p-4"
           >
             <p className="flex items-center gap-2 text-xs font-medium text-muted sm:text-sm">
-              <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${c.tone === 'gold' ? 'bg-brass-soft text-brass' : c.tone === 'danger' ? 'bg-danger-soft text-danger' : 'bg-board/10 text-board'}`}>
+              <span className={`grid size-8 shrink-0 place-items-center rounded-xl ${c.tone === 'gold' ? 'bg-brass-soft text-brass' : c.tone === 'danger' ? 'bg-danger-soft text-danger' : 'bg-accent/10 text-accent'}`}>
                 <Icon name={c.icon} className="size-[1.05rem]" />
               </span>
               <span className="truncate">{c.label}</span>
@@ -220,8 +220,8 @@ function CreateCard({ href, icon, title, lead, tone, delay }: { href: string; ic
         href={href}
         className={`group relative flex items-center gap-4 overflow-hidden rounded-[1.4rem] border p-4 transition-all duration-300 hover:-translate-y-0.5 sm:p-5 ${
           tone === 'board'
-            ? 'border-board/20 bg-gradient-to-br from-board to-board-deep text-chalk shadow-[0_18px_40px_-24px_rgb(53_104_84/0.9)]'
-            : 'border-gold/40 bg-gradient-to-br from-[#fbf3e1] to-[#f4e3bb] text-ink shadow-[0_18px_40px_-26px_rgb(138_97_22/0.8)]'
+            ? 'border-accent/20 bg-gradient-to-br from-board to-board-deep text-chalk shadow-[0_18px_40px_-24px_rgb(53_104_84/0.9)]'
+            : 'border-gold/40 bg-gradient-to-br from-gold-soft to-gold-soft-2 text-ink shadow-[0_18px_40px_-26px_rgb(138_97_22/0.8)]'
         }`}
       >
         <span className={`grid size-14 shrink-0 place-items-center rounded-2xl transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-3 ${tone === 'board' ? 'bg-chalk/15' : 'bg-white/70 text-brass'}`}>
@@ -244,7 +244,7 @@ function TitleCell({ r, subject }: { r: HubRow; subject: string }) {
   return (
     <div className="flex items-center gap-3">
       <span
-        className={`relative grid size-10 shrink-0 place-items-center rounded-xl ${r.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}
+        className={`relative grid size-10 shrink-0 place-items-center rounded-xl ${r.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}
         title={r.kind === 'form' ? 'نموذج' : 'مهمة'}
       >
         <Icon name={r.kind === 'form' ? 'forms' : 'tasks'} className="size-5" />
@@ -338,7 +338,7 @@ export function CopySheet({ row, ctx, onClose, onDone }: { row: { id: number; ti
         </div>
       }
     >
-      <p className="mb-4 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-board">
+      <p className="mb-4 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-accent">
         تُنسخ الأسئلة والمرفقات والإعدادات كما هي، وتُحفظ النسخة <b>مسودة</b> بلا مواعيد حتى تراجعها وتنشرها. التسليمات والدرجات لا تُنسخ.
       </p>
       <p className="label">إلى أي فصل؟</p>

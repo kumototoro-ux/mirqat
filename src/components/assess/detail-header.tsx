@@ -92,12 +92,12 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
 
   return (
     <div className="mb-5">
-      <Link href="/staff/tasks" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-board">
+      <Link href="/staff/tasks" className="mb-3 inline-flex items-center gap-1 text-sm text-muted hover:text-accent">
         <Icon name="chevron" className="size-4 rotate-180" /> المهام والنماذج
       </Link>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-[1.6rem] border border-line bg-surface p-4 sm:p-6">
         <div className="flex flex-wrap items-start gap-4">
-          <span className={`grid size-14 shrink-0 place-items-center rounded-2xl ${info.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-board/10 text-board'}`}>
+          <span className={`grid size-14 shrink-0 place-items-center rounded-2xl ${info.kind === 'form' ? 'bg-brass-soft text-brass' : 'bg-accent/10 text-accent'}`}>
             <Icon name={info.kind === 'form' ? 'forms' : 'tasks'} className="size-7" />
           </span>
           <div className="min-w-0 flex-1">
@@ -180,7 +180,7 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
           </button>
         }
       >
-        <p className="mb-4 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-board">
+        <p className="mb-4 rounded-xl bg-board/[0.06] px-4 py-3 text-sm leading-relaxed text-accent">
           {info.kind === 'form'
             ? 'تُحذف الأصفار التلقائية لمن لم يحل ليستطيع الحل حتى الموعد الجديد. درجات من سلّم تبقى كما هي.'
             : 'يستطيع من لم يسلّم التسليم حتى الموعد الجديد، والتسليمات السابقة ودرجاتها تبقى كما هي.'}
