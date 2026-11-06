@@ -32,12 +32,12 @@ grant select on bs to public;
 -- ---------------------------------------------------------------------
 -- القائمة والجداول
 -- ---------------------------------------------------------------------
-select test.ok((select count(*) from positions) = 5, 'خمسة مناصب');
-select test.ok((select count(*) from cap_areas) = 12, 'اثنا عشر مجالًا');
+select test.ok((select count(*) from positions) = 7, 'سبعة مناصب (خمسة للفرع + مدير الفروع + مراقب الأداء)');
+select test.ok((select count(*) from cap_areas) = 13, 'ثلاثة عشر مجالًا');
 select test.ok((select level from position_caps where position = 'admissions' and area = 'students') = 3, 'القبول: تسجيل الطلاب كامل');
 select test.ok(not exists (select 1 from position_caps where position = 'admissions' and area in ('attendance', 'behavior', 'grading', 'results')),
   'القبول لا يملك التحضير ولا السلوك ولا الدرجات');
-select test.ok(not exists (select 1 from position_caps where position <> 'branch_manager' and area = 'employee_accounts'), 'حسابات الموظفين لمدير الفرع وحده');
+select test.ok(not exists (select 1 from position_caps where position not in ('branch_manager', 'branches_director') and area = 'employee_accounts'), 'حسابات الموظفين لمدير الفرع وحده');
 select test.ok(not exists (select 1 from position_caps where position = 'students_supervisor' and area in ('tasks', 'grading')),
   'مشرف الطلاب لا يرى المهام ولا الدرجات');
 

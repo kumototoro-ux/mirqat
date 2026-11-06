@@ -33,6 +33,10 @@ export const STAFF_NAV: NavGroup[] = [
     ],
   },
   {
+    title: 'المتابعة',
+    items: [{ href: '/staff/performance', label: 'تقارير الأداء', icon: 'flag', roles: ['admin'], area: 'performance', min: 2 }],
+  },
+  {
     title: 'المستخدمون',
     items: [
       { href: '/staff/students', label: 'تسجيل الطلاب', icon: 'students', roles: ['admin'], area: 'students' },
