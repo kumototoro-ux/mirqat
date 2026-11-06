@@ -62,7 +62,7 @@ export async function listCerts(f: { q?: string; type?: AppreciationType | null;
 export type TopRow = { rank: number; student_id: number; name: string; code: string; class_label: string; pct: number; n: number; absent?: number; late?: number; issued: boolean };
 
 export async function branchTop(kind: 'top' | 'attendance', branch: number, term: number | null): Promise<Res<TopRow[]>> {
-  await requireUser(['admin']);
+  await requireUser(STAFF);   // الصلاحية والفرع تفرضهما القاعدة (cert_top)
   const supabase = await createClient();
   const { data, error } = await supabase.rpc('cert_top', { p_kind: kind, p_branch: branch, p_term: term });
   if (error) return { ok: false, error: friendly(error.message) };

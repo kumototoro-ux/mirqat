@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth/session';
+import { getMyAccess } from '@/lib/access/server';
+import { levelOf } from '@/lib/access/areas';
 import { createClient } from '@/lib/supabase/server';
 import { getClasses, getSchoolName } from '@/lib/data';
 import type { ClassReport } from '@/lib/results/shared';
@@ -16,7 +18,7 @@ export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
-  if (!user || user.role !== 'admin' || user.status !== 'active') return NextResponse.json({ error: 'forbidden' }, { status: 403 });
+  if (!user || user.status !== 'active' || user.mustChangePassword || (user.role !== 'admin' && (user.role !== 'teacher' || levelOf(await getMyAccess(), 'results') < 1))) return NextResponse.json({ error: 'forbidden' }, { status: 403 });   // صاحب منصب: والفرع تفرضه class_results
   const url = new URL(request.url);
   const classId = Number(url.searchParams.get('class'));
   const termId = Number(url.searchParams.get('term'));
