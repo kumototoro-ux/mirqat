@@ -77,12 +77,19 @@ export default async function StudentProfile({
       .order('recorded_at', { ascending: false })
       .limit(12)
       .returns<Entry[]>(),
-    supabase.from('attendance_records').select('status:attendance_statuses(name)').eq('student_id', studentId).returns<{ status: { name: string } | null }[]>(),
+    // عدّ دقيق بلا تحميل صفوف: الحصص في سنة كاملة قد تتجاوز حد الألف صف فيُقتطع العدّ بصمت
+    supabase.from('attendance_statuses').select('id, name').order('id'),
     supabase.from('subjects').select('id, name'),
   ]);
 
   const att = new Map<string, number>();
-  (attendance ?? []).forEach((a) => att.set(a.status?.name ?? '—', (att.get(a.status?.name ?? '—') ?? 0) + 1));
+  const counts = await Promise.all(
+    (attendance ?? []).map(async (st) => {
+      const { count } = await supabase.from('attendance_records').select('id', { count: 'exact', head: true }).eq('student_id', studentId).eq('status_id', st.id);
+      return [st.name as string, count ?? 0] as const;
+    }),
+  );
+  counts.forEach(([name, n]) => { if (n > 0) att.set(name, n); });
   const subjectName = (sid: number) => subjects?.find((x) => x.id === sid)?.name ?? '—';
   const acc = s.profile?.[0];
   const avg = totals?.length ? totals.reduce((a, t) => a + Number(t.total), 0) / totals.length : null;
@@ -115,7 +122,7 @@ export default async function StudentProfile({
           items={[
             { label: 'متوسط المواد', value: avg != null ? fmtNum(avg, 1) : '—', hint: terms.find((t) => t.id === termId)?.name },
             { label: 'مواد مرصودة', value: fmtNum(totals?.length ?? 0) },
-            { label: 'سجلات التحضير', value: fmtNum(attendance?.length ?? 0) },
+            { label: 'سجلات التحضير', value: fmtNum([...att.values()].reduce((a, n) => a + n, 0)) },
             {
               label: 'غياب',
               value: fmtNum([...att.entries()].filter(([k]) => /غائب|غياب/.test(k)).reduce((a, [, n]) => a + n, 0)),
