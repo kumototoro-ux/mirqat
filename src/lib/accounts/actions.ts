@@ -198,9 +198,13 @@ export async function setAccountStatus(kind: AccountKind, userId: string, status
 
 /** إيقاف أو تفعيل عدة حسابات دفعة واحدة (حسابك أنت يُستثنى) */
 export async function setAccountsStatus(kind: AccountKind, userIds: string[], status: 'active' | 'disabled'): Promise<ActionResult> {
-  const me = await requireUser(['admin']);
+  const me = await needAccounts(kind, 2);
   const ids = userIds.filter((id) => id !== me.id).slice(0, 100);
   if (!ids.length) return { ok: false, error: 'لا حسابات صالحة في التحديد' };
+  // غير الإداري: كل حساب في نطاقه ورتبته (can_manage_profile)، وإلا يُرفض التحديد كله
+  if (me.role !== 'admin') {
+    for (const id of ids) if (!(await canManage({ userId: id }))) return { ok: false, error: DENIED };
+  }
   const admin = createAdminClient();
   let done = 0;
   for (const id of ids) {

@@ -146,8 +146,8 @@ export function EmployeesRegistry({
             <BulkButton onClick={() => downloadCsv('موظفون', ['الرمز', 'الاسم', 'النوع', 'المسمى', 'الفرع', 'المواد', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.user_type === 'admin' ? 'إداري' : 'معلم', r.job_role, r.branches.join('، '), r.subjects.join('، '), r.is_active ? 'نشط' : 'غير نشط']))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
-            {isAdmin && rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
-            {isAdmin && rows.some((r) => !r.is_active) && <BulkButton busy={bulkBusy} onClick={() => bulkActive(rows, true, clear)}>تفعيل</BulkButton>}
+            {level >= 2 && rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
+            {level >= 2 && rows.some((r) => !r.is_active) && <BulkButton busy={bulkBusy} onClick={() => bulkActive(rows, true, clear)}>تفعيل</BulkButton>}
           </>
         )}
         columns={[
@@ -199,6 +199,7 @@ export function EmployeesRegistry({
         open={editing !== null}
         initial={editing === 'new' ? null : editing}
         lookups={lookups}
+        canAdmin={isAdmin}
         onClose={() => setEditing(null)}
         onSaved={(m) => {
           toast(m);

@@ -168,10 +168,10 @@ export function StudentsRegistry({
             <BulkButton onClick={() => downloadCsv('طلاب', ['الرقم', 'الاسم', 'الهوية', 'الفصل', 'الجنس', 'الجنسية', 'الرسوم', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.national_id, r.class_label, r.gender, r.nationality, r.fee_status, STATUS[r.status].label]))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
-            {isAdmin && rows.some((r) => r.status === 'active') && (
+            {level >= 2 && rows.some((r) => r.status === 'active') && (
               <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkStatus(rows, 'withdrawn', clear)}>منسحب</BulkButton>
             )}
-            {isAdmin && rows.some((r) => r.status !== 'active') && (
+            {level >= 2 && rows.some((r) => r.status !== 'active') && (
               <BulkButton busy={bulkBusy} onClick={() => bulkStatus(rows, 'active', clear)}>منتظم</BulkButton>
             )}
           </>
