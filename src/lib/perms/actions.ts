@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { selectAll } from '@/lib/supabase/all';
 import type { ActionResult } from '@/components/registry/types';
 import { PERM_KEYS, type PermKey } from './keys';
 
@@ -23,8 +24,8 @@ export async function getPermMatrix(): Promise<PermMatrix> {
   const supabase = await createClient();
   const [keysRes, empRes, permRes] = await Promise.all([
     supabase.from('permission_keys').select('key, name_ar, hint, teacher_default').order('sort'),
-    supabase.from('employees').select('id, code, name_ar, profiles(id)').eq('is_active', true).neq('user_type', 'admin').order('name_ar').limit(2000),
-    supabase.from('user_permissions').select('employee_id, key, granted').limit(20000),
+    selectAll<{ id: number; code: string; name_ar: string; profiles: unknown }>((a, b) => supabase.from('employees').select('id, code, name_ar, profiles(id)').eq('is_active', true).neq('user_type', 'admin').order('name_ar').order('id').range(a, b)),
+    selectAll<{ employee_id: number; key: string; granted: boolean }>((a, b) => supabase.from('user_permissions').select('employee_id, key, granted').order('employee_id').order('key').range(a, b)),
   ]);
   if (keysRes.error) throw new Error(keysRes.error.message);
   if (empRes.error) throw new Error(empRes.error.message);

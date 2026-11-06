@@ -3,6 +3,7 @@
 import { revalidatePath, updateTag } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { selectAll } from '@/lib/supabase/all';
 import { REF_TAG, getClasses } from '@/lib/data';
 import type { ActionResult } from '@/components/registry/types';
 
@@ -52,7 +53,7 @@ export async function getScheduleLookups(): Promise<ScheduleLookups> {
     supabase.from('classes').select('id, branch_id, grade_id, section_id').eq('is_active', true),
     supabase.from('timetable_slots').select('delivery_mode').not('delivery_mode', 'is', null).limit(500),
   ]);
-  const sm = await supabase.from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').limit(5000);
+  const sm = await selectAll<{ branch_id: number; grade_id: number; section_id: number | null; subject_id: number }>((a, b) => supabase.from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').order('id').range(a, b));
   const cls = (matrix.data ?? []) as { id: number; branch_id: number; grade_id: number; section_id: number }[];
   const pairs: { class_id: number; subject_id: number }[] = [];
   for (const c of cls)

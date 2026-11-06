@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextFetchEvent, type NextRequest } from 'next/server';
 import { homeFor, readSessionMeta } from '@/lib/auth/roles';
 import { diagnose } from '@/lib/track/diagnose';
+import { buildCsp } from '@/lib/csp';
 
 /**
  * يعمل قبل كل صفحة:
@@ -14,10 +15,15 @@ const LOGIN_PATHS = ['/login', '/student/login'];
 const PUBLIC_PATHS = [...LOGIN_PATHS, '/auth/signout', '/api/cron'];
 
 /** مسار الصفحة لمركز التتبع: الصفحات والعمليات تعرف أين وقع الخطأ */
-function pass(request: NextRequest) {
+function pass(request: NextRequest, nonce: string) {
+  const csp = buildCsp(nonce);
   const h = new Headers(request.headers);
   h.set('x-mq-path', (request.nextUrl.pathname + request.nextUrl.search).slice(0, 300));
-  return NextResponse.next({ request: { headers: h } });
+  // Next يقرأ nonce من ترويسة الطلب ويضعه على سكربتاته
+  h.set('Content-Security-Policy', csp);
+  const res = NextResponse.next({ request: { headers: h } });
+  res.headers.set('Content-Security-Policy', csp);
+  return res;
 }
 
 /** فتح صفحة ليست من صلاحية الدور: يُسجَّل تنبيهًا أمنيًا في مركز التتبع (بعد الرد) */
@@ -39,7 +45,8 @@ function trackForbidden(event: NextFetchEvent, request: NextRequest, sub: string
 }
 
 export async function proxy(request: NextRequest, event: NextFetchEvent) {
-  let response = pass(request);
+  const nonce = btoa(crypto.randomUUID());
+  let response = pass(request, nonce);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -51,7 +58,7 @@ export async function proxy(request: NextRequest, event: NextFetchEvent) {
         },
         setAll(cookiesToSet, headers) {
           cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = pass(request);
+          response = pass(request, nonce);
           cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
           Object.entries(headers ?? {}).forEach(([key, value]) => response.headers.set(key, value));
         },

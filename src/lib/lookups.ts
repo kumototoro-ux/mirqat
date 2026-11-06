@@ -3,6 +3,7 @@ import { cache } from 'react';
 import { unstable_cache } from 'next/cache';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { REF_TAG } from '@/lib/data';
+import { selectAll } from '@/lib/supabase/all';
 
 export type Lookups = {
   branches: { id: number; name: string }[];
@@ -24,7 +25,7 @@ const cachedLookups = unstable_cache(
     supabase.from('grades').select('id, name, stage_id').order('sort_order'),
     supabase.from('sections').select('id, name').order('sort_order'),
     supabase.from('subjects').select('id, name').eq('is_active', true).order('sort_order'),
-    supabase.from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').limit(5000),
+    selectAll<{ branch_id: number; grade_id: number; section_id: number | null; subject_id: number }>((a, z) => supabase.from('subject_matrix').select('branch_id, grade_id, section_id, subject_id').order('id').range(a, z)),
   ]);
   return {
     branches: b.data ?? [],

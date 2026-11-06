@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { createClient } from '@/lib/supabase/server';
+import { selectAll } from '@/lib/supabase/all';
 import type { ActionResult } from '@/components/registry/types';
 
 export type PositionInfo = { code: string; name: string; nameF: string; caps: { area: string; level: number }[] };
@@ -28,8 +29,8 @@ export async function getPositionBoard(): Promise<PositionBoard> {
     supabase.from('position_caps').select('position, area, level'),
     supabase.from('cap_areas').select('area, name_ar').order('sort'),
     supabase.from('branches').select('id, name, has_building').order('id'),
-    supabase.from('employees').select('id, code, name_ar').eq('is_active', true).neq('user_type', 'admin').order('name_ar').limit(2000),
-    supabase.from('employee_positions').select('employee_id, position, branch_id').limit(20000),
+    selectAll<{ id: number; code: string; name_ar: string }>((a, b) => supabase.from('employees').select('id, code, name_ar').eq('is_active', true).neq('user_type', 'admin').order('name_ar').order('id').range(a, b)),
+    selectAll<{ employee_id: number; position: string; branch_id: number }>((a, b) => supabase.from('employee_positions').select('employee_id, position, branch_id').order('employee_id').order('position').order('branch_id').range(a, b)),
   ]);
   for (const r of [pos, caps, areas, branches, emps, assigned]) if (r.error) throw new Error(r.error.message);
 
