@@ -13,6 +13,7 @@ import { Sheet } from '@/components/sheet';
 import { fmtDateTime } from '@/lib/format';
 import { getAuditEntry, listAudit, type AuditRow } from './actions';
 import { TABLES } from '@/lib/track/labels';
+import { PERM_LABEL } from '@/lib/perms/keys';
 
 export type ActivityReport = {
   totals: { all: number; today: number; week: number; prev_week: number; logins_week: number; deletes_week: number; actors_week: number };
@@ -30,11 +31,13 @@ const FIELD: Record<string, string> = {
   fee_status: 'الرسوم', gender: 'الجنس', nationality: 'الجنسية', birth_date: 'الميلاد', is_active: 'نشط', user_type: 'النوع',
   job_role: 'المسمى', role: 'الدور', username: 'اسم المستخدم', must_change_password: 'كلمة مؤقتة', title: 'العنوان',
   score: 'الدرجة', max_score: 'الدرجة العظمى', value: 'القيمة', key: 'المفتاح', due_at: 'التسليم', is_edited: 'تم التعديل',
-  is_public: 'ظاهر للجميع', updated_by: 'آخر من عدّل', created_by: 'أنشأه', last_login_at: 'آخر دخول', employee_id: 'الموظف', student_id: 'الطالب',
+  is_public: 'ظاهر للجميع', granted: 'الحالة', updated_by: 'آخر من عدّل', created_by: 'أنشأه', last_login_at: 'آخر دخول', employee_id: 'الموظف', student_id: 'الطالب',
 };
 const HIDDEN = new Set(['created_at', 'updated_at', 'id', 'source_row', 'source_sheet', 'legacy_password_hash']);
 
-function show(v: unknown) {
+function show(v: unknown, k?: string) {
+  if (k === 'key' && typeof v === 'string' && PERM_LABEL[v]) return PERM_LABEL[v];
+  if (k === 'granted' && typeof v === 'boolean') return v ? 'ممنوح' : 'مسحوب';
   if (v === null || v === undefined || v === '') return <span className="text-muted">—</span>;
   if (typeof v === 'boolean') return v ? 'نعم' : 'لا';
   if (typeof v === 'object') return <code className="text-xs" dir="ltr">{JSON.stringify(v)}</code>;
@@ -63,8 +66,8 @@ function Changes({ id, action }: { id: number; action: string }) {
           {changed.map((k) => (
             <tr key={k}>
               <td className="px-3 py-2.5 font-medium">{FIELD[k] ?? k}</td>
-              {action !== 'INSERT' && <td className="px-3 py-2.5 text-danger/90 line-through decoration-danger/40">{show(o[k])}</td>}
-              {action !== 'DELETE' && <td className="px-3 py-2.5 font-medium text-ok">{show(n[k])}</td>}
+              {action !== 'INSERT' && <td className="px-3 py-2.5 text-danger/90 line-through decoration-danger/40">{show(o[k], k)}</td>}
+              {action !== 'DELETE' && <td className="px-3 py-2.5 font-medium text-ok">{show(n[k], k)}</td>}
             </tr>
           ))}
           {changed.length === 0 && <tr><td className="px-3 py-4 text-muted" colSpan={3}>لا اختلاف في الحقول.</td></tr>}

@@ -11,6 +11,8 @@ insert into profiles (id, username, role, student_id, status)
 select '00000000-0000-0000-0000-000000000062', 's60b', 'student', id, 'active' from students where code = 'S60B';
 
 insert into employees (code, name_ar, user_type) values ('E60', 'معلم المهام', 'teacher');
+insert into user_permissions (employee_id, key, granted)
+select e.id, k.key, true from employees e cross join permission_keys k where e.code = 'E60';
 insert into staff_scope (employee_id, branch_id) select id, 1 from employees where code = 'E60';
 insert into staff_scope (employee_id, grade_id) select id, 1 from employees where code = 'E60';
 insert into staff_scope (employee_id, section_id) select id, 1 from employees where code = 'E60';

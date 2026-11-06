@@ -9,6 +9,7 @@ import { Icon } from '@/components/shell/icons';
 import { Badge } from '@/components/ui';
 import { useFeedback } from '@/components/feedback';
 import { Sheet } from '@/components/sheet';
+import { usePerm } from '@/components/perms/perms-context';
 import { deleteAssessment, reopenForm, reopenTask, setFormStatus } from '@/lib/assess/actions';
 import type { AuthorContext } from '@/lib/assess/queries';
 import { STATUS_META, relTime, type ItemStatus } from '@/lib/assess/shared';
@@ -37,6 +38,10 @@ export type HeaderInfo = {
 };
 
 export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; tabs: { key: string; label: string; badge?: number }[]; active: string; ctx: AuthorContext }) {
+  const canReopen = usePerm('reopen');
+  const canPrint = usePerm('print_exams');
+  const canScan = usePerm('camera_grading');
+  const canCopy = usePerm('copy_assessment');
   const router = useRouter();
   const { toast, confirm } = useFeedback();
   // التبويب المضغوط يُبرز فورًا قبل وصول محتواه
@@ -119,7 +124,7 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
               {info.kind === 'form' && info.status === 'open' && (
                 <button type="button" onClick={() => status('closed')} className="btn-danger">إغلاق الآن</button>
               )}
-              {info.status === 'closed' && (
+              {info.status === 'closed' && canReopen && (
                 <button type="button" onClick={() => setReopen(true)} className="btn-quiet"><Icon name="undo" className="size-4" /> إعادة فتح</button>
               )}
               {info.kind === 'form' && info.formStatus !== 'draft' && !info.hasAttempts && (
@@ -130,11 +135,11 @@ export function DetailHeader({ info, tabs, active, ctx }: { info: HeaderInfo; ta
               )}
               {info.kind === 'form' && (
                 <>
-                  <Link href={`/staff/print/${info.id}`} className="btn-quiet"><Icon name="download" className="size-4" /> طباعة</Link>
-                  <Link href={`/staff/scan/${info.id}`} className="btn-quiet"><Icon name="camera" className="size-4" /> تصحيح بالكاميرا</Link>
+                  {canPrint && <Link href={`/staff/print/${info.id}`} className="btn-quiet"><Icon name="download" className="size-4" /> طباعة</Link>}
+                  {canScan && <Link href={`/staff/scan/${info.id}`} className="btn-quiet"><Icon name="camera" className="size-4" /> تصحيح بالكاميرا</Link>}
                 </>
               )}
-              <button type="button" onClick={() => setCopy(true)} className="btn-quiet"><Icon name="copy" className="size-4" /> نسخ</button>
+              {canCopy && <button type="button" onClick={() => setCopy(true)} className="btn-quiet"><Icon name="copy" className="size-4" /> نسخ</button>}
               <button type="button" onClick={remove} className="btn-quiet px-3 text-danger hover:border-danger/40" aria-label="حذف"><Icon name="trash" className="size-4" /></button>
             </div>
           )}

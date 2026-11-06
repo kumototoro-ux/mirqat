@@ -38,6 +38,7 @@ export const STAFF_NAV: NavGroup[] = [
       { href: '/staff/employees', label: 'تسجيل الموظفين', icon: 'employees', roles: ['admin'] },
       { href: '/staff/student-accounts', label: 'حسابات الطلاب', icon: 'accounts', roles: ['admin'] },
       { href: '/staff/employee-accounts', label: 'حسابات الموظفين', icon: 'key', roles: ['admin'] },
+      { href: '/staff/permissions', label: 'صلاحيات المعلمين', icon: 'settings', roles: ['admin'] },
     ],
   },
   {

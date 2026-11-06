@@ -3,10 +3,12 @@ import { STAFF_NAV, navFor } from '@/components/shell/nav';
 import { requireUser } from '@/lib/auth/session';
 import { getSchoolName } from '@/lib/data';
 import { shellContext } from '@/lib/week';
+import { getMyPerms } from '@/lib/perms/server';
+import { PermsProvider } from '@/components/perms/perms-context';
 
 export default async function StaffLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser(['admin', 'teacher']);
-  const [schoolName, ctx] = await Promise.all([getSchoolName(), shellContext()]);
+  const [schoolName, ctx, perms] = await Promise.all([getSchoolName(), shellContext(), getMyPerms()]);
   return (
     <AppShell
       nav={navFor(STAFF_NAV, user.role)}
@@ -15,7 +17,7 @@ export default async function StaffLayout({ children }: { children: React.ReactN
       schoolName={schoolName}
       {...ctx}
     >
-      {children}
+      <PermsProvider perms={perms}>{children}</PermsProvider>
     </AppShell>
   );
 }

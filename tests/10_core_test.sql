@@ -78,6 +78,9 @@ insert into calendar_entries (term_id, week_label, starts_on, ends_on, event) va
 
 insert into employees (code, name_ar, user_type) values
   ('E0', 'المدير', 'admin'), ('E1', 'معلم الرياضيات', 'teacher'), ('E2', 'معلم بلا قيود', 'teacher');
+-- معلمو الاختبارات القديمة يملكون كل المفاتيح (كما يحتفظ المعلمون الحاليون بما عندهم عند الهجرة 35)
+insert into user_permissions (employee_id, key, granted)
+select e.id, k.key, true from employees e cross join permission_keys k where e.user_type = 'teacher';
 insert into staff_scope (employee_id, branch_id) values (2, 1);
 insert into staff_scope (employee_id, section_id) values (2, 1);
 insert into staff_scope (employee_id, subject_id) values (2, 1);
