@@ -15,7 +15,7 @@ export default async function ChangePasswordPage() {
   const forced = user.mustChangePassword;
 
   return (
-    <main className="flex min-h-dvh items-start justify-center px-5 py-12 sm:items-center">
+    <main id="main-content" tabIndex={-1} className="flex min-h-dvh items-start justify-center px-5 py-12 sm:items-center">
       <PageTransition>
       <div className="w-full max-w-sm animate-fade-up">
         <Brand>

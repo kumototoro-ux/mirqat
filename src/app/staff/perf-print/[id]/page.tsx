@@ -18,7 +18,7 @@ export default async function PerfPrint({ params }: { params: Promise<{ id: stri
   const [r, school] = await Promise.all([perfGet(id), getSchoolName()]);
   if (!r) notFound();
   return (
-    <main className="mx-auto max-w-3xl p-6 print:p-0">
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-3xl p-6 print:p-0">
       <div className="mb-4 flex items-center justify-between print:hidden">
         <p className="text-sm text-muted">اختر «حفظ كـ PDF» من نافذة الطباعة</p>
         <PrintButton />

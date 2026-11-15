@@ -286,6 +286,90 @@ body {
   }
 }
 
+
+/* ---------------------------------------------------------------------
+   إمكانية الوصول: السمات data-a11y-* تُضبط على <html> من كوكي mq-a11y
+--------------------------------------------------------------------- */
+.skip-link {
+  position: fixed; inset-block-start: 0.5rem; inset-inline-start: 0.5rem; z-index: 100;
+  transform: translateY(-200%); padding: 0.6rem 1rem; border-radius: 0.75rem;
+  background: var(--color-board); color: var(--color-chalk); font-weight: 600;
+}
+.skip-link:focus { transform: none; }
+main:focus { outline: none; }
+
+html[data-a11y-text="1"] { font-size: 116%; }
+html[data-a11y-text="2"] { font-size: 128%; }
+html[data-a11y-text="3"] { font-size: 142%; }
+/* الخط الكبير يوسّع الأعمدة المحسوبة بالـ rem: القائمة الجانبية لا تأخذ أكثر من ربع الشاشة */
+html[data-a11y-text] { --mq-side: min(17.5rem, 25vw); }
+
+html[data-a11y-font] body, html[data-a11y-font] button, html[data-a11y-font] input, html[data-a11y-font] select, html[data-a11y-font] textarea {
+  font-family: system-ui, Tahoma, "Segoe UI", Arial, sans-serif;
+  letter-spacing: 0.02em; word-spacing: 0.14em; line-height: 1.95;
+}
+html[data-a11y-font] :is(h1, h2, h3, h4, .font-display) { font-family: system-ui, Tahoma, "Segoe UI", Arial, sans-serif; }
+
+html[data-a11y-motion] *, html[data-a11y-motion] *::before, html[data-a11y-motion] *::after {
+  animation-duration: 0.01ms !important; animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important; scroll-behavior: auto !important;
+}
+
+html[data-a11y-links] a { text-decoration: underline !important; text-decoration-thickness: 2px; text-underline-offset: 4px; }
+
+html[data-a11y-cursor], html[data-a11y-cursor] body {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24'><path d='M4 2l15 9-6.5 1.6L9.5 19z' fill='black' stroke='white' stroke-width='1.6' stroke-linejoin='round'/></svg>") 4 2, auto;
+}
+html[data-a11y-cursor] :is(a, button, [role="button"], [role="radio"], [role="switch"], summary, label, select) {
+  cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 24 24'><path d='M4 2l15 9-6.5 1.6L9.5 19z' fill='%23d9a441' stroke='black' stroke-width='1.6' stroke-linejoin='round'/></svg>") 4 2, pointer;
+}
+
+/* التباين العالي: نص أسود/أبيض خالص وحدود واضحة على كل الحقول والأزرار */
+@media screen {
+  html[data-a11y-contrast] {
+    --color-ink: #000;
+    --color-muted: #1c2420;
+    --color-line: #5c6a63;
+    --color-danger: #9c1a10;
+    --color-ok: #0a5a38;
+    --color-brass: #6b4a08;
+    --color-paper: #fff;
+    --color-board: color-mix(in oklab, var(--pal) 70%, #000);
+    --color-accent: color-mix(in oklab, var(--pal) 65%, #000);
+  }
+  html[data-a11y-contrast][data-theme="dark"] {
+    --color-ink: #fff;
+    --color-muted: #f1f5f3;
+    --color-line: #9aa8a1;
+    --color-paper: #000;
+    --color-surface: #0b0e0d;
+    --color-danger: #ffb4aa;
+    --color-ok: #8be8b6;
+    --color-brass: #ffd37a;
+    --color-accent: color-mix(in oklab, var(--pal) 35%, #fff);
+    --color-board: color-mix(in oklab, var(--pal) 60%, #000);
+  }
+  @media (prefers-color-scheme: dark) {
+    html[data-a11y-contrast]:not([data-theme="light"]) {
+      --color-ink: #fff;
+      --color-muted: #f1f5f3;
+      --color-line: #9aa8a1;
+      --color-paper: #000;
+      --color-surface: #0b0e0d;
+      --color-danger: #ffb4aa;
+      --color-ok: #8be8b6;
+      --color-brass: #ffd37a;
+      --color-accent: color-mix(in oklab, var(--pal) 35%, #fff);
+      --color-board: color-mix(in oklab, var(--pal) 60%, #000);
+    }
+  }
+  html[data-a11y-contrast] :is(.field, input, select, textarea) { border-color: var(--color-ink); border-width: 2px; }
+  html[data-a11y-contrast] :focus-visible { outline: 3px solid var(--color-ink); outline-offset: 3px; box-shadow: 0 0 0 6px var(--color-surface); }
+}
+@media print {
+  html[data-a11y-text] { font-size: 88% !important; }
+}
+
 /* حقول الإدخال والأزرار — نمط واحد لكل الموقع */
 @utility field {
   @apply block w-full rounded-md border border-line bg-surface px-3 py-2.5 text-base text-ink

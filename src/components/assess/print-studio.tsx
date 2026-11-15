@@ -175,7 +175,7 @@ export function PrintStudio({ data, brand }: { data: PrintData; brand: Appreciat
         </aside>
 
         {/* المعاينة = ما يُطبع */}
-        <main className="min-w-0 overflow-x-auto print:overflow-visible">
+        <main id="main-content" tabIndex={-1} className="min-w-0 overflow-x-auto print:overflow-visible">
           {!questions.length ? (
             <div className="no-print rounded-2xl bg-surface p-10 text-center text-muted">لا أسئلة في هذا النموذج بعد.</div>
           ) : doc === 'paper' || doc === 'teacher' ? (
