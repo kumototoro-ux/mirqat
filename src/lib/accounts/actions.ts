@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
 import { getMyAccess } from '@/lib/access/server';
 import { levelOf } from '@/lib/access/areas';
+import { bulkMessage, type BulkDeleteResult } from '@/lib/bulk';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createAccount, resetPassword, setStatus } from '@/lib/accounts/core';
@@ -217,4 +218,34 @@ export async function setAccountsStatus(kind: AccountKind, userIds: string[], st
   }
   paths(kind);
   return { ok: true, message: `${status === 'active' ? 'تم تفعيل' : 'تم إيقاف'} ${done} حساب` };
+}
+
+
+/**
+ * حذف حساب الدخول فقط (يبقى سجل الموظف/الطالب وكل بياناته، ويمكن إنشاء حساب جديد له).
+ * غير الإداري: الحساب داخل نطاقه ورتبته (can_manage_profile). حسابك أنت يُستثنى دائمًا.
+ */
+export async function deleteAccounts(kind: AccountKind, userIds: string[]): Promise<BulkDeleteResult> {
+  const me = await needAccounts(kind, 2);
+  const list = [...new Set(userIds)].filter((id) => id !== me.id).slice(0, 100);
+  if (!list.length) return { ok: false, error: 'لا حسابات صالحة في التحديد (حسابك أنت لا يُحذف)' };
+  const supabase = await createClient();
+  const { data: profs } = await supabase.from('profiles').select('id, username, role, student_id, employee_id').in('id', list);
+  const info = new Map((profs ?? []).map((p) => [p.id as string, p as { id: string; username: string; role: string }]));
+  const admin = createAdminClient();
+  let deleted = 0;
+  const failed: { name: string; reason: string }[] = [];
+  for (const id of list) {
+    const label = info.get(id)?.username ?? id.slice(0, 8);
+    const p = info.get(id);
+    // الحساب يجب أن يطابق نوع الشاشة (لا يُحذف حساب موظف من شاشة الطلاب)
+    if (!p || (kind === 'student') !== (p.role === 'student')) { failed.push({ name: label, reason: 'حساب غير موجود في هذه القائمة' }); continue; }
+    if (me.role !== 'admin' && !(await canManage({ userId: id }))) { failed.push({ name: label, reason: 'خارج صلاحيتك' }); continue; }
+    const { error } = await admin.auth.admin.deleteUser(id);
+    if (error) { failed.push({ name: label, reason: 'تعذّر الحذف' }); console.error('delete account', id, error); continue; }
+    deleted++;
+  }
+  paths(kind);
+  if (!deleted) return { ok: false, error: bulkMessage('حساب', 0, failed) };
+  return { ok: true, deleted, failed, message: bulkMessage('حساب', deleted, failed) };
 }

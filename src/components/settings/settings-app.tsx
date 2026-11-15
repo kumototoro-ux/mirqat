@@ -15,7 +15,7 @@ import { normalizeCert } from '@/lib/results/certificate';
 
 export type SettingsData = {
   settings: Record<string, unknown>;
-  lists: Record<'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses', RefItem[]>;
+  lists: Record<'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses' | 'job_titles', RefItem[]>;
   weights: { subject_id: number; eval_type_id: number; weight: number }[];
   terms: string[];
 };
@@ -28,6 +28,7 @@ const REF: Record<string, { table: RefTable; title: string; description: string;
   subjects: { table: 'subjects', title: 'المواد', description: 'المادة المعطّلة تختفي من نماذج التسجيل والتوزيع الجديدة، وتبقى درجاتها السابقة.', hasActive: true },
   attendance: { table: 'attendance_statuses', title: 'حالات الحضور', description: 'تظهر للمعلم عند تحضير كل حصة.' },
   behavior: { table: 'behavior_statuses', title: 'حالات السلوك', description: 'تظهر عند تسجيل ملاحظة سلوكية.' },
+  job_titles: { table: 'job_titles', title: 'المسميات الوظيفية', description: 'تظهر كاختيارات عند تسجيل الموظف. حذف مسمى من القائمة لا يغيّر مسمى من سُجّل به سابقًا.' },
 };
 
 const asArray = (v: unknown) => (Array.isArray(v) ? v.map(String) : typeof v === 'string' && v ? [v] : []);

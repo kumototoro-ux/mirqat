@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import type { Lookups } from '@/lib/lookups';
-import { deleteStudent, getStudent, listStudents, setStudentsStatus, type StudentForm, type StudentRow } from './actions';
+import { deleteStudent, deleteStudents, getStudent, listStudents, setStudentsStatus, type StudentForm, type StudentRow } from './actions';
 import { StudentFormSheet } from './student-form';
 
 const STATUS = {
@@ -64,6 +64,27 @@ export function StudentsRegistry({
     setBulkBusy(false);
     if (!res.ok) return toast(res.error, 'error');
     toast(res.message);
+    clear();
+    registry.current?.invalidate();
+    router.refresh();
+  };
+
+  const bulkRemove = async (rows: StudentRow[], clear: () => void) => {
+    const withAcc = rows.filter((r) => r.has_account).length;
+    const ok = await confirm({
+      title: `حذف ${rows.length} طالب نهائيًا؟`,
+      body: (
+        <>
+          يُحذف سجلهم{withAcc ? ` وحسابات دخول ${withAcc} منهم` : ''}. لا يمكن التراجع.
+          <br />
+          من له درجات أو تحضير أو سلوك <b className="text-ink">لا يُحذف</b> ويبقى، وسيُذكر سببه بعد التنفيذ — غيّر حالته إلى "منسحب" بدل الحذف.
+        </>
+      ),
+      confirmLabel: `حذف ${rows.length} نهائيًا`,
+      danger: true,
+      run: () => deleteStudents(rows.map((r) => r.id)),
+    });
+    if (!ok) return;
     clear();
     registry.current?.invalidate();
     router.refresh();
@@ -174,6 +195,7 @@ export function StudentsRegistry({
             {level >= 2 && rows.some((r) => r.status !== 'active') && (
               <BulkButton busy={bulkBusy} onClick={() => bulkStatus(rows, 'active', clear)}>منتظم</BulkButton>
             )}
+            {level >= 3 && <BulkButton tone="danger" onClick={() => bulkRemove(rows, clear)}><Icon name="trash" className="size-4" /> حذف</BulkButton>}
           </>
         )}
         columns={[

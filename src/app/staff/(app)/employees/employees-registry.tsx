@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import type { Lookups } from '@/lib/lookups';
-import { deleteEmployee, getEmployee, listEmployees, setEmployeesActive, type EmployeeForm, type EmployeeRow } from './actions';
+import { deleteEmployee, deleteEmployees, getEmployee, listEmployees, setEmployeesActive, type EmployeeForm, type EmployeeRow } from './actions';
 import { EmployeeFormSheet } from './employee-form';
 
 export function EmployeesRegistry({
@@ -52,6 +52,27 @@ export function EmployeesRegistry({
     setBulkBusy(false);
     if (!res.ok) return toast(res.error, 'error');
     toast(res.message);
+    clear();
+    registry.current?.invalidate();
+    router.refresh();
+  };
+
+  const bulkRemove = async (rows: EmployeeRow[], clear: () => void) => {
+    const withAcc = rows.filter((r) => r.has_account).length;
+    const ok = await confirm({
+      title: `حذف ${rows.length} موظف نهائيًا؟`,
+      body: (
+        <>
+          يُحذف سجلهم ونطاقهم{withAcc ? ` وحسابات دخول ${withAcc} منهم` : ''}. لا يمكن التراجع.
+          <br />
+          من له حصص أو مهام أو رصد مسجّل باسمه <b className="text-ink">لا يُحذف</b> ويبقى، وسيُذكر سببه بعد التنفيذ — أوقفه بدل الحذف.
+        </>
+      ),
+      confirmLabel: `حذف ${rows.length} نهائيًا`,
+      danger: true,
+      run: () => deleteEmployees(rows.map((r) => r.id)),
+    });
+    if (!ok) return;
     clear();
     registry.current?.invalidate();
     router.refresh();
@@ -148,6 +169,7 @@ export function EmployeesRegistry({
             </BulkButton>
             {level >= 2 && rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
             {level >= 2 && rows.some((r) => !r.is_active) && <BulkButton busy={bulkBusy} onClick={() => bulkActive(rows, true, clear)}>تفعيل</BulkButton>}
+            {isAdmin && <BulkButton tone="danger" onClick={() => bulkRemove(rows, clear)}><Icon name="trash" className="size-4" /> حذف</BulkButton>}
           </>
         )}
         columns={[
