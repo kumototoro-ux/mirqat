@@ -3,7 +3,7 @@ import { LogoMark } from '@/components/home/logo-mark';
 
 export default function NotFound() {
   return (
-    <main className="grid min-h-dvh place-items-center bg-paper px-6">
+    <main id="main-content" tabIndex={-1} className="grid min-h-dvh place-items-center bg-paper px-6">
       <div className="text-center">
         <LogoMark className="mx-auto h-16 w-16" animated />
         <p className="mt-6 font-display text-7xl font-bold text-accent/20">404</p>

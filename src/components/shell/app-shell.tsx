@@ -333,7 +333,7 @@ function ShellInner(props: Props) {
       <Suspense>
         <NavProgress />
       </Suspense>
-      <style>{`@media print{.mq-shell{display:block!important}}@media (min-width:1024px){.mq-shell{grid-template-columns:${collapsed ? '5.5rem' : '17.5rem'} minmax(0,1fr)}}`}</style>
+      <style>{`@media print{.mq-shell{display:block!important}}@media (min-width:1024px){.mq-shell{grid-template-columns:${collapsed ? '5.5rem' : 'var(--mq-side,17.5rem)'} minmax(0,1fr)}}`}</style>
         <div className="mq-shell min-h-dvh lg:grid lg:transition-[grid-template-columns] lg:duration-300">
           <aside className="sticky top-0 z-40 hidden h-dvh bg-board text-chalk lg:block print:!hidden">
             <Sidebar {...props} path={path} collapsed={collapsed} />
@@ -420,7 +420,7 @@ function ShellInner(props: Props) {
               </div>
             </header>
 
-            <main className="flex-1 px-4 pb-32 pt-6 sm:px-8 lg:pb-12 lg:pt-8 print:p-0">
+            <main id="main-content" tabIndex={-1} className="flex-1 px-4 pb-32 pt-6 sm:px-8 lg:pb-12 lg:pt-8 print:p-0">
               <motion.div
                 key={realPath}
                 initial={{ opacity: 0, y: 14 }}

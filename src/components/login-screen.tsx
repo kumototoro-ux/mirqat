@@ -40,7 +40,7 @@ export async function LoginScreen({ portal, reason }: { portal: Portal; reason?:
   const schoolName = typeof school === 'string' && school.trim() && school.trim() !== 'مِرقاة' ? school.trim() : null;
 
   return (
-    <main className="grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+    <main id="main-content" tabIndex={-1} className="grid min-h-dvh lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
       <BoardPanel schoolName={schoolName} portal={copy.portal} />
 
       <section className="relative isolate flex flex-col overflow-hidden px-5 py-6 sm:px-10">

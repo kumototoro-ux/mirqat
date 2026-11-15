@@ -20,7 +20,7 @@ export default async function Home() {
   return (
     <>
       <SiteHeader logoUrl={logoUrl} />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <Hero schoolName={schoolName} />
         <About schoolName={schoolName} />
         <Beneficiaries />

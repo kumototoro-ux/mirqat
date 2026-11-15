@@ -176,7 +176,7 @@ function Studio({ data, initialStatus }: { data: PrintData; initialStatus: Paper
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl space-y-4 px-3 pt-4">
+      <main id="main-content" tabIndex={-1} className="mx-auto max-w-3xl space-y-4 px-3 pt-4">
         <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
         <input ref={upRef} type="file" accept="image/*" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
 

@@ -304,7 +304,7 @@ export function FormPlayer({ payload, backHref }: { payload: SessionPayload; bac
       )}
 
       <div className="mx-auto grid max-w-5xl gap-5 px-4 pt-4 lg:grid-cols-[1fr_15rem]">
-        <main className="min-w-0">
+        <main id="main-content" tabIndex={-1} className="min-w-0">
           {idx === 0 && view === 'single' && payload.description && (
             <div className="mb-4 rounded-2xl border border-accent/15 bg-board/[0.05] px-4 py-3 text-sm leading-relaxed">
               <RichText text={payload.description} />
