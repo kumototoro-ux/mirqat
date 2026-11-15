@@ -58,8 +58,8 @@ export async function saveSetting(key: string, value: unknown): Promise<ActionRe
 /* ---------------------------------------------------------------------
    القوائم المرجعية
 --------------------------------------------------------------------- */
-export type RefTable = 'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses';
-const TABLES: RefTable[] = ['branches', 'stages', 'grades', 'sections', 'subjects', 'eval_types', 'attendance_statuses', 'behavior_statuses'];
+export type RefTable = 'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses' | 'job_titles';
+const TABLES: RefTable[] = ['branches', 'stages', 'grades', 'sections', 'subjects', 'eval_types', 'attendance_statuses', 'behavior_statuses', 'job_titles'];
 const HAS_ACTIVE: RefTable[] = ['branches', 'subjects'];
 
 export type RefInput = { name: string; stage_id?: number | null; category?: 'continuous' | 'exam'; is_active?: boolean };

@@ -15,6 +15,7 @@ import { fmtDateTime } from '@/lib/format';
 import {
   createAccountFor,
   createMissingAccounts,
+  deleteAccounts,
   listEmployeeAccounts,
   listStudentAccounts,
   resetAccountPassword,
@@ -220,6 +221,30 @@ export function AccountsRegistry({
     refresh();
   };
 
+  /** حذف حساب الدخول فقط — فرديًا أو بالتحديد. السجل وبياناته تبقى ويمكن إنشاء حساب جديد */
+  const removeAccounts = async (rows: AccountRow[], clear?: () => void) => {
+    const targets = rows.filter((r) => r.account);
+    if (!targets.length) return toast('لا حسابات للحذف في التحديد', 'info');
+    const one = targets.length === 1 ? targets[0] : null;
+    const ok = await confirm({
+      title: one ? 'حذف حساب الدخول؟' : `حذف ${targets.length} حساب دخول؟`,
+      body: (
+        <>
+          {one ? <><b className="text-ink">{one.name}</b> (<bdi>{one.account!.username}</bdi>)<br /></> : null}
+          يُحذف حساب الدخول فقط ويُمنع صاحبه من الدخول فورًا. <b className="text-ink">سجل ال{who} وكل بياناته تبقى</b> ويمكنك إنشاء حساب جديد له لاحقًا.
+          <br />
+          لإيقاف الدخول مؤقتًا دون حذف استخدم «إيقاف».
+        </>
+      ),
+      confirmLabel: one ? 'حذف الحساب' : `حذف ${targets.length} حساب`,
+      danger: true,
+      run: () => deleteAccounts(kind, targets.map((r) => r.account!.id)),
+    });
+    if (!ok) return;
+    clear?.();
+    refresh();
+  };
+
   const statusBadge = (r: AccountRow) =>
     !r.account ? <Badge>بلا حساب</Badge> : r.account.status !== 'active' ? <Badge tone="danger">موقوف</Badge> : r.account.temp ? <Badge tone="gold">لم يدخل بعد</Badge> : <Badge tone="ok">مفعّل</Badge>;
 
@@ -244,6 +269,7 @@ export function AccountsRegistry({
       <>
         <RowButton icon="key" label="كلمة مؤقتة جديدة" onClick={() => { setManual(false); setPwd(''); setResetting(r); }} />
         <RowButton icon={r.account.status === 'active' ? 'close' : 'tasks'} label={r.account.status === 'active' ? 'إيقاف' : 'تفعيل'} tone={r.account.status === 'active' ? 'danger' : 'plain'} onClick={() => toggle(r)} />
+        <RowButton icon="trash" label="حذف الحساب" tone="danger" onClick={() => removeAccounts([r])} />
       </>
     );
 
@@ -308,6 +334,7 @@ export function AccountsRegistry({
             </BulkButton>
             {level >= 2 && <BulkButton tone="danger" busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'disabled', clear)}>إيقاف</BulkButton>}
             {level >= 2 && <BulkButton busy={busy === 'bulk-status'} onClick={() => bulkStatus(rows, 'active', clear)}>تفعيل</BulkButton>}
+            {level >= 2 && rows.some((r) => r.account) && <BulkButton tone="danger" onClick={() => removeAccounts(rows, clear)}><Icon name="trash" className="size-4" /> حذف الحساب</BulkButton>}
           </>
         )}
         columns={[

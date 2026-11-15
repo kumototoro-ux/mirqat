@@ -198,7 +198,12 @@ export function EmployeeFormSheet({
             ))}
           </div>
           <Field label="المسمى الوظيفي">
-            <input value={f.job_role} onChange={(e) => set('job_role', e.target.value)} placeholder="مثل: معلم رياضيات، وكيل" className="field" />
+            <select value={f.job_role} onChange={(e) => set('job_role', e.target.value)} className="field">
+              <option value="">— اختر المسمى —</option>
+              {/* مسمى قديم غير موجود في القائمة يبقى ظاهرًا حتى لا يضيع عند الحفظ */}
+              {f.job_role && !lookups.jobTitles.includes(f.job_role) && <option value={f.job_role}>{f.job_role} (قديم)</option>}
+              {lookups.jobTitles.map((t) => <option key={t} value={t}>{t}</option>)}
+            </select>
           </Field>
           {editing && (
             <label className="flex items-center justify-between rounded-xl border border-line px-3.5 py-3">

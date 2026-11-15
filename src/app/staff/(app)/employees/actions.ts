@@ -5,6 +5,7 @@ import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
 import { getMyAccess } from '@/lib/access/server';
 import { levelOf } from '@/lib/access/areas';
+import { bulkMessage, shortReason, type BulkDeleteResult } from '@/lib/bulk';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { pageSize, type ActionResult, type PageParams, type PageResult } from '@/components/registry/types';
@@ -160,6 +161,35 @@ export async function saveEmployee(form: EmployeeForm): Promise<ActionResult> {
   revalidatePath('/staff/employees');
   updateTag(REF_TAG);
   return { ok: true, message: form.id ? 'تم حفظ التعديل' : `تم تسجيل الموظف برقم ${row?.code ?? ''}`, code: row?.code };
+}
+
+/** حذف عدة موظفين: كل واحد بمعاملة مستقلة، فما له حصص أو رصد يبقى ويُذكر سببه (حتى 100) */
+export async function deleteEmployees(ids: number[]): Promise<BulkDeleteResult> {
+  await requireUser(['admin']);
+  const list = [...new Set(ids)].slice(0, 100);
+  if (!list.length) return { ok: false, error: 'لا موظفين في التحديد' };
+  const supabase = await createClient();
+  const { data: names } = await supabase.from('employees').select('id, name_ar').in('id', list);
+  const nameOf = new Map((names ?? []).map((n) => [n.id as number, n.name_ar as string]));
+  const admin = createAdminClient();
+  let deleted = 0;
+  const failed: { name: string; reason: string }[] = [];
+  for (const id of list) {
+    const { data, error } = await supabase.rpc('delete_employee', { p_id: id });
+    if (error) {
+      failed.push({ name: nameOf.get(id) ?? `#${id}`, reason: shortReason(error.message, 'له حصص أو مهام أو رصد — أوقفه بدل الحذف') });
+      continue;
+    }
+    deleted++;
+    if (data) {
+      const { error: authError } = await admin.auth.admin.deleteUser(data as string);
+      if (authError) console.error('delete auth user', authError);
+    }
+  }
+  revalidatePath('/staff/employees');
+  updateTag(REF_TAG);
+  if (!deleted) return { ok: false, error: bulkMessage('موظف', 0, failed) };
+  return { ok: true, deleted, failed, message: bulkMessage('موظف', deleted, failed) };
 }
 
 export async function deleteEmployee(id: number): Promise<ActionResult> {

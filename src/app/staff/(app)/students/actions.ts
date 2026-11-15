@@ -5,6 +5,7 @@ import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
 import { getMyAccess } from '@/lib/access/server';
 import { levelOf } from '@/lib/access/areas';
+import { bulkMessage, shortReason, type BulkDeleteResult } from '@/lib/bulk';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { CLASS_SELECT, classLabel, type ClassRef } from '@/lib/format';
@@ -147,6 +148,35 @@ export async function saveStudent(form: StudentForm): Promise<ActionResult> {
   revalidatePath('/staff/students');
   updateTag(REF_TAG); // قد يُنشأ فصل جديد لتركيبة جديدة
   return { ok: true, message: form.id ? 'تم حفظ التعديل' : `تم تسجيل الطالب برقم ${row?.code ?? ''}`, code: row?.code };
+}
+
+/** حذف عدة طلاب: كل واحد بمعاملة مستقلة، فمن له درجات أو تحضير يبقى ويُذكر سببه (حتى 100) */
+export async function deleteStudents(ids: number[]): Promise<BulkDeleteResult> {
+  await needStudents(3);
+  const list = [...new Set(ids)].slice(0, 100);
+  if (!list.length) return { ok: false, error: 'لا طلاب في التحديد' };
+  const supabase = await createClient();
+  const { data: names } = await supabase.from('students').select('id, name_ar').in('id', list);
+  const nameOf = new Map((names ?? []).map((n) => [n.id as number, n.name_ar as string]));
+  const admin = createAdminClient();
+  let deleted = 0;
+  const failed: { name: string; reason: string }[] = [];
+  for (const id of list) {
+    const { data, error } = await supabase.rpc('delete_student', { p_id: id });
+    if (error) {
+      failed.push({ name: nameOf.get(id) ?? `#${id}`, reason: shortReason(error.message, 'له درجات أو تحضير — غيّر حالته إلى منسحب') });
+      continue;
+    }
+    deleted++;
+    if (data) {
+      const { error: authError } = await admin.auth.admin.deleteUser(data as string);
+      if (authError) console.error('delete auth user', authError);
+    }
+  }
+  revalidatePath('/staff/students');
+  updateTag(REF_TAG);
+  if (!deleted) return { ok: false, error: bulkMessage('طالب', 0, failed) };
+  return { ok: true, deleted, failed, message: bulkMessage('طالب', deleted, failed) };
 }
 
 export async function deleteStudent(id: number): Promise<ActionResult> {
