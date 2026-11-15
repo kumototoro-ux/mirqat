@@ -5,10 +5,12 @@ import { useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Icon } from '@/components/shell/icons';
 import { reportBoundary } from '@/components/track/tracker';
+import { isStaleDeployError, reloadOnce } from '@/lib/stale-deploy';
 
 /** واجهة خطأ موحّدة: رسالة مفهومة، إعادة المحاولة، والعودة للرئيسية — بلا تفاصيل تقنية للمستخدم */
 export function ErrorState({ error, reset, home }: { error: Error & { digest?: string }; reset: () => void; home: string }) {
   useEffect(() => {
+    if (isStaleDeployError(error) && reloadOnce()) return;
     console.error(error);
     // خطأ في المتصفح نفسه (بلا digest) يُسجَّل في مركز التتبع؛ أخطاء الخادم سُجّلت هناك برمزها
     if (!error.digest) reportBoundary(error);
