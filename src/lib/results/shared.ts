@@ -58,7 +58,7 @@ export type ReportStudent = {
   attendance: { pct: number | null; intisab: boolean; granted: boolean; total: number; absent: number; late: number; excused: number; rating_ar: string | null; rating_en: string | null };
   behavior: { score: number; negative: number; positive: number; rating_ar: string | null; rating_en: string | null };
 };
-export type Access = { visible: boolean; rule_id?: number; opens_at?: string | null; closes_at?: string | null; reason?: 'not_yet' | 'ended' | 'blocked' };
+export type Access = { visible: boolean; rule_id?: number; opens_at?: string | null; closes_at?: string | null; reason?: 'not_yet' | 'ended' | 'blocked' | 'not_approved' | 'fees' };
 export type TermInfo = { id: number; name: string; year: string };
 
 export type ClassReport = { term: TermInfo | null; subjects: ReportSubject[]; students: ReportStudent[]; access: Record<string, Access> };

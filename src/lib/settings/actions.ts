@@ -33,6 +33,8 @@ const SETTINGS: Record<string, (v: unknown) => boolean> = {
   results_visible_grades: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   weekly_grades_visibility: (v) => Array.isArray(v) && v.every((x) => typeof x === 'string'),
   calendar_visibility: (v) => typeof v === 'string' && v.length <= 60,
+  results_default: (v) => v === 'open' || v === 'closed',
+  results_fee_gate: (v) => v === 'on' || v === 'off',
   exam_visibility: (v) => v === 'all' || v === 'hidden',
   show_exam_schedule: (v) => typeof v === 'string',
   announcements: (v) =>
@@ -58,11 +60,11 @@ export async function saveSetting(key: string, value: unknown): Promise<ActionRe
 /* ---------------------------------------------------------------------
    القوائم المرجعية
 --------------------------------------------------------------------- */
-export type RefTable = 'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses' | 'job_titles';
-const TABLES: RefTable[] = ['branches', 'stages', 'grades', 'sections', 'subjects', 'eval_types', 'attendance_statuses', 'behavior_statuses', 'job_titles'];
+export type RefTable = 'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses' | 'job_titles' | 'fee_statuses';
+const TABLES: RefTable[] = ['branches', 'stages', 'grades', 'sections', 'subjects', 'eval_types', 'attendance_statuses', 'behavior_statuses', 'job_titles', 'fee_statuses'];
 const HAS_ACTIVE: RefTable[] = ['branches', 'subjects'];
 
-export type RefInput = { name: string; stage_id?: number | null; category?: 'continuous' | 'exam'; is_active?: boolean };
+export type RefInput = { name: string; stage_id?: number | null; category?: 'continuous' | 'exam'; is_active?: boolean; unlocks_term?: number };
 
 export async function saveRefItem(table: RefTable, id: number | null, input: RefInput): Promise<ActionResult> {
   await requireUser(['admin']);
@@ -75,6 +77,11 @@ export async function saveRefItem(table: RefTable, id: number | null, input: Ref
     row.stage_id = input.stage_id;
   }
   if (table === 'eval_types' && input.category) row.category = input.category;
+  if (table === 'fee_statuses') {
+    const u = input.unlocks_term;
+    if (typeof u !== 'number' || !Number.isInteger(u) || u < 0 || u > 9) return fail('اختر ما تفتحه هذه الحالة من الأترام');
+    row.unlocks_term = u;
+  }
   if (HAS_ACTIVE.includes(table) && typeof input.is_active === 'boolean') row.is_active = input.is_active;
   const supabase = await createClient();
   if (id) {

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { Icon } from '@/components/shell/icons';
 import { SECTIONS } from './sections';
-import { AnnouncementsEditor, BrandingEditor, RefListEditor, VisibilityEditor, WeightsEditor, type RefItem } from './editors';
+import { AnnouncementsEditor, BrandingEditor, RefListEditor, ResultsGateEditor, VisibilityEditor, WeightsEditor, type RefItem } from './editors';
 import type { RefTable } from '@/lib/settings/actions';
 import { CalendarEditor, ExamsEditor, TimetableEditor } from './schedule-editors';
 import { PurgeSettings } from '@/components/assess/purge-settings';
@@ -15,7 +15,7 @@ import { normalizeCert } from '@/lib/results/certificate';
 
 export type SettingsData = {
   settings: Record<string, unknown>;
-  lists: Record<'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses' | 'job_titles', RefItem[]>;
+  lists: Record<'branches' | 'stages' | 'grades' | 'sections' | 'subjects' | 'eval_types' | 'attendance_statuses' | 'behavior_statuses' | 'job_titles' | 'fee_statuses', RefItem[]>;
   weights: { subject_id: number; eval_type_id: number; weight: number }[];
   terms: string[];
 };
@@ -28,6 +28,7 @@ const REF: Record<string, { table: RefTable; title: string; description: string;
   subjects: { table: 'subjects', title: 'المواد', description: 'المادة المعطّلة تختفي من نماذج التسجيل والتوزيع الجديدة، وتبقى درجاتها السابقة.', hasActive: true },
   attendance: { table: 'attendance_statuses', title: 'حالات الحضور', description: 'تظهر للمعلم عند تحضير كل حصة.' },
   behavior: { table: 'behavior_statuses', title: 'حالات السلوك', description: 'تظهر عند تسجيل ملاحظة سلوكية.' },
+  fee_statuses: { table: 'fee_statuses', title: 'أنواع الرسوم', description: 'تُحدَّد لكل طالب، وكل نوع يفتح له نتائج أترام معيّنة. القائمة الأولية مطابقة لنظام الطلاب القديم، وإعادة التسمية تتبعها سجلات الطلاب.' },
   job_titles: { table: 'job_titles', title: 'المسميات الوظيفية', description: 'تظهر كاختيارات عند تسجيل الموظف. حذف مسمى من القائمة لا يغيّر مسمى من سُجّل به سابقًا.' },
 };
 
@@ -86,6 +87,8 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
   else if (active === 'timetable') content = <TimetableEditor />;
   else if (active === 'exams') content = <ExamsEditor />;
   else if (active === 'submissions') content = <PurgeSettings />;
+  else if (active === 'results_gate')
+    content = <ResultsGateEditor def={v.results_default === 'open' ? 'open' : 'closed'} fee={v.results_fee_gate === 'off' ? 'off' : 'on'} />;
   else if (active === 'eval')
     content = <RefListEditor table="eval_types" title="أنواع التقييم" description="مثل: واجبات، مشاركة، اختبار قصير. النوع (اختبار) يُعامل كاختبار في التقارير." items={L.eval_types} categories />;
   else if (active === 'weights')
@@ -107,6 +110,7 @@ export function SettingsApp({ data, initial }: { data: SettingsData; initial: st
         items={L[key]}
         hasActive={ref.hasActive}
         stages={ref.table === 'grades' ? L.stages : undefined}
+        unlocks={ref.table === 'fee_statuses'}
       />
     );
   }

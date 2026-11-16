@@ -380,7 +380,10 @@ export function VisibilityEditor({
 /* =====================================================================
    قائمة مرجعية: إضافة، إعادة تسمية، تفعيل، ترتيب بالسحب، حذف
    ===================================================================== */
-export type RefItem = { id: number; name: string; is_active?: boolean; stage_id?: number; category?: string; usage?: number };
+/** ما تفتحه حالة الرسوم من نتائج الأترام (يطابق unlocks_term في القاعدة) */
+export const UNLOCKS: [number, string][] = [[0, 'لا تفتح نتيجة'], [1, 'تفتح الترم الأول'], [2, 'تفتح حتى الترم الثاني'], [9, 'تفتح كل الأترام']];
+
+export type RefItem = { id: number; name: string; is_active?: boolean; stage_id?: number; category?: string; usage?: number; unlocks_term?: number };
 
 export function RefListEditor({
   table,
@@ -390,6 +393,7 @@ export function RefListEditor({
   hasActive,
   stages,
   categories,
+  unlocks,
 }: {
   table: RefTable;
   title: string;
@@ -398,10 +402,11 @@ export function RefListEditor({
   hasActive?: boolean;
   stages?: { id: number; name: string }[];
   categories?: boolean;
+  unlocks?: boolean;
 }) {
   const [order, setOrder] = useSynced(items);
   const [editing, setEditing] = useState<number | 'new' | null>(null);
-  const [draft, setDraft] = useState<{ name: string; stage_id?: number; category?: 'continuous' | 'exam' }>({ name: '' });
+  const [draft, setDraft] = useState<{ name: string; stage_id?: number; category?: 'continuous' | 'exam'; unlocks_term?: number }>({ name: '' });
   const { confirm } = useFeedback();
   const { pending, run } = useSave();
   const orderDirty = order.map((x) => x.id).join() !== items.map((x) => x.id).join();
@@ -415,7 +420,7 @@ export function RefListEditor({
 
   const startEdit = (it: RefItem | null) => {
     setEditing(it ? it.id : 'new');
-    setDraft(it ? { name: it.name, stage_id: it.stage_id, category: (it.category as 'continuous' | 'exam') ?? 'continuous' } : { name: '', stage_id: stages?.[0]?.id, category: 'continuous' });
+    setDraft(it ? { name: it.name, stage_id: it.stage_id, category: (it.category as 'continuous' | 'exam') ?? 'continuous', unlocks_term: it.unlocks_term ?? 0 } : { name: '', stage_id: stages?.[0]?.id, category: 'continuous', unlocks_term: 0 });
   };
   const commit = () => {
     const isNew = editing === 'new';
@@ -462,6 +467,11 @@ export function RefListEditor({
           <option value="exam">اختبار</option>
         </select>
       )}
+      {unlocks && (
+        <select value={draft.unlocks_term ?? 0} onChange={(e) => setDraft((d) => ({ ...d, unlocks_term: Number(e.target.value) }))} className="field w-52 py-2" aria-label="ما تفتحه هذه الحالة">
+          {UNLOCKS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+        </select>
+      )}
       <button type="button" onClick={commit} disabled={pending || !draft.name.trim()} className="btn-primary h-10 rounded-lg px-4">
         {pending ? <span className="spinner" /> : 'حفظ'}
       </button>
@@ -503,6 +513,7 @@ export function RefListEditor({
                   <span className={`min-w-0 flex-1 truncate font-medium ${hasActive && it.is_active === false ? 'text-muted line-through' : ''}`}>
                     {it.name}
                     {stages && <span className="ms-2 text-sm font-normal text-muted">{stageName(it.stage_id)}</span>}
+                    {unlocks && <span className={`ms-2 rounded-full px-2 py-0.5 text-xs ${it.unlocks_term ? 'bg-ok-soft text-ok' : 'bg-danger-soft text-danger'}`}>{UNLOCKS.find(([v]) => v === (it.unlocks_term ?? 0))?.[1]}</span>}
                     {categories && it.category === 'exam' && <span className="ms-2 rounded-full bg-brass-soft px-2 py-0.5 text-xs text-brass">اختبار</span>}
                   </span>
                   {typeof it.usage === 'number' && <span className="hidden text-xs tabular-nums text-muted sm:inline">{it.usage} استخدام</span>}
@@ -626,6 +637,58 @@ export function WeightsEditor({
           </label>
         ))}
       </div>
+    </SettingsCard>
+  );
+}
+
+/* =====================================================================
+   شروط عرض النتائج للطالب: اعتماد الإدارة + الرسوم
+   ===================================================================== */
+export function ResultsGateEditor({ def, fee }: { def: 'open' | 'closed'; fee: 'on' | 'off' }) {
+  const { pending, run } = useSave();
+  const choose = (key: 'results_default' | 'results_fee_gate', value: string, ask: { title: string; body: string }) =>
+    run(() => saveSetting(key, value), undefined, { ...ask, confirmLabel: 'تأكيد', danger: value === 'open' || value === 'off' });
+  const Seg = ({ on, label, onClick }: { on: boolean; label: string; onClick: () => void }) => (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={on}
+      disabled={pending}
+      onClick={onClick}
+      className={`rounded-lg px-4 py-2 text-sm transition-colors ${on ? 'bg-surface font-semibold text-accent shadow-sm' : 'text-muted hover:text-ink'}`}
+    >
+      {label}
+    </button>
+  );
+  return (
+    <SettingsCard
+      title="شروط عرض النتائج للطالب"
+      description="لا يرى الطالب نتيجة ترم إلا إذا تحقق الشرطان معًا. الإداري والمعلم يريان النتائج دائمًا."
+    >
+      <SettingRow
+        title="1 · اعتماد الإدارة"
+        description={
+          <>
+            <b className="text-ink">مغلق (الموصى به):</b> لا تظهر نتيجة لأي طالب حتى تُنشئ الإدارة قاعدة «إتاحة استثنائية» لفرعه وصفه من صفحة النتائج.
+            <br />
+            <b className="text-ink">مفتوح:</b> تظهر النتائج ما لم تحجبها قاعدة.
+          </>
+        }
+      >
+        <div role="radiogroup" aria-label="أصل الإتاحة" className="inline-flex rounded-xl bg-paper p-1">
+          <Seg on={def === 'closed'} label="مغلق" onClick={() => def !== 'closed' && choose('results_default', 'closed', { title: 'جعل الأصل مغلقًا؟', body: 'تختفي النتائج عن كل الطلاب الذين لا تشملهم قاعدة إتاحة استثنائية.' })} />
+          <Seg on={def === 'open'} label="مفتوح" onClick={() => def !== 'open' && choose('results_default', 'open', { title: 'جعل الأصل مفتوحًا؟', body: 'تظهر النتائج لكل الطلاب (مع شرط الرسوم) ما لم تحجبها قاعدة.' })} />
+        </div>
+      </SettingRow>
+      <SettingRow
+        title="2 · حالة الرسوم"
+        description="كل نوع رسوم يفتح أترامًا معيّنة (من قسم «أنواع الرسوم»). الطالب بلا حالة رسوم، أو بحالة من عام سابق، لا يرى نتيجة الترم الحالي. وقاعدة «إتاحة استثنائية» على طالب بعينه تتجاوز هذا الشرط."
+      >
+        <div role="radiogroup" aria-label="شرط الرسوم" className="inline-flex rounded-xl bg-paper p-1">
+          <Seg on={fee === 'on'} label="يعمل" onClick={() => fee !== 'on' && choose('results_fee_gate', 'on', { title: 'تشغيل شرط الرسوم؟', body: 'لا ترى النتيجة إلا الحالات المسموحة في «أنواع الرسوم».' })} />
+          <Seg on={fee === 'off'} label="معطّل" onClick={() => fee !== 'off' && choose('results_fee_gate', 'off', { title: 'تعطيل شرط الرسوم؟', body: 'يكفي اعتماد الإدارة لظهور النتيجة، بصرف النظر عن الرسوم.' })} />
+        </div>
+      </SettingRow>
     </SettingsCard>
   );
 }

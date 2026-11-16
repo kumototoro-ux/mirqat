@@ -23,6 +23,7 @@ type Student = {
   birth_date_text: string | null;
   gender: string | null;
   fee_status: string | null;
+  fee_year: { name: string; is_current: boolean } | { name: string; is_current: boolean }[] | null;
   status: string;
   enrolled_at: string | null;
   created_at: string;
@@ -57,7 +58,7 @@ export default async function StudentProfile({
     supabase
       .from('students')
       .select(
-        `id, code, national_id, name_ar, name_en, nationality, birth_date, birth_date_text, gender, fee_status, status, enrolled_at, created_at,
+        `id, code, national_id, name_ar, name_en, nationality, birth_date, birth_date_text, gender, fee_status, fee_year:academic_years(name, is_current), status, enrolled_at, created_at,
          class:classes(${CLASS_SELECT}), profile:profiles(username, status, must_change_password, last_login_at)`,
       )
       .eq('id', studentId)
@@ -101,7 +102,7 @@ export default async function StudentProfile({
     ['الجنسية', s.nationality ?? '—'],
     ['تاريخ الميلاد', s.birth_date ? fmtDate(s.birth_date) : (s.birth_date_text ?? '—')],
     ['الجنس', s.gender ?? '—'],
-    ['الرسوم', s.fee_status ?? '—'],
+    ['الرسوم', feeLabel(s)],
     ['تاريخ التسجيل', s.enrolled_at ? fmtDate(s.enrolled_at) : 'قبل النظام الجديد'],
   ];
 
@@ -225,4 +226,12 @@ export default async function StudentProfile({
       </div>
     </>
   );
+}
+
+/** الحالة مع عامها؛ حالة عام سابق لا تفتح نتائج العام الحالي فتُنبَّه الإدارة بذلك */
+function feeLabel(s: Student) {
+  if (!s.fee_status) return 'بلا حالة (لا يرى النتائج)';
+  const y = Array.isArray(s.fee_year) ? s.fee_year[0] : s.fee_year;
+  if (y && !y.is_current) return `${s.fee_status} — من عام سابق (${y.name})، تحتاج تحديثًا`;
+  return s.fee_status;
 }

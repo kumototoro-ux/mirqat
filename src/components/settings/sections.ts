@@ -26,6 +26,7 @@ export const SECTIONS: { group: string; icon: IconName; items: { key: string; la
   },
   { group: 'التقييم', icon: 'results', items: [{ key: 'eval', label: 'أنواع التقييم' }, { key: 'weights', label: 'توزيع الدرجات' }, { key: 'submissions', label: 'ملفات التسليم' }] },
   { group: 'الحضور والسلوك', icon: 'attendance', items: [{ key: 'attendance', label: 'حالات الحضور' }, { key: 'behavior', label: 'حالات السلوك' }] },
+  { group: 'الرسوم والنتائج', icon: 'results', items: [{ key: 'fee_statuses', label: 'أنواع الرسوم' }, { key: 'results_gate', label: 'شروط عرض النتائج' }] },
   { group: 'الموظفون', icon: 'employees', items: [{ key: 'job_titles', label: 'المسميات الوظيفية' }] },
   { group: 'البيانات', icon: 'accounts', items: [{ key: 'import', label: 'الاستيراد من Excel' }, { key: 'data', label: 'النسخ الاحتياطي والتصفير' }] },
 ];

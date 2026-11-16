@@ -16,7 +16,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   const { s = 'general' } = await searchParams;
   const supabase = await createClient();
   const list = (table: string, cols = 'id, name') => supabase.from(table).select(cols).order('sort_order').order('id');
-  const [settings, branches, stages, grades, sections, subjects, evalTypes, att, beh, weights, terms, titles] = await Promise.all([
+  const [settings, branches, stages, grades, sections, subjects, evalTypes, att, beh, weights, terms, titles, fees] = await Promise.all([
     supabase.from('app_settings').select('key, value'),
     list('branches', 'id, name, is_active'),
     list('stages'),
@@ -29,6 +29,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     supabase.from('grade_weights').select('subject_id, eval_type_id, weight'),
     getTerms(),
     list('job_titles'),
+    list('fee_statuses', 'id, name, unlocks_term'),
   ]);
   const rows = (r: { data: unknown }) => (r.data ?? []) as RefItem[];
   const data: SettingsData = {
@@ -43,6 +44,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
       attendance_statuses: rows(att),
       behavior_statuses: rows(beh),
       job_titles: rows(titles),
+      fee_statuses: rows(fees),
     },
     weights: ((weights.data ?? []) as { subject_id: number; eval_type_id: number; weight: number }[]).map((w) => ({ ...w, weight: Number(w.weight) })),
     terms: [...new Set(terms.map((t) => t.name))],
