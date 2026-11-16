@@ -381,7 +381,7 @@ function ClassView({ classId, termId, termName, ref_, data, notice, brand }: { c
                     </td>
                     <td className="px-2 py-2 text-center tabular-nums">{n2(s.behavior.score)}</td>
                     <td className="px-2 py-2 text-center">
-                      <span className={`inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-semibold ${acc?.visible ? 'bg-ok-soft text-ok' : 'bg-brass-soft text-brass'}`}>{acc?.visible ? 'ظاهرة' : acc?.reason === 'not_yet' ? 'لاحقًا' : acc?.reason === 'ended' ? 'انتهت' : 'محجوبة'}</span>
+                      <span className={`inline-block rounded-full px-2 py-0.5 text-[0.7rem] font-semibold ${acc?.visible ? 'bg-ok-soft text-ok' : 'bg-brass-soft text-brass'}`}>{acc?.visible ? 'ظاهرة' : acc?.reason === 'not_yet' ? 'لاحقًا' : acc?.reason === 'ended' ? 'انتهت' : acc?.reason === 'fees' ? 'الرسوم' : acc?.reason === 'not_approved' ? 'غير معتمدة' : 'محجوبة'}</span>
                     </td>
                   </tr>
                 );

@@ -204,3 +204,15 @@ export async function setStudentsStatus(ids: number[], status: 'active' | 'withd
   const label = { active: 'منتظم', withdrawn: 'منسحب', graduated: 'متخرج' }[status];
   return { ok: true, message: `تغيّرت حالة ${data ?? ids.length} طالب إلى "${label}"` };
 }
+
+/** تحديد حالة الرسوم لعدة طلاب (حتى 500). بلا حالة = تُمسح. الصلاحية والنطاق تفرضهما القاعدة */
+export async function setStudentsFee(ids: number[], status: string | null): Promise<ActionResult> {
+  await requireUser(['admin', 'teacher']);
+  const list = [...new Set(ids)];
+  if (!list.length || list.length > 500) return { ok: false, error: 'حدد بين 1 و500 طالب' };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('set_students_fee', { p_ids: list, p_status: status ?? '' });
+  if (error) return { ok: false, error: error.message.replace(/^FORBIDDEN:\s*/, '') };
+  revalidatePath('/staff/students');
+  return { ok: true, message: status ? `حُدّدت الرسوم "${status}" لـ ${data ?? list.length} طالب` : `مُسحت حالة الرسوم لـ ${data ?? list.length} طالب` };
+}

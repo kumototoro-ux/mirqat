@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import type { Lookups } from '@/lib/lookups';
-import { deleteStudent, deleteStudents, getStudent, listStudents, setStudentsStatus, type StudentForm, type StudentRow } from './actions';
+import { deleteStudent, deleteStudents, getStudent, listStudents, setStudentsFee, setStudentsStatus, type StudentForm, type StudentRow } from './actions';
 import { StudentFormSheet } from './student-form';
 
 const STATUS = {
@@ -20,9 +20,12 @@ const STATUS = {
   withdrawn: { label: 'منسحب', tone: 'danger' },
   graduated: { label: 'متخرج', tone: 'neutral' },
 } as const;
-// القيم حرة من القائمة: سدد/مسدد/مدفوع/معفى = أخضر، جزئي = ذهبي، غير ذلك (متأخر/لم يسدد) = أحمر
-const feeTone = (f: string | null) =>
-  !f ? 'neutral' : /(^|\s)(لم|غير)/.test(f) ? 'danger' : /سدد|مسدد|مدفوع|إعفاء|اعفاء|معفى|معفي/.test(f) ? 'ok' : /جزئ/.test(f) ? 'gold' : 'danger';
+// اللون من قدرة الحالة: تفتح كل الأترام = أخضر، تفتح بعضها = ذهبي، لا تفتح شيئًا = أحمر
+const feeToneOf = (fees: Lookups['feeStatuses']) => (f: string | null) => {
+  if (!f) return 'neutral' as const;
+  const u = fees.find((x) => x.name === f)?.unlocks;
+  return u == null ? ('danger' as const) : u >= 2 ? ('ok' as const) : u === 1 ? ('gold' as const) : ('danger' as const);
+};
 
 export function StudentsRegistry({
   initial,
@@ -50,6 +53,7 @@ export function StudentsRegistry({
   const [opening, setOpening] = useState<number | null>(null);
   const [bulkBusy, setBulkBusy] = useState(false);
   const t = report?.totals;
+  const feeTone = feeToneOf(lookups.feeStatuses);
 
   const bulkStatus = async (rows: StudentRow[], status: 'active' | 'withdrawn', clear: () => void) => {
     const ok = await confirm({
@@ -64,6 +68,33 @@ export function StudentsRegistry({
     setBulkBusy(false);
     if (!res.ok) return toast(res.error, 'error');
     toast(res.message);
+    clear();
+    registry.current?.invalidate();
+    router.refresh();
+  };
+
+  const feePick = useRef('');
+  const bulkFee = async (rows: StudentRow[], clear: () => void) => {
+    feePick.current = '';
+    const ok = await confirm({
+      title: `تحديد رسوم ${rows.length} طالب`,
+      body: (
+        <div className="space-y-2">
+          <p>يُطبَّق على كل المحدَّدين، ويُسجَّل التغيير باسمك في سجل الرسوم.</p>
+          <select defaultValue="" onChange={(e) => { feePick.current = e.target.value; }} className="field w-full text-ink" aria-label="حالة الرسوم">
+            <option value="" disabled>— اختر الحالة —</option>
+            {lookups.feeStatuses.map((x) => <option key={x.name} value={x.name}>{x.name}</option>)}
+            <option value="__none">(بلا حالة — مسح)</option>
+          </select>
+        </div>
+      ),
+      confirmLabel: 'تطبيق',
+      run: async () => {
+        if (!feePick.current) return { ok: false as const, error: 'اختر الحالة أولًا' };
+        return setStudentsFee(rows.map((r) => r.id), feePick.current === '__none' ? null : feePick.current);
+      },
+    });
+    if (!ok) return;
     clear();
     registry.current?.invalidate();
     router.refresh();
@@ -166,7 +197,7 @@ export function StudentsRegistry({
         filters={[
           { key: 'class', label: 'الفصل', options: classes },
           { key: 'status', label: 'الحالة', options: Object.entries(STATUS).map(([v, s]) => ({ value: v, label: s.label })) },
-          { key: 'fee', label: 'الرسوم', options: ['سدد', 'جزئي', 'إعفاء', 'لم يسدد'].map((v) => ({ value: v, label: v })) },
+          { key: 'fee', label: 'الرسوم', options: lookups.feeStatuses.map((x) => ({ value: x.name, label: x.name })) },
         ]}
         toolbar={
           <>
@@ -195,6 +226,7 @@ export function StudentsRegistry({
             {level >= 2 && rows.some((r) => r.status !== 'active') && (
               <BulkButton busy={bulkBusy} onClick={() => bulkStatus(rows, 'active', clear)}>منتظم</BulkButton>
             )}
+            {level >= 2 && <BulkButton onClick={() => bulkFee(rows, clear)}>الرسوم</BulkButton>}
             {level >= 3 && <BulkButton tone="danger" onClick={() => bulkRemove(rows, clear)}><Icon name="trash" className="size-4" /> حذف</BulkButton>}
           </>
         )}

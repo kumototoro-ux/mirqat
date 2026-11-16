@@ -20,7 +20,7 @@ select test.logout();
 select test.login('00000000-0000-0000-0000-0000000000a0');   -- إداري
 -- الرمز التالي كالنظام القديم: أعلى رقم بعد S + 1، والرموز ذات الأحرف الأخرى لا تُحسب
 select test.ok((select code = 'S2315219' from save_student(null,
-  '{"name_ar":"طالب جديد","national_id":"1122334455","branch_id":1,"grade_id":1,"section_id":2,"gender":"ذكر","fee_status":"سدد","birth_date":"2012-05-01"}')),
+  '{"name_ar":"طالب جديد","national_id":"1122334455","branch_id":1,"grade_id":1,"section_id":2,"gender":"ذكر","fee_status":"دفع رسوم الترم الأول","birth_date":"2012-05-01"}')),
   'رقم الطالب الجديد = أعلى رقم + 1');
 select test.ok((select enrolled_at is not null and class_id = 2 and birth_date = '2012-05-01' from students where national_id = '1122334455'),
   'يُحفظ تاريخ التسجيل والفصل والميلاد');

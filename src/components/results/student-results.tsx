@@ -15,6 +15,8 @@ export function StudentResults({ card, brand, settings }: { card: StudentCard | 
     const a = card.access;
     if (a.reason === 'not_yet' && a.opens_at) return <Locked title="النتائج لم تُتح بعد" body={<>تُتاح نتائج هذا الفصل الدراسي <b className="text-ink">{fmt(a.opens_at)}</b>.</>} icon="clock" />;
     if (a.reason === 'ended') return <Locked title="انتهت فترة عرض النتائج" body="أغلقت الإدارة عرض نتائج هذا الفصل الدراسي. راجع المدرسة إن احتجت نسخة من الإشعار." icon="key" />;
+    if (a.reason === 'fees') return <Locked title="عرض النتيجة يتطلب استكمال الرسوم" body="نتيجة هذا الفصل الدراسي تظهر بعد استكمال رسومه. راجع محاسب مدرستك، وستظهر هنا فور تحديث حالتك." icon="key" />;
+    if (a.reason === 'not_approved') return <Locked title="النتائج لم تُعتمد بعد" body="لم تُعتمد نتائج هذا الفصل الدراسي للعرض لصفك بعد. ستظهر هنا فور اعتمادها." icon="clock" />;
     return <Locked title="النتائج محجوبة حاليًا" body="لم تعتمد الإدارة عرض نتائج هذا الفصل الدراسي بعد. ستظهر هنا فور إتاحتها." icon="key" />;
   }
   const s = card.student;

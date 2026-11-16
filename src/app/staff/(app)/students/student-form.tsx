@@ -23,7 +23,6 @@ const EMPTY: StudentForm = {
   status: 'active',
 };
 
-const FEES = ['سدد', 'جزئي', 'إعفاء', 'لم يسدد'];
 
 /**
  * نموذج الطالب — نفس حقول النظام القديم وترتيبها:
@@ -245,19 +244,21 @@ export function StudentFormSheet({
         <fieldset className="space-y-4">
           <legend className="mb-3 text-xs font-bold text-accent">الرسوم والحالة</legend>
           <Field label="حالة الرسوم">
-            <div className="grid grid-cols-4 gap-2">
-              {FEES.map((x) => (
+            <div className="grid gap-2 sm:grid-cols-2">
+              {lookups.feeStatuses.map(({ name: x, unlocks }) => (
                 <button
                   key={x}
                   type="button"
                   onClick={() => set('fee_status', f.fee_status === x ? '' : x)}
                   aria-pressed={f.fee_status === x}
-                  className={`h-10 rounded-md border text-sm transition-all ${f.fee_status === x ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}
+                  className={`flex min-h-11 items-center justify-between gap-2 rounded-md border px-3 py-2 text-start text-sm transition-all ${f.fee_status === x ? 'border-accent bg-board text-chalk' : 'border-line bg-surface hover:border-muted'}`}
                 >
-                  {x}
+                  <span>{x}</span>
+                  <span className={`shrink-0 text-xs ${f.fee_status === x ? 'text-chalk/80' : unlocks ? 'text-ok' : 'text-danger'}`}>{unlocks ? '' : 'بلا نتائج'}</span>
                 </button>
               ))}
             </div>
+            <p className="mt-1.5 text-xs text-muted">تحدد الحالة نتائج أي ترم يراها الطالب. بلا حالة = لا يرى النتائج.</p>
           </Field>
           {editing && (
             <Field label="حالة الطالب" hint="الطالب المنسحب يبقى بسجلاته ودرجاته، ولا يظهر في القوائم اليومية.">

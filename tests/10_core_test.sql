@@ -6,6 +6,10 @@
 create schema test;
 grant usage on schema test to authenticated, anon;
 
+-- الاختبارات السابقة لهجرة 45 تفترض الإتاحة المفتوحة بلا شرط رسوم؛ اختبار الرسوم (99_fees) يعيد تفعيلهما
+update app_settings set value = '"open"' where key = 'results_default';
+update app_settings set value = '"off"' where key = 'results_fee_gate';
+
 create function test.ok(cond boolean, msg text) returns void language plpgsql as $$
 begin
   if cond is not true then raise exception 'FAILED: %', msg; end if;

@@ -21,12 +21,13 @@ const FEES = ['سدد', 'جزئي', 'إعفاء', 'لم يسدد'];
 type Ref = Awaited<ReturnType<typeof loadRef>>;
 async function loadRef() {
   const supabase = await createClient();
-  const [b, st, g, sec, cls] = await Promise.all([
+  const [b, st, g, sec, cls, fs] = await Promise.all([
     supabase.from('branches').select('id, name, is_active').order('sort_order').order('id'),
     supabase.from('stages').select('id, name').order('sort_order'),
     supabase.from('grades').select('id, name, stage_id').order('sort_order'),
     supabase.from('sections').select('id, name').order('sort_order'),
     supabase.from('classes').select('id, branch_id, grade_id, section_id').eq('is_active', true),
+    supabase.from('fee_statuses').select('name').order('sort_order').order('id'),
   ]);
   const stages = (st.data ?? []) as { id: number; name: string }[];
   const grades = ((g.data ?? []) as { id: number; name: string; stage_id: number }[]).map((x) => {
@@ -40,6 +41,7 @@ async function loadRef() {
     branches: ((b.data ?? []) as { id: number; name: string; is_active: boolean }[]).filter((x) => x.is_active !== false),
     grades,
     sections: (sec.data ?? []) as { id: number; name: string }[],
+    fees: ((fs.data ?? []) as { name: string }[]).map((x) => x.name),
     classes: (cls.data ?? []) as { id: number; branch_id: number; grade_id: number; section_id: number }[],
   };
 }
@@ -92,6 +94,7 @@ export async function studentTemplate(): Promise<Res<{ b64: string; name: string
       ['الصفوف المتاحة: ' + (ref.grades.map((g) => g.label).join('، ') || '—'), 'p'],
       ['الشعب المتاحة: ' + (ref.sections.map((s) => s.name).join('، ') || '—'), 'p'],
       ['الفروع: ' + (ref.branches.map((b) => b.name).join('، ') || '—'), 'p'],
+      ['حالات الرسوم المقبولة حرفيًا: ' + (ref.fees.join('، ') || '—'), 'p'],
     ]);
     return { ok: true, data: { b64: await toBase64(wb), name: 'نموذج-استيراد-الطلاب.xlsx' } };
   } catch (e) {
@@ -248,6 +251,7 @@ async function parseStudents(file: File, defaultBranch: number | null, ref: Ref)
       }
     }
     if (it.code && existing.has(it.code)) it.existing = true;
+    if (it.fee_status && !ref.fees.includes(it.fee_status)) errs.push(`حالة الرسوم «${it.fee_status}» غير معروفة (المقبول: ${ref.fees.join('، ')})`);
     if (errs.length) it.error = errs.join('، ');
   }
 
