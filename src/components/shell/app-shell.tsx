@@ -179,7 +179,7 @@ function Sidebar({ nav, home, user, schoolName, week, path, collapsed }: Omit<Pr
 
       <NavLink href={home} className={`relative flex items-center gap-3 pb-6 pt-6 transition-[padding] duration-300 ${collapsed ? 'justify-center px-0' : 'px-6'}`}>
         <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-chalk/10 ring-1 ring-chalk/15">
-          <LogoMark className="h-6 w-7" tone="light" />
+          <LogoMark className="h-6 w-7" tone="light" animated />
         </span>
         <AnimatePresence initial={false}>
           {!collapsed && (
@@ -358,7 +358,7 @@ function ShellInner(props: Props) {
             >
               <div className="mx-auto flex h-16 max-w-[90rem] items-center gap-2.5 px-4 pt-[env(safe-area-inset-top)] sm:px-8 lg:h-[4.25rem] lg:gap-3">
                 <NavLink href={props.home} className="grid size-10 shrink-0 place-items-center rounded-xl bg-board lg:hidden" aria-label="الرئيسية">
-                  <LogoMark className="h-5 w-6" tone="light" />
+                  <LogoMark className="h-5 w-6" tone="light" animated />
                 </NavLink>
                 <div className="min-w-0 flex-1">
                   {current?.group && <p className="truncate text-[0.7rem] font-medium text-muted sm:hidden">{current.group}</p>}

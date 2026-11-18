@@ -19,7 +19,7 @@ export const NO_ACCESS: MyAccess = { admin: false, positions: [], areas: {} };
 export const POSITION_NAME: Record<string, string> = {
   branch_manager: 'مدير/ة فرع', deputy: 'وكيل/ة', teachers_supervisor: 'مشرف/ة معلمات',
   students_supervisor: 'مشرف/ة طلاب', admissions: 'مسؤول/ة القبول والتسجيل',
-  branches_director: 'مدير/ة الفروع', performance_monitor: 'مراقب/ة أداء الفروع',
+  branches_director: 'مدير/ة المدرسة', performance_monitor: 'مراقب/ة أداء الفروع',
 };
 
 /** أعلى مستوى للمجال (الإداري 3) — للعرض فقط */

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireUser } from '@/lib/auth/session';
+import { positionBadges, type PosBadge } from '@/lib/access/position-badges';
 import { getMyAccess } from '@/lib/access/server';
 import { levelOf } from '@/lib/access/areas';
 import { bulkMessage, type BulkDeleteResult } from '@/lib/bulk';
@@ -48,7 +49,7 @@ const PROFILE = 'id, username, status, must_change_password, last_login_at';
 
 /** صفحة من حسابات الطلاب أو الموظفين (السجل + حسابه إن وُجد) — 15 صفًا */
 export async function listAccounts(kind: AccountKind, p: PageParams): Promise<PageResult<AccountRow>> {
-  await needAccounts(kind, 1);
+  const me = await needAccounts(kind, 1);
   const supabase = await createClient();
   const page = Math.max(1, Math.floor(p.page) || 1);
   const f = p.filters ?? {};
@@ -81,6 +82,13 @@ export async function listAccounts(kind: AccountKind, p: PageParams): Promise<Pa
   const rows = (data ?? []) as unknown as {
     id: number; code: string; name_ar: string; user_type?: string; class?: ClassRef; profiles: Profile[] | Profile | null;
   }[];
+  // الإداري يرى منصب كل موظف ونطاقه بجانب نوعه (الأدمن ≠ مدير المدرسة ≠ مدير الفرع)
+  const badges = kind === 'employee' && me.role === 'admin' ? await positionBadges(supabase, rows.map((r) => r.id)) : new Map<number, PosBadge[]>();
+  const roleText = (r: { id: number; user_type?: string }) => {
+    if (r.user_type === 'admin') return 'أدمن';
+    const b = badges.get(r.id) ?? [];
+    return b.length ? b.map((x) => `${x.name} · ${x.all ? 'كل الفروع' : x.branches.join('، ')}`).join(' + ') : 'معلم';
+  };
   return {
     total: count ?? 0,
     rows: rows.map((r) => {
@@ -89,7 +97,7 @@ export async function listAccounts(kind: AccountKind, p: PageParams): Promise<Pa
         recordId: r.id,
         code: r.code,
         name: r.name_ar,
-        meta: kind === 'student' ? classLabel(r.class ?? null, true) : r.user_type === 'admin' ? 'إداري' : 'معلم',
+        meta: kind === 'student' ? classLabel(r.class ?? null, true) : roleText(r),
         isAdmin: r.user_type === 'admin',
         account: pr
           ? { id: pr.id, username: pr.username, status: pr.status, temp: pr.must_change_password, lastLogin: pr.last_login_at }

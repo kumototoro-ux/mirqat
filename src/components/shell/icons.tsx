@@ -18,6 +18,7 @@ const P: Record<string, React.ReactNode> = {
   menu: <><path d="M4 7h16M4 12h16M4 17h16" /></>,
   close: <><path d="M6 6l12 12M18 6 6 18" /></>,
   logout: <><path d="M14 4.5h4.5v15H14" /><path d="M10 8 6 12l4 4M6 12h10" /></>,
+  shield: <><path d="M12 3.5 5 6v5.5c0 4.3 2.9 7.6 7 9 4.1-1.4 7-4.7 7-9V6z" /><path d="m9 12 2.2 2.2L15 10" /></>,
   key: <><circle cx="8" cy="15" r="3.5" /><path d="m10.5 12.5 8-8M16 7l2.5 2.5" /></>,
   search: <><circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" /></>,
   more: <><circle cx="5.5" cy="12" r="1.4" /><circle cx="12" cy="12" r="1.4" /><circle cx="18.5" cy="12" r="1.4" /></>,

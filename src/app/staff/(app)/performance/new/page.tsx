@@ -18,7 +18,7 @@ export default async function NewPerfReport({ searchParams }: { searchParams: Pr
   if (!form) redirect('/staff/performance');
   return (
     <>
-      <PageHeader title="تقرير أداء جديد" lead="النموذج ثابت لكل الفروع. قيّم كل بند، وأضف ملاحظاتك ومرفقاتك، ثم أرسله لمدير الفروع." />
+      <PageHeader title="تقرير أداء جديد" lead="النموذج ثابت لكل الفروع. قيّم كل بند، وأضف ملاحظاتك ومرفقاتك، ثم أرسله لمدير المدرسة." />
       <PerfEditor key={branch.id} branches={branches} branchId={branch.id} form={form} report={null} terms={terms.map((t) => ({ id: t.id, name: `${t.name} ${t.year ?? ''}`.trim() }))} />
     </>
   );

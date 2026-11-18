@@ -53,7 +53,7 @@ export async function perfSend(id: number): Promise<Res<{ recipients: number }>>
   if (error) return { ok: false, error: friendly(error.message) };
   revalidatePath('/staff/performance');
   const n = Number(data ?? 0);
-  return { ok: true, message: n ? 'أُرسل التقرير لمدير الفروع' : 'أُرسل التقرير (لا مدير فروع مسند لهذا الفرع بعد، يراه الإداري)', data: { recipients: n } };
+  return { ok: true, message: n ? 'أُرسل التقرير لمدير المدرسة' : 'أُرسل التقرير (لا مدير فروع مسند لهذا الفرع بعد، يراه الإداري)', data: { recipients: n } };
 }
 
 export async function perfDelete(id: number): Promise<Res> {
@@ -135,6 +135,6 @@ export async function setBranchBuilding(branchId: number, on: boolean): Promise<
   await requireUser(['admin']);
   const { error } = await (await createClient()).rpc('admin_set_branch_building', { p_branch: branchId, p_on: on });
   if (error) return { ok: false, error: friendly(error.message) };
-  revalidatePath('/staff/positions');
+  revalidatePath('/staff/roles');
   return { ok: true, message: on ? 'للفرع مبنى دراسي: تظهر بنود المبنى' : 'بلا مبنى دراسي: تختفي بنود المبنى' };
 }

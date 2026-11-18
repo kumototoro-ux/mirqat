@@ -21,7 +21,7 @@ export default async function BranchActivity({ searchParams }: { searchParams: P
   const sp = await searchParams;
   const branches = await capBranches('audit');
   const branch = pickBranch(branches, sp.branch);
-  if (!branch) return <Empty title="لا فرع مسند لك">يظهر سجل النشاط لمدير الفرع ومدير الفروع في فروعهم المسندة.</Empty>;
+  if (!branch) return <Empty title="لا فرع مسند لك">يظهر سجل النشاط لمدير الفرع ومدير المدرسة في فروعهم المسندة.</Empty>;
   const q = (sp.q ?? '').slice(0, 40);
   const table = SHOWN.includes(sp.table ?? '') ? sp.table! : '';
   const page = Math.max(1, Number(sp.page) || 1);

@@ -128,7 +128,7 @@ export default async function ReportPage({ params }: { params: Promise<{ type: s
           <div className="relative flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="grid size-12 place-items-center rounded-2xl bg-chalk/10 ring-1 ring-chalk/20">
-                <LogoMark className="h-7 w-8" tone="light" />
+                <LogoMark className="h-7 w-8" tone="light" animated />
               </span>
               <div>
                 <p className="text-sm text-chalk/70">{school}</p>

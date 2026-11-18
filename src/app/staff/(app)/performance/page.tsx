@@ -19,7 +19,7 @@ export default async function PerformancePage() {
     <>
       <PageHeader
         title="تقارير الأداء"
-        lead={canWrite ? 'اكتب تقرير متابعة لفرعك من النموذج الثابت، أرفق الصور والملفات، ثم أرسله لمدير الفروع داخل الموقع.' : 'التقارير المُرسَلة إليك عن فروعك المسندة، لتقرأها وتعتمدها وتردّ عليها.'}
+        lead={canWrite ? 'اكتب تقرير متابعة لفرعك من النموذج الثابت، أرفق الصور والملفات، ثم أرسله لمدير المدرسة داخل الموقع.' : 'التقارير المُرسَلة إليك عن فروعك المسندة، لتقرأها وتعتمدها وتردّ عليها.'}
         actions={canWrite ? <Link href="/staff/performance/new" className="btn-primary">تقرير جديد</Link> : undefined}
       />
       {unread > 0 && <p className="mb-3 rounded-xl bg-gold/15 px-4 py-2 text-sm font-medium text-brass">لديك {unread} تقرير جديد لم تقرأه</p>}

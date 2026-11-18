@@ -199,7 +199,7 @@ export function AccountsRegistry({
     },
     student
       ? { key: 'class', label: 'الفصل', options: classes ?? [] }
-      : { key: 'type', label: 'النوع', options: [{ value: 'teacher', label: 'معلم' }, { value: 'admin', label: 'إداري' }] },
+      : { key: 'type', label: 'النوع', options: [{ value: 'teacher', label: 'معلم' }, { value: 'admin', label: 'أدمن' }] },
   ];
 
   const bulkStatus = async (rows: AccountRow[], status: 'active' | 'disabled', clear: () => void) => {

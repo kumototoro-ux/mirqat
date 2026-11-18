@@ -149,7 +149,7 @@ export function SiteFooter({ schoolName }: { schoolName: string }) {
       <div className="relative mx-auto grid max-w-6xl gap-10 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
         <Reveal>
           <div className="flex items-center gap-2">
-            <LogoMark className="h-9 w-10" tone="light" />
+            <LogoMark className="h-9 w-10" tone="light" animated />
             <span className="font-display text-3xl font-bold">مِرقاة</span>
           </div>
           <p className="mt-4 max-w-sm leading-relaxed text-chalk/70">المنصة التعليمية لـ{schoolName}.</p>
