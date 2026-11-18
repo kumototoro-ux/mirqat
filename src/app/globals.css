@@ -491,3 +491,23 @@ html[data-a11y-cursor] :is(a, button, [role="button"], [role="radio"], [role="sw
 @media (prefers-reduced-motion: reduce) {
   .toast-timer { animation-duration: var(--toast-ms, 3400ms) !important; }
 }
+
+/* شعار مِرقاة: الرسم التدريجي ودوران القمر (يعمل فقط مع animated) */
+.mq-orbit { offset-distance: 50%; offset-rotate: 0deg; }
+.mq-logo.is-live .mq-arch { stroke-dasharray: 1; stroke-dashoffset: 1; animation: mq-draw 1.2s cubic-bezier(0.65, 0, 0.25, 1) forwards; }
+.mq-logo.is-live .mq-bar { transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); animation: mq-rise 0.6s cubic-bezier(0.2, 0.9, 0.3, 1) forwards; }
+.mq-logo.is-live .mq-star { transform-box: fill-box; transform-origin: center; transform: scale(0); animation: mq-star-in 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) 1.5s forwards, mq-twinkle 3.4s ease-in-out 2.4s infinite; }
+.mq-logo.is-live .mq-orbit { offset-distance: 0%; animation: mq-orbit 9s linear 1.6s infinite; }
+@keyframes mq-draw { to { stroke-dashoffset: 0; } }
+@keyframes mq-rise { to { transform: scaleY(1); } }
+@keyframes mq-star-in { to { transform: scale(1); } }
+@keyframes mq-twinkle { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.22); } }
+@keyframes mq-orbit { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .mq-logo.is-live .mq-arch { animation: none; stroke-dashoffset: 0; }
+  .mq-logo.is-live .mq-bar, .mq-logo.is-live .mq-star { animation: none; transform: none; }
+  .mq-logo.is-live .mq-orbit { animation: none; offset-distance: 50%; }
+}
+html[data-a11y-motion] .mq-logo.is-live .mq-arch { animation: none; stroke-dashoffset: 0; }
+html[data-a11y-motion] .mq-logo.is-live .mq-bar, html[data-a11y-motion] .mq-logo.is-live .mq-star { animation: none; transform: none; }
+html[data-a11y-motion] .mq-logo.is-live .mq-orbit { animation: none; offset-distance: 50%; }

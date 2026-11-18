@@ -87,7 +87,7 @@ export function SiteHeader({ logoUrl }: { logoUrl: string | null }) {
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5">
         <Link href="/" className="flex items-center gap-2" aria-label="مِرقاة — الرئيسية">
-          <LogoMark className="h-8 w-9" />
+          <LogoMark className="h-8 w-9" animated />
           <Brand>
             <span className="font-display text-2xl font-bold text-accent">مِرقاة</span>
           </Brand>
