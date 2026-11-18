@@ -21,6 +21,7 @@ const EMPTY: EmployeeForm = {
   grade_ids: [],
   section_ids: [],
   subject_ids: [],
+  positions: [],
 };
 
 /**
@@ -32,6 +33,7 @@ export function EmployeeFormSheet({
   initial,
   lookups,
   canAdmin = true,
+  positionList = [],
   onClose,
   onSaved,
   onDelete,
@@ -41,6 +43,8 @@ export function EmployeeFormSheet({
   lookups: Lookups;
   /** غير الإداري لا يُنشئ إداريًا (القاعدة ترفض أيضًا) */
   canAdmin?: boolean;
+  /** مناصب النظام للإسناد عند التسجيل (للأدمن وحده) */
+  positionList?: { code: string; name: string; tier: 'school' | 'branch' }[];
   onClose: () => void;
   onSaved: (message: string) => void;
   onDelete?: () => void;
@@ -99,6 +103,7 @@ export function EmployeeFormSheet({
       if (!f.section_ids.length) e.section_ids = 'اختر شعبة واحدة على الأقل';
       if (!f.subject_ids.length) e.subject_ids = 'اختر مادة واحدة على الأقل';
     }
+    if (teacher && f.positions?.some((p) => !p.code || p.branch_ids.length === 0)) e.positions = 'اختر المنصب وفرعًا واحدًا على الأقل لكل منصب، أو احذف السطر';
     setErrors(e);
     if (Object.keys(e).length) return toast('أكمل الحقول المطلوبة', 'error');
 
@@ -110,7 +115,7 @@ export function EmployeeFormSheet({
           <dt>الاسم</dt>
           <dd className="font-semibold text-ink">{f.name_ar}</dd>
           <dt>النوع</dt>
-          <dd className="text-ink">{teacher ? 'معلم' : 'إداري (يرى كل الفروع والمواد)'}</dd>
+          <dd className="text-ink">{teacher ? 'معلم' : 'أدمن (يرى كل الفروع والمواد)'}</dd>
           {teacher && (
             <>
               <dt>الفرع</dt>
@@ -121,6 +126,14 @@ export function EmployeeFormSheet({
               <dd className="text-ink">{label(lookups.sections.map((s) => ({ value: s.id, label: s.name })), f.section_ids)}</dd>
               <dt>المواد</dt>
               <dd className="text-ink">{label(subjects, f.subject_ids)}</dd>
+              {canAdmin && (f.positions?.length ?? 0) > 0 && (
+                <>
+                  <dt>المنصب</dt>
+                  <dd className="text-ink">
+                    {f.positions!.map((p) => `${positionList.find((x) => x.code === p.code)?.name ?? p.code} (${p.branch_ids.length === lookups.branches.length && lookups.branches.length > 1 ? 'كل الفروع' : p.branch_ids.map((id) => lookups.branches.find((b) => b.id === id)?.name).join('، ')})`).join(' + ')}
+                  </dd>
+                </>
+              )}
             </>
           )}
         </dl>
@@ -188,7 +201,7 @@ export function EmployeeFormSheet({
           <div className={`grid gap-2 ${canAdmin ? 'grid-cols-2' : 'grid-cols-1'}`}>
             {([
               ['teacher', 'معلم', 'يرى فصوله ومواده فقط'],
-              ...(canAdmin ? [['admin', 'إداري', 'يرى كل شيء ويدير النظام'] as const] : []),
+              ...(canAdmin ? [['admin', 'أدمن', 'يرى كل شيء ويدير النظام'] as const] : []),
             ] as const).map(([v, l, h]) => (
               <button key={v} type="button" onClick={() => set('user_type', v)} aria-pressed={f.user_type === v}
                 className={`rounded-xl border p-3 text-start transition-all ${f.user_type === v ? 'border-accent bg-board/[0.07] ring-2 ring-accent/20' : 'border-line hover:border-muted'}`}>
@@ -241,6 +254,57 @@ export function EmployeeFormSheet({
             <Field label="المواد" required hint={errHint('subject_ids')}>
               <ChipSelect options={subjects} value={f.subject_ids} onChange={(v) => set('subject_ids', v)} />
             </Field>
+          </fieldset>
+        )}
+        {teacher && canAdmin && positionList.length > 0 && (
+          <fieldset className="animate-fade-up space-y-3">
+            <legend className="mb-1 text-xs font-bold text-accent">المنصب في النظام (اختياري)</legend>
+            <p className="text-xs text-muted">يمنح الموظف صلاحيات إدارية داخل فرعه، كمدير فرع أو وكيل، فوق عمله كمعلم. يختلف عن «المسمى الوظيفي» الذي هو وصف فقط. تعديل ما يملكه كل منصب من «الأدوار والصلاحيات».</p>
+            {(f.positions ?? []).map((p, i) => {
+              const info = positionList.find((x) => x.code === p.code);
+              const all = lookups.branches.map((b) => b.id);
+              const upd = (patch: Partial<{ code: string; branch_ids: number[] }>) => set('positions', (f.positions ?? []).map((x, j) => (j === i ? { ...x, ...patch } : x)));
+              return (
+                <div key={i} className="space-y-2.5 rounded-xl border border-line bg-paper/60 p-3">
+                  <div className="flex items-center gap-2">
+                    <select aria-label="المنصب" value={p.code} onChange={(ev) => upd({ code: ev.target.value })} className="field flex-1">
+                      <option value="">— اختر المنصب —</option>
+                      {(['school', 'branch'] as const).map((t) => (
+                        <optgroup key={t} label={t === 'school' ? 'على مستوى المدرسة' : 'داخل الفرع'}>
+                          {positionList.filter((x) => x.tier === t).map((x) => <option key={x.code} value={x.code}>{x.name}</option>)}
+                        </optgroup>
+                      ))}
+                    </select>
+                    <button type="button" aria-label="حذف هذا المنصب" onClick={() => set('positions', (f.positions ?? []).filter((_, j) => j !== i))} className="grid size-10 shrink-0 place-items-center rounded-lg border border-line text-muted hover:text-danger">
+                      <Icon name="trash" className="size-4" />
+                    </button>
+                  </div>
+                  <div>
+                    <div className="mb-1.5 flex items-center justify-between text-xs">
+                      <span className="font-medium">{info?.tier === 'school' ? 'الفروع التي يشرف عليها' : 'الفرع أو الفروع'}</span>
+                      <button type="button" className="text-accent hover:underline" onClick={() => upd({ branch_ids: p.branch_ids.length === all.length ? [] : all })}>
+                        {p.branch_ids.length === all.length ? 'إلغاء الكل' : 'كل الفروع'}
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {lookups.branches.map((b) => {
+                        const on = p.branch_ids.includes(b.id);
+                        return (
+                          <button key={b.id} type="button" role="checkbox" aria-checked={on} onClick={() => upd({ branch_ids: on ? p.branch_ids.filter((x) => x !== b.id) : [...p.branch_ids, b.id] })}
+                            className={`rounded-full px-3 py-1 text-xs font-medium ring-1 ring-inset transition ${on ? 'bg-board text-chalk ring-accent' : 'bg-surface text-muted ring-line hover:ring-accent/40'}`}>
+                            {b.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            {errors.positions && <p className="text-xs text-danger">{errors.positions}</p>}
+            <button type="button" className="btn-quiet px-3 py-1.5 text-xs" onClick={() => set('positions', [...(f.positions ?? []), { code: '', branch_ids: f.branch_id ? [f.branch_id] : [] }])}>
+              + إضافة منصب
+            </button>
           </fieldset>
         )}
         {!editing && (

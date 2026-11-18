@@ -105,6 +105,8 @@ export type EmployeeForm = {
   grade_ids: number[];
   section_ids: number[];
   subject_ids: number[];
+  /** مناصب النظام وفروعها — للأدمن وحده؛ غيابها يعني عدم لمس المناصب */
+  positions?: { code: string; branch_ids: number[] }[];
 };
 
 export async function getEmployee(id: number): Promise<EmployeeForm | null> {
@@ -121,6 +123,13 @@ export async function getEmployee(id: number): Promise<EmployeeForm | null> {
       profiles: { role: string }[];
     }>();
   if (!data) return null;
+  let positions: EmployeeForm['positions'];
+  if ((await getMyAccess()).admin) {
+    const { data: ep } = await supabase.from('employee_positions').select('position, branch_id').eq('employee_id', id).order('branch_id');
+    const m = new Map<string, number[]>();
+    for (const r of ep ?? []) m.set(r.position as string, [...(m.get(r.position as string) ?? []), r.branch_id as number]);
+    positions = [...m.entries()].map(([code, branch_ids]) => ({ code, branch_ids }));
+  }
   const pick = (k: 'branch_id' | 'stage_id' | 'grade_id' | 'section_id' | 'subject_id') =>
     data.staff_scope.flatMap((s) => (s[k] != null ? [s[k] as number] : []));
   return {
@@ -139,6 +148,7 @@ export async function getEmployee(id: number): Promise<EmployeeForm | null> {
     grade_ids: pick('grade_id'),
     section_ids: pick('section_id'),
     subject_ids: pick('subject_id'),
+    positions,
   };
 }
 
@@ -171,9 +181,23 @@ export async function saveEmployee(form: EmployeeForm): Promise<ActionResult> {
     const { error: metaError } = await createAdminClient().auth.admin.updateUserById(row.user_id, { app_metadata: { role: row.role } });
     if (metaError) console.error('role metadata', metaError);
   }
+  // المناصب: الأدمن وحده، ولموظف من نوع معلم. تُضبط مع الحفظ نفسه (الموجود وغير المختار يُسحب)
+  let positionNote = '';
+  if (row && form.positions && form.user_type === 'teacher' && (await getMyAccess()).admin) {
+    const { data: cur } = await supabase.from('employee_positions').select('position').eq('employee_id', row.id);
+    const want = new Map(form.positions.map((x) => [x.code, [...new Set(x.branch_ids)]]));
+    const codes = new Set([...(cur ?? []).map((c) => c.position as string), ...want.keys()]);
+    const failed: string[] = [];
+    for (const code of codes) {
+      const { error: pe } = await supabase.rpc('admin_set_position_branches', { p_employee_id: row.id, p_position: code, p_branches: want.get(code) ?? [] });
+      if (pe) failed.push(pe.message.replace(/^ERROR:\s*/, ''));
+    }
+    if (failed.length) positionNote = ` — لكن تعذّر ضبط المنصب: ${failed[0]}. أسنده من «الأدوار والصلاحيات»`;
+  }
   revalidatePath('/staff/employees');
+  revalidatePath('/staff/roles');
   updateTag(REF_TAG);
-  return { ok: true, message: form.id ? 'تم حفظ التعديل' : `تم تسجيل الموظف برقم ${row?.code ?? ''}`, code: row?.code };
+  return { ok: true, message: (form.id ? 'تم حفظ التعديل' : `تم تسجيل الموظف برقم ${row?.code ?? ''}`) + positionNote, code: row?.code };
 }
 
 /** حذف عدة موظفين: كل واحد بمعاملة مستقلة، فما له حصص أو رصد يبقى ويُذكر سببه (حتى 100) */
