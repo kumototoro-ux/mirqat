@@ -4,6 +4,7 @@ import { revalidatePath, updateTag } from 'next/cache';
 import { REF_TAG } from '@/lib/data';
 import { requireUser } from '@/lib/auth/session';
 import { getMyAccess } from '@/lib/access/server';
+import { positionBadges, type PosBadge } from '@/lib/access/position-badges';
 import { levelOf } from '@/lib/access/areas';
 import { bulkMessage, shortReason, type BulkDeleteResult } from '@/lib/bulk';
 import { createClient } from '@/lib/supabase/server';
@@ -21,9 +22,11 @@ export type EmployeeRow = {
   branches: string[];
   subjects: string[];
   has_account: boolean;
+  /** مناصب الفروع (للإداري وحده) */
+  positions: PosBadge[];
 };
 
-type Raw = Omit<EmployeeRow, 'branches' | 'subjects' | 'has_account'> & {
+type Raw = Omit<EmployeeRow, 'branches' | 'subjects' | 'has_account' | 'positions'> & {
   staff_scope: { branch: { name: string } | null; subject: { name: string } | null }[];
   profiles: { id: string }[] | { id: string } | null;
 };
@@ -64,8 +67,17 @@ export async function listEmployees(p: PageParams): Promise<PageResult<EmployeeR
   const f = p.filters ?? {};
   if (f.type) q = q.eq('user_type', f.type);
   if (f.active) q = q.eq('is_active', f.active === '1');
+  const admin = (await getMyAccess()).admin;
+  if (admin && f.position) {
+    // تصفية بمنصب: الإسناد مقروء للإداري وحده
+    const { data: holders, error: he } = await supabase.from('employee_positions').select('employee_id').eq('position', f.position);
+    if (he) throw new Error(he.message);
+    const ids = [...new Set((holders ?? []).map((h) => h.employee_id as number))];
+    q = q.in('id', ids.length ? ids : [-1]);
+  }
   const { data, error, count } = await q.returns<Raw[]>();
   if (error) throw new Error(error.message);
+  const badges = admin ? await positionBadges(supabase, (data ?? []).map((r) => r.id)) : new Map<number, PosBadge[]>();
   return {
     total: count ?? 0,
     rows: (data ?? []).map(({ staff_scope, profiles, ...r }) => ({
@@ -73,6 +85,7 @@ export async function listEmployees(p: PageParams): Promise<PageResult<EmployeeR
       branches: [...new Set(staff_scope.flatMap((s) => (s.branch ? [s.branch.name] : [])))],
       subjects: [...new Set(staff_scope.flatMap((s) => (s.subject ? [s.subject.name] : [])))],
       has_account: hasRow(profiles),
+      positions: badges.get(r.id) ?? [],
     })),
   };
 }

@@ -9,6 +9,7 @@ import { downloadCsv } from '@/components/registry/csv';
 import type { EmployeesReport } from '@/lib/reports';
 import type { PageParams, PageResult } from '@/components/registry/types';
 import { Badge } from '@/components/ui';
+import { PositionBadges } from '@/components/access/position-badges';
 import { Icon } from '@/components/shell/icons';
 import { useFeedback } from '@/components/feedback';
 import type { Lookups } from '@/lib/lookups';
@@ -22,6 +23,7 @@ export function EmployeesRegistry({
   level,
   isAdmin,
   lookups,
+  positionOptions,
 }: {
   initial: PageResult<EmployeeRow>;
   initialParams: PageParams;
@@ -30,6 +32,8 @@ export function EmployeesRegistry({
   level: number;
   isAdmin: boolean;
   lookups: Lookups;
+  /** مناصب الفروع للتصفية (للإداري) */
+  positionOptions: { value: string; label: string }[];
 }) {
   const registry = useRef<RegistryHandle>(null);
   const router = useRouter();
@@ -115,7 +119,7 @@ export function EmployeesRegistry({
         stats={[
           { label: 'الموظفون النشطون', value: t.active, icon: 'employees', hint: `من ${t.all} سجل` },
           { label: 'معلمون', value: t.teachers, icon: 'tasks', hint: `${t.weekly_periods} حصة أسبوعيًا` },
-          { label: 'إداريون', value: t.admins, icon: 'settings', tone: 'gold' },
+          { label: 'أدمن', value: t.admins, icon: 'settings', tone: 'gold' },
           { label: 'معلمون بلا مواد', value: t.no_scope, icon: 'user', tone: t.no_scope ? 'danger' : undefined, hint: t.no_scope ? 'لن يروا أي طالب' : 'كل المعلمين لهم نطاق' },
         ]}
         donut={{
@@ -143,7 +147,8 @@ export function EmployeesRegistry({
           { value: 'code', label: 'رمز الموظف' },
         ]}
         filters={[
-          { key: 'type', label: 'النوع', options: [{ value: 'teacher', label: 'معلم' }, { value: 'admin', label: 'إداري' }] },
+          { key: 'type', label: 'النوع', options: [{ value: 'teacher', label: 'معلم' }, { value: 'admin', label: 'أدمن' }] },
+          ...(isAdmin && positionOptions.length ? [{ key: 'position', label: 'المنصب', options: positionOptions }] : []),
           { key: 'active', label: 'الحالة', options: [{ value: '1', label: 'نشط' }, { value: '0', label: 'غير نشط' }] },
         ]}
         toolbar={
@@ -164,7 +169,7 @@ export function EmployeesRegistry({
         }
         bulkActions={(rows, clear) => (
           <>
-            <BulkButton onClick={() => downloadCsv('موظفون', ['الرمز', 'الاسم', 'النوع', 'المسمى', 'الفرع', 'المواد', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.user_type === 'admin' ? 'إداري' : 'معلم', r.job_role, r.branches.join('، '), r.subjects.join('، '), r.is_active ? 'نشط' : 'غير نشط']))}>
+            <BulkButton onClick={() => downloadCsv('موظفون', ['الرمز', 'الاسم', 'النوع', 'المسمى', 'الفرع', 'المواد', 'الحالة'], rows.map((r) => [r.code, r.name_ar, r.user_type === 'admin' ? 'أدمن' : 'معلم', r.job_role, r.branches.join('، '), r.subjects.join('، '), r.is_active ? 'نشط' : 'غير نشط']))}>
               <Icon name="audit" className="size-4" /> تصدير
             </BulkButton>
             {level >= 2 && rows.some((r) => r.is_active) && <BulkButton tone="danger" busy={bulkBusy} onClick={() => bulkActive(rows, false, clear)}>إيقاف</BulkButton>}
@@ -182,13 +187,14 @@ export function EmployeesRegistry({
                 <Avatar r={r} loading={opening === r.id} />
                 <div className="min-w-0">
                   <p className="max-w-56 truncate font-semibold">{r.name_ar}</p>
-                  <p className="text-xs text-muted">{r.job_role ?? (r.user_type === 'admin' ? 'إداري' : 'معلم')}</p>
+                  <p className="text-xs text-muted">{r.job_role ?? (r.user_type === 'admin' ? 'أدمن' : 'معلم')}</p>
                 </div>
               </div>
             ),
           },
           { key: 'code', label: 'الرمز', sort: 'code', render: (r) => <bdi className="font-medium tabular-nums text-muted">{r.code}</bdi> },
-          { key: 'type', label: 'النوع', render: (r) => (r.user_type === 'admin' ? <Badge tone="gold">إداري</Badge> : <Badge tone="board">معلم</Badge>) },
+          { key: 'type', label: 'النوع', render: (r) => (r.user_type === 'admin' ? <Badge tone="gold">أدمن</Badge> : <Badge tone="board">معلم</Badge>) },
+          ...(isAdmin ? [{ key: 'positions', label: 'المنصب', render: (r: EmployeeRow) => (r.user_type === 'admin' ? <span className="text-xs text-muted">كل الصلاحيات</span> : <PositionBadges items={r.positions} />) }] : []),
           {
             key: 'branch',
             label: 'الفرع',
@@ -200,6 +206,7 @@ export function EmployeesRegistry({
         rowActions={(r) => (
           <>
             <RowButton icon="edit" label={level >= 2 ? 'تعديل' : 'عرض'} onClick={() => open(r.id)} />
+            {isAdmin && r.user_type !== 'admin' && <RowButton icon="shield" label="المناصب" onClick={() => router.push('/staff/roles?tab=holders')} />}
             {isAdmin && <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />}
           </>
         )}
@@ -208,14 +215,15 @@ export function EmployeesRegistry({
             <Avatar r={r} loading={opening === r.id} />
             <div className="min-w-0 flex-1">
               <p className="truncate font-semibold">{r.name_ar}</p>
-              <p className="truncate text-xs text-muted"><bdi>{r.code}</bdi> · {r.user_type === 'admin' ? 'إداري' : r.branches.join('، ')}</p>
-              <div className="mt-1.5"><SubjectChips r={r} /></div>
+              <p className="truncate text-xs text-muted"><bdi>{r.code}</bdi> · {r.user_type === 'admin' ? 'أدمن' : r.branches.join('، ')}</p>
+              <div className="mt-1.5 space-y-1"><SubjectChips r={r} />{isAdmin && r.user_type !== 'admin' && r.positions.length > 0 && <PositionBadges items={r.positions} compact />}</div>
             </div>
           </div>
         )}
       />
       <p className="mt-4 text-center text-xs text-muted">
         حسابات دخول الموظفين تُدار من <Link href="/staff/employee-accounts" className="text-accent hover:underline">حسابات الموظفين</Link>
+        {isAdmin && <> · والمناصب وصلاحياتها من <Link href="/staff/roles" className="text-accent hover:underline">الأدوار والصلاحيات</Link></>}
       </p>
       <EmployeeFormSheet
         open={editing !== null}

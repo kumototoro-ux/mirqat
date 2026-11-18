@@ -66,7 +66,7 @@ export function PerfReportView({ r }: { r: PerfReport }) {
       </Card>
 
       {r.director_reply && (
-        <Card title={`ردّ مدير الفروع${r.ack_by ? ` · ${r.ack_by}` : ''}`}>
+        <Card title={`ردّ مدير المدرسة${r.ack_by ? ` · ${r.ack_by}` : ''}`}>
           <p className="whitespace-pre-wrap leading-7">{r.director_reply}</p>
           {r.ack_at && <p className="mt-2 text-xs text-muted">اعتُمد {fmtDateTime(r.ack_at)}</p>}
         </Card>

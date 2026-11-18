@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useFeedback } from '@/components/feedback';
 import { perfAcknowledge } from '@/lib/perf/actions';
 
-/** اعتماد مدير الفروع للتقرير مع ردّ اختياري للمراقب */
+/** اعتماد مدير المدرسة للتقرير مع ردّ اختياري للمراقب */
 export function PerfAck({ id }: { id: number }) {
   const { toast, confirm } = useFeedback();
   const router = useRouter();

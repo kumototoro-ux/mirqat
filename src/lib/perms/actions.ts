@@ -57,6 +57,6 @@ export async function setPermission(employeeId: number, key: PermKey, granted: b
   const supabase = await createClient();
   const { error } = await supabase.rpc('admin_set_permission', { p_employee_id: employeeId, p_key: key, p_granted: granted });
   if (error) return { ok: false, error: error.message.replace(/^ERROR:\s*/, '') };
-  revalidatePath('/staff/permissions');
+  revalidatePath('/staff/roles');
   return { ok: true, message: granted === null ? 'عادت للافتراضي' : granted ? 'تم المنح' : 'تم السحب' };
 }

@@ -58,8 +58,7 @@ export const STAFF_NAV: NavGroup[] = [
   {
     title: 'الإدارة',
     items: [
-      { href: '/staff/positions', label: 'مناصب الفروع', icon: 'employees', roles: ['admin'] },
-      { href: '/staff/permissions', label: 'صلاحيات المعلمين', icon: 'settings', roles: ['admin'] },
+      { href: '/staff/roles', label: 'الأدوار والصلاحيات', icon: 'shield', roles: ['admin'] },
       { href: '/staff/settings', label: 'الإعدادات العامة', icon: 'settings', roles: ['admin'] },
       { href: '/staff/audit', label: 'سجل النشاط', icon: 'audit', roles: ['admin'] },
     ],

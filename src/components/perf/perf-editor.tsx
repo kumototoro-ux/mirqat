@@ -60,7 +60,7 @@ export function PerfEditor({
   const send = async () => {
     if (answered < total) return toast(`أكمل تقييم كل البنود (ناقص ${total - answered})`, 'error');
     const ok = await confirm({
-      title: 'إرسال التقرير لمدير الفروع؟',
+      title: 'إرسال التقرير لمدير المدرسة؟',
       body: branch?.directors.length ? `يصل إلى: ${branch.directors.join('، ')}. لا يُعدَّل بعد الإرسال.` : 'لا مدير فروع مسند لهذا الفرع بعد، فيراه الإداري فقط. لا يُعدَّل بعد الإرسال.',
       confirmLabel: 'إرسال',
     });
@@ -141,7 +141,7 @@ export function PerfEditor({
           </label>
         </div>
         <p className="mt-3 text-xs text-muted">
-          {branch?.directors.length ? `يُرسل إلى مدير الفروع: ${branch.directors.join('، ')}` : 'لا مدير فروع مسند لهذا الفرع حتى الآن'}
+          {branch?.directors.length ? `يُرسل إلى مدير المدرسة: ${branch.directors.join('، ')}` : 'لا مدير فروع مسند لهذا الفرع حتى الآن'}
           {form.has_building ? ' · يتضمن النموذج بنود المبنى والبيئة المدرسية' : ''}
         </p>
       </Card>
@@ -201,7 +201,7 @@ export function PerfEditor({
         <div className="flex flex-wrap gap-2">
           {id && <button type="button" onClick={remove} className="btn-danger px-4">حذف المسودة</button>}
           <button type="button" onClick={() => save()} disabled={busy !== null} className="btn-quiet px-4">{busy === 'save' ? 'جارٍ الحفظ…' : 'حفظ المسودة'}</button>
-          <button type="button" onClick={send} disabled={busy !== null || answered < total} className="btn-primary px-4">{busy === 'send' ? 'جارٍ الإرسال…' : 'إرسال لمدير الفروع'}</button>
+          <button type="button" onClick={send} disabled={busy !== null || answered < total} className="btn-primary px-4">{busy === 'send' ? 'جارٍ الإرسال…' : 'إرسال لمدير المدرسة'}</button>
         </div>
       </div>
     </div>

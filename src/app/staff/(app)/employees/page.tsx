@@ -7,6 +7,7 @@ import { branchesFor } from '@/lib/access/server';
 import { getLookups } from '@/lib/lookups';
 import { getEmployeesReport } from '@/lib/reports';
 import { listEmployees } from './actions';
+import { createClient } from '@/lib/supabase/server';
 import { EmployeesRegistry } from './employees-registry';
 
 export const metadata: Metadata = { title: 'تسجيل الموظفين' };
@@ -20,8 +21,13 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
   const { q = '' } = await searchParams;
   const initialParams = { page: 1, size: 15, q, sort: 'name', filters: {} };
   const [first, report, lookups] = await Promise.all([listEmployees(initialParams), (isAdmin ? getEmployeesReport() : Promise.resolve(null)), getLookups()]);
+  let positionOptions: { value: string; label: string }[] = [];
+  if (isAdmin) {
+    const { data } = await (await createClient()).from('positions').select('code, name_ar').order('sort');
+    positionOptions = (data ?? []).map((p) => ({ value: p.code as string, label: p.name_ar as string }));
+  }
   // صاحب المنصب يرى فروعه فقط في النموذج (القاعدة تفرضها أيضًا)
   const mine = branchesFor(access, 'employees', 2);
   const scoped = mine ? { ...lookups, branches: lookups.branches.filter((b) => mine.includes(b.id)) } : lookups;
-  return <EmployeesRegistry initial={first} initialParams={initialParams} report={report} level={level} isAdmin={isAdmin} lookups={scoped} />;
+  return <EmployeesRegistry initial={first} initialParams={initialParams} report={report} level={level} isAdmin={isAdmin} lookups={scoped} positionOptions={positionOptions} />;
 }
