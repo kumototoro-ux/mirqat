@@ -21,13 +21,13 @@ export default async function EmployeesPage({ searchParams }: { searchParams: Pr
   const { q = '' } = await searchParams;
   const initialParams = { page: 1, size: 15, q, sort: 'name', filters: {} };
   const [first, report, lookups] = await Promise.all([listEmployees(initialParams), (isAdmin ? getEmployeesReport() : Promise.resolve(null)), getLookups()]);
-  let positionOptions: { value: string; label: string }[] = [];
+  let positionList: { code: string; name: string; tier: 'school' | 'branch' }[] = [];
   if (isAdmin) {
-    const { data } = await (await createClient()).from('positions').select('code, name_ar').order('sort');
-    positionOptions = (data ?? []).map((p) => ({ value: p.code as string, label: p.name_ar as string }));
+    const { data } = await (await createClient()).from('positions').select('code, name_ar, tier').order('sort');
+    positionList = (data ?? []).map((p) => ({ code: p.code as string, name: p.name_ar as string, tier: p.tier as 'school' | 'branch' }));
   }
   // صاحب المنصب يرى فروعه فقط في النموذج (القاعدة تفرضها أيضًا)
   const mine = branchesFor(access, 'employees', 2);
   const scoped = mine ? { ...lookups, branches: lookups.branches.filter((b) => mine.includes(b.id)) } : lookups;
-  return <EmployeesRegistry initial={first} initialParams={initialParams} report={report} level={level} isAdmin={isAdmin} lookups={scoped} positionOptions={positionOptions} />;
+  return <EmployeesRegistry initial={first} initialParams={initialParams} report={report} level={level} isAdmin={isAdmin} lookups={scoped} positionList={positionList} />;
 }

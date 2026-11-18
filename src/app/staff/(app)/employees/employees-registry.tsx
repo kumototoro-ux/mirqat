@@ -23,7 +23,7 @@ export function EmployeesRegistry({
   level,
   isAdmin,
   lookups,
-  positionOptions,
+  positionList,
 }: {
   initial: PageResult<EmployeeRow>;
   initialParams: PageParams;
@@ -32,8 +32,8 @@ export function EmployeesRegistry({
   level: number;
   isAdmin: boolean;
   lookups: Lookups;
-  /** مناصب الفروع للتصفية (للإداري) */
-  positionOptions: { value: string; label: string }[];
+  /** مناصب النظام للتصفية والإسناد عند التسجيل (للأدمن) */
+  positionList: { code: string; name: string; tier: 'school' | 'branch' }[];
 }) {
   const registry = useRef<RegistryHandle>(null);
   const router = useRouter();
@@ -148,7 +148,7 @@ export function EmployeesRegistry({
         ]}
         filters={[
           { key: 'type', label: 'النوع', options: [{ value: 'teacher', label: 'معلم' }, { value: 'admin', label: 'أدمن' }] },
-          ...(isAdmin && positionOptions.length ? [{ key: 'position', label: 'المنصب', options: positionOptions }] : []),
+          ...(isAdmin && positionList.length ? [{ key: 'position', label: 'المنصب', options: positionList.map((p) => ({ value: p.code, label: p.name })) }] : []),
           { key: 'active', label: 'الحالة', options: [{ value: '1', label: 'نشط' }, { value: '0', label: 'غير نشط' }] },
         ]}
         toolbar={
@@ -206,7 +206,6 @@ export function EmployeesRegistry({
         rowActions={(r) => (
           <>
             <RowButton icon="edit" label={level >= 2 ? 'تعديل' : 'عرض'} onClick={() => open(r.id)} />
-            {isAdmin && r.user_type !== 'admin' && <RowButton icon="shield" label="المناصب" onClick={() => router.push('/staff/roles?tab=holders')} />}
             {isAdmin && <RowButton icon="trash" label="حذف" tone="danger" onClick={() => remove(r)} />}
           </>
         )}
@@ -230,6 +229,7 @@ export function EmployeesRegistry({
         initial={editing === 'new' ? null : editing}
         lookups={lookups}
         canAdmin={isAdmin}
+        positionList={positionList}
         onClose={() => setEditing(null)}
         onSaved={(m) => {
           toast(m);
